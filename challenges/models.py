@@ -2,26 +2,6 @@ from django.db import models
 
 # Create your models here.
 
-class Teacher(models.Model):
-    fullname = models.CharField(max_length=256)
-    email = models.CharField(max_length=256)
-    username = models.CharField(max_length=64)
-    avatar = models.ImageField()
-
-    def __str__(self):
-        return self.fullname
-
-class Student(models.Model):
-    fullname = models.CharField(max_length=256)
-    email = models.CharField(max_length=256)
-    username = models.CharField(max_length=64)
-    avatar = models.ImageField()
-    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
-    group = models.CharField(max_length=16)
-
-    def __str__(self):
-        return self.fullname
-
 def user_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
     return "user_{0}/{1}".format(instance.user.id, filename)
@@ -30,11 +10,18 @@ class User(models.Model):
     email = models.CharField(max_length=256)
     username = models.CharField(max_length=64)
     avatar = models.ImageField(upload_to=user_directory_path)
-    name = models.CharField(max_length=256)
+    fullname = models.CharField(max_length=256)
     group = models.CharField(max_length=32)
-    teacher = models.BooleanField(default=False)
+    is_teacher = models.BooleanField(default=False)
+    teacher = models.ForeignKey('self', on_delete=models.CASCADE)
+    group = models.CharField(max_length=16)
+
     def __str__(self):
-        return self.name
+        return self.fullname
+
+def docker_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    return "docker_{0}/{1}".format(instance.dockerimage.id, filename)
 
 class DockerImage(models.Modlel):
     name = models.CharField(max_length=64)
@@ -43,8 +30,9 @@ class DockerImage(models.Modlel):
     reuse = models.BooleanField(default=False)
     ports = models.CharField(max_length=256)
     volumes = models.TextField()
+    file = models.FileField(upload_to=docker_directory_path)
 
-    def __str(self):
+    def __str__(self):
         return self.name
 
 class Challenge(models.Model):
