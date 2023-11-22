@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 
 # Create your views here.
 
@@ -13,6 +13,6 @@ def index(request):
     return render(request, "challenges/index.html", context)
 
 def challenge(request, challenge_id):
-    response = "You're looking at challenge %s."
-    return HttpResponse(response % challenge_id)
-
+    challenge = get_object_or_404(Challenge, pk=challenge_id)
+    return render(request, "challenges/challenge.html",
+                   {"challenge": challenge})
