@@ -23,7 +23,7 @@ def docker_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
     return "docker_{0}/{1}".format(instance.dockerimage.id, filename)
 
-class DockerImage(models.Modlel):
+class DockerImage(models.Model):
     name = models.CharField(max_length=64)
     ssh_port = models.IntegerField()
     limit = models.IntegerField(default=30)
