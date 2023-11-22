@@ -24,7 +24,7 @@ class DockerImage(models.Modlel):
 class Challenge(models.Model):
     title = models.CharField(max_length=200)
     creator = models.OneToOneField(
-        Teacher(),
+        Teacher,
         on_delete=models.CASCADE,
         primary_key=True) 
     description = models.TextField()
