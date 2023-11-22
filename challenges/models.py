@@ -3,15 +3,24 @@ from django.db import models
 # Create your models here.
 
 class Teacher(models.Model):
-    email = models.CharField(max_length=200)
+    fullname = models.CharField(max_length=256)
+    email = models.CharField(max_length=256)
     username = models.CharField(max_length=64)
     avatar = models.ImageField()
 
+    def __str__(self):
+        return self.fullname
+
 class Student(models.Model):
-    email = models.CharField(max_length=200)
+    fullname = models.CharField(max_length=256)
+    email = models.CharField(max_length=256)
     username = models.CharField(max_length=64)
     avatar = models.ImageField()
     teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
+    group = models.CharField(max_length=16)
+
+    def __str__(self):
+        return self.fullname
 
 class DockerImage(models.Modlel):
     name = models.CharField(max_length=64)
@@ -21,8 +30,11 @@ class DockerImage(models.Modlel):
     ports = models.CharField(max_length=256)
     volumes = models.TextField()
 
+    def __str(self):
+        return self.name
+
 class Challenge(models.Model):
-    title = models.CharField(max_length=200)
+    title = models.CharField(max_length=256)
     creator = models.OneToOneField(
         Teacher,
         on_delete=models.CASCADE,
@@ -30,3 +42,5 @@ class Challenge(models.Model):
     description = models.TextField()
     docker_image = models.ForeignKey(DockerImage, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.title
