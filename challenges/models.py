@@ -2,9 +2,6 @@ from django.db import models
 
 # Create your models here.
 
-from django.db import models
-
-
 class Teacher(models.Model):
     email = models.CharField(max_length=200)
     username = models.CharField(max_length=64)
