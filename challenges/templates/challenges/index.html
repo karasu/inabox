@@ -8,8 +8,7 @@
     {% if latest_challenge_list %}
     <ul>
     {% for challenge in latest_challenge_list %}
-        <li><a href="{% url 'challenges:challenge' challenge.id %}">
-            {{ challenge.title }}</a></li>
+    <li><a href="{% url 'challenges:challenge_detail' pk=challenge.id %}">{{ challenge.title }}</a></li>
     {% endfor %}
     </ul>
 {% else %}

@@ -8,5 +8,5 @@ urlpatterns = [
     # /challenges
     path("", views.IndexView.as_view(), name="index"),
     # /challenges/5
-    path("<int:pk>/", views.DetailView.as_view(), name="detail"),
+    path("<int:pk>/", views.DetailView.as_view(), name="challenge_detail"),
 ]
