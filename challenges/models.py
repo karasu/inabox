@@ -4,7 +4,8 @@ from django.db import models
 
 def user_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    return "user_{0}/{1}".format(instance.user.id, filename)
+    return "user_{0}/{1}".format(
+        instance.user.id, filename)
 
 class User(models.Model):    
     username = models.CharField(max_length=64)
@@ -21,8 +22,9 @@ class User(models.Model):
         return self.fullname
 
 def docker_directory_path(instance, filename):
-    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    return "docker_{0}/{1}".format(instance.dockerimage.id, filename)
+    # file will be uploaded to MEDIA_ROOT/docker_<id>/<filename>
+    return "docker_{0}/{1}".format(
+        instance.docker_image.id, filename)
 
 class DockerImage(models.Model):
     name = models.CharField(max_length=64)
@@ -31,7 +33,8 @@ class DockerImage(models.Model):
     reuse = models.BooleanField(default=False)
     ports = models.CharField(max_length=256, blank=True, default='')
     volumes = models.TextField(blank=True, default='')
-    dockerfile = models.FileField(upload_to=docker_directory_path)
+    dockerfile = models.FileField(
+        upload_to=docker_directory_path)
     docker_image = models.FileField(
         upload_to=docker_directory_path, blank=True, default='')
 
