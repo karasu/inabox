@@ -18,7 +18,7 @@ def challenge(request, challenge_id):
 '''
 
 class IndexView(generic.ListView):
-    template_name = "challenge/index.html"
+    template_name = "challenges/index.html"
     context_object_name = "latest_question_list"
 
     def get_queryset(self):
