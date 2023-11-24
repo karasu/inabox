@@ -6,7 +6,7 @@ app_name = "challenges"
 
 urlpatterns = [
     # /challenges
-    path("", views.index, name="index"),
+    path("", views.IndexView.as_view(), name="index"),
     # /challenges/5
-    path("<int:challenge_id>/", views.challenge, name="challenge"),
+    path("<int:pk>/", views.DetailView.as_view(), name="challenge"),
 ]
