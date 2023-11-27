@@ -33,7 +33,7 @@ class User(models.Model):
         return self.full_name
 
 
-# Generate 10 character long hash
+# Generate hash
 def createHash():
     hash = hashlib.sha1()
     hash.update(str(time.time()).encode('utf-8'))
@@ -56,11 +56,20 @@ class DockerImage(models.Model):
     docker_image = models.FileField(
         upload_to=dockerimage_directory_path, blank=True, default='')
     hash = models.CharField(
-        max_length=128, default=createHash)
+        max_length=128, default=createHash, unique=True)
+    image_id = models.CharField(
+        max_length=128, default="0")
     
     def __str__(self):
         return self.name
 
+class DockerContainer(models.Model):
+    container_id = models.CharField(
+        max_length=128, default="0")
+    challenge = models.ForeignKey(
+        'Challenge', on_delete=models.CASCADE, blank=True, null=True)
+    user = models.ForeignKey(
+        'User', on_delete=models.CASCADE, blank=True, null=True)
 
 class Challenge(models.Model):
     title = models.CharField(max_length=256)
