@@ -1,18 +1,24 @@
-<!doctype html>
-<html lang="en-US">
-  <head>
-    <meta charset="utf-8" />
-    <title>Challenges</title>
-  </head>
-  <body>
-    {% if latest_challenge_list %}
+{% extends 'challenges/bootstrap.html' %}
+
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'challenges/style.css' %}">
+
+{% block pagetitle %}Inabox - Challenges{% endblock %}
+
+{% block title %}Challenges{% endblock %}
+
+{% block content %}
+
+{% if latest_challenge_list %}
     <ul>
     {% for challenge in latest_challenge_list %}
-    <li><a href="{% url 'challenges:challenge_detail' pk=challenge.id %}">{{ challenge.title }}</a></li>
+      <li><a href="{% url 'challenges:challenge_detail' pk=challenge.id %}">{{ challenge.title }}</a></li>
     {% endfor %}
     </ul>
 {% else %}
     <p>No challenges are available.</p>
+    <ul><li><a href="">This is just a test</a></li></ul>
 {% endif %}
-</body>
-</html>
+
+{% endblock %}

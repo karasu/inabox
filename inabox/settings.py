@@ -31,7 +31,9 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+#    'compressor',
     'challenges.apps.ChallengesConfig',
+    'django_bootstrap5',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -112,11 +114,22 @@ USE_I18N = True
 
 USE_TZ = True
 
+################################################
+########## Static files configuration ##########
+################################################
+# See <https://docs.djangoproject.com/en/3.2/howto/static-files/>.
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
+# Change this to somewhere more permanent, especially if you are using a
+# webserver to serve the static files. This is the directory where all the
+# static files DMOJ uses will be collected to.
+# You must configure your webserver to serve this directory as /static/ in production.
+#STATIC_ROOT = '/tmp/static'
 
-STATIC_URL = 'static/'
+# URL to access static files.
+STATIC_URL = '/static/'
+
+# Uncomment to use hashed filenames with the cache framework.
+#STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -126,3 +139,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # This needs to be changed in production
 MEDIA_ROOT = '/tmp'
 
+#STATICFILES_FINDERS = [
+#    "compressor.finders.CompressorFinder",
+#]
+
+#COMPRESS_PRECOMPILERS = (
+#    ('text/x-scss', 'django_libsass.SassCompiler'),
+#)
+
+STATICFILES_FINDERS = [
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+]
