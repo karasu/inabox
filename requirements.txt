@@ -1,0 +1,3 @@
+python-django
+python-django-admin-volt
+python-django-bootstrap5
