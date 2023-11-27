@@ -63,6 +63,7 @@ class DockerImage(models.Model):
     def __str__(self):
         return self.name
 
+
 class DockerContainer(models.Model):
     container_id = models.CharField(
         max_length=128, default="0")
@@ -70,6 +71,7 @@ class DockerContainer(models.Model):
         'Challenge', on_delete=models.CASCADE, blank=True, null=True)
     user = models.ForeignKey(
         'User', on_delete=models.CASCADE, blank=True, null=True)
+
 
 class Challenge(models.Model):
     title = models.CharField(max_length=256)

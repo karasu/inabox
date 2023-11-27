@@ -1,0 +1,17 @@
+{% extends 'app/base.html' %}
+
+{% block title %}In a box{% endblock %}
+
+{% block content %}
+
+{% if latest_challenge_list %}
+    <ul>
+    {% for challenge in latest_challenge_list %}
+      <li><a href="{% url 'app:challenge_detail' pk=challenge.id %}">{{ challenge.title }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No posts are available.</p>
+{% endif %}
+
+{% endblock %}

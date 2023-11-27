@@ -10,14 +10,13 @@
 
 {% load static %}
 <!-- Include CSS -->
-<link rel="stylesheet" href="{% static 
-'challenges/style.css' %}">
+<link rel="stylesheet" href="{% static 'app/style.css' %}">
 
 <title>In a box</title>
 
 {% load django_bootstrap5 %}
 
-
+{% include 'app/navbar.html' %}
 
 {% block bootstrap5_content %}
     <div class="container">

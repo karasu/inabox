@@ -32,7 +32,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
 #    'compressor',
-    'challenges.apps.ChallengesConfig',
+    'app.apps.AppConfig',
     'django_bootstrap5',
     'django.contrib.admin',
     'django.contrib.auth',

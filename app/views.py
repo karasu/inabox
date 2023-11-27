@@ -6,8 +6,16 @@ from django.views import generic
 from .models import Challenge
 
 
-class IndexView(generic.ListView):
-    template_name = "challenges/index.html"
+class PollsIndexView(generic.ListView):
+    template_name = "app/index.html"
+    context_object_name = "latest_challenge_list"
+
+    def get_queryset(self):
+        """ Return the last five published challenges. """
+        return Challenge.objects.order_by("-pub_date")[:10]
+
+class ChallengesIndexView(generic.ListView):
+    template_name = "app/challenges.html"
     context_object_name = "latest_challenge_list"
 
     def get_queryset(self):
@@ -15,5 +23,5 @@ class IndexView(generic.ListView):
         return Challenge.objects.order_by("-pub_date")[:10]
 
 
-class DetailView(generic.DetailView):
+class ChallengeDetailView(generic.DetailView):
     model = Challenge
