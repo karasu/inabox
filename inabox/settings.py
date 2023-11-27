@@ -147,7 +147,7 @@ MEDIA_ROOT = '/tmp'
 #    ('text/x-scss', 'django_libsass.SassCompiler'),
 #)
 
-STATICFILES_FINDERS = [
-    "django.contrib.staticfiles.finders.FileSystemFinder",
-    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
-]
+#STATICFILES_FINDERS = [
+#    "django.contrib.staticfiles.finders.FileSystemFinder",
+#    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+#]
