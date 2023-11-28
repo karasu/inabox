@@ -32,6 +32,8 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
 #    'compressor',
+    'admin_interface',
+    'colorfield',
     'app.apps.AppConfig',
     'django_bootstrap5',
     'django.contrib.admin',

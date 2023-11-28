@@ -1,3 +1,7 @@
 python-django
-python-django-admin-volt
-python-django-bootstrap5
+django-bootstrap5
+django-admin-interface
+django-colorfield
+python-twisted
+python-slugify
+
