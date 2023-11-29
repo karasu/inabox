@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
 #    'compressor',
+    'debug_toolbar',
     'admin_interface',
     'colorfield',
     'app.apps.AppConfig',
@@ -45,6 +46,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -52,6 +54,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
 ]
 
 ROOT_URLCONF = 'inabox.urls'
@@ -153,3 +156,10 @@ MEDIA_ROOT = '/tmp'
 #    "django.contrib.staticfiles.finders.FileSystemFinder",
 #    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 #]
+
+# The Debug Toolbar is shown only if your IP address is listed in Django’s INTERNAL_IPS setting.
+# This means that for local development, you must add "127.0.0.1" to INTERNAL_IPS.
+
+INTERNAL_IPS = [
+    '127.0.0.1',
+]

@@ -1,3 +1,6 @@
+<!DOCTYPE html>
+<html>
+    <head>
 {# Load the tag library #}
 {% load django_bootstrap5 %}
 
@@ -16,6 +19,9 @@
 
 {% load django_bootstrap5 %}
 
+</head>
+<body>
+
 {% include 'app/navbar.html' %}
 
 {% block bootstrap5_content %}
@@ -26,3 +32,6 @@
     </div>
 
 {% endblock %}
+
+</body>
+</html>

@@ -33,32 +33,29 @@ class User(models.Model):
         return self.full_name
 
 
-# Generate hash
-def createHash():
-    hash = hashlib.sha1()
-    hash.update(str(time.time()).encode('utf-8'))
-    return hash.hexdigest()
-
 def dockerimage_directory_path(instance, filename):
     return "docker_{0}/{1}".format(
         instance.hash, filename)
 
 
 class DockerImage(models.Model):
-    name = models.CharField(max_length=64)
+    name = models.CharField(max_length=64, unique=True)
     ssh_port = models.IntegerField(default=30000, unique=True)
-    limit = models.IntegerField(default=30)
-    reuse = models.BooleanField(default=False)
-    ports = models.CharField(max_length=256, blank=True, default='')
-    volumes = models.TextField(blank=True, default='')
+    # How many containers can be running at the same time
+    # from this image
+    conatiners_limit = models.IntegerField(default=30)
+    # If there is already one container running, use it instead
+    # of creating a new one. This should be always false as it is now.
+    reuse_container = models.BooleanField(default=False)
+    # docker file used to generate this docker image
     docker_file = models.FileField(
         upload_to=dockerimage_directory_path)
-    docker_image = models.FileField(
-        upload_to=dockerimage_directory_path, blank=True, default='')
-    hash = models.CharField(
-        max_length=128, default=createHash, unique=True)
-    image_id = models.CharField(
-        max_length=128, default="0")
+    # (when the docker image is generated, its id will be stored here
+    docker_image_id = models.CharField(
+        max_length=12, default="0")
+    # optional docker parameters
+    optional_docker_ports = models.CharField(max_length=256, blank=True, default='')
+    optional_docker_volumes = models.TextField(blank=True, default='')
     
     def __str__(self):
         return self.name
