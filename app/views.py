@@ -8,10 +8,10 @@ from .models import Challenge
 
 class PollsIndexView(generic.ListView):
     template_name = "app/index.html"
-    context_object_name = "latest_challenge_list"
+    context_object_name = "latest_polls_list"
 
     def get_queryset(self):
-        """ Return the last five published challenges. """
+        """ Return the last five published polls. """
         return Challenge.objects.order_by("-pub_date")[:10]
 
 class ChallengesIndexView(generic.ListView):

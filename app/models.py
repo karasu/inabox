@@ -35,7 +35,7 @@ class User(models.Model):
 
 def dockerimage_directory_path(instance, filename):
     return "docker_{0}/{1}".format(
-        instance.hash, filename)
+        instance.name, filename)
 
 
 class DockerImage(models.Model):
@@ -69,15 +69,26 @@ class DockerContainer(models.Model):
     user = models.ForeignKey(
         'User', on_delete=models.CASCADE, blank=True, null=True)
 
+    def __str__(self):
+        return self.container_id
+
+
+def challenge_directory_path(instance, filename):
+    return "challenge_{0}/{1}".format(
+        instance.title, filename)
 
 class Challenge(models.Model):
-    title = models.CharField(max_length=256)
+    title = models.CharField(max_length=256, unique=True)
     creator = models.ForeignKey(
         User, on_delete=models.CASCADE)
     pub_date = models.DateTimeField("date published")
     description = models.TextField()
     docker_image = models.ForeignKey(
         DockerImage, on_delete=models.CASCADE)
+    check_script = models.FileField(
+        upload_to=challenge_directory_path
+    )
+    needs_approval = models.BooleanField(default=True)
 
     def __str__(self):
         return self.title

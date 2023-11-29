@@ -1,17 +1,37 @@
 {% extends 'app/base.html' %}
 
-{% block title %}Challenges{% endblock %}
+{% block title %}In a box{% endblock %}
 
 {% block content %}
 
 {% if latest_challenge_list %}
-    <ul>
-    {% for challenge in latest_challenge_list %}
-      <li><a href="{% url 'app:challenge_detail' pk=challenge.id %}">{{ challenge.title }}</a></li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>No challenges are available.</p>
-{% endif %}
+  <table class="table">
+    <thead class="thead-dark">
+      <tr>
+        <th scope="col">title</th>
+        <th scope="col">creator</th>
+        <th scope="col">pub_date</th>
+        <th scope="col">docker_image</th>
+        <th scope="col">check_script</th>
+        <th scope="col">needs_approval</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for challenge in latest_challenge_list %}
+        <tr>
+          <td><a href="{% url 'app:challenge_detail' pk=challenge.id %}"> {{ challenge.title }}</a></td>
+          <td>{{ challenge.creator }}</td>
+          <td>{{ challenge.pub_date }}</td>
+          <td>{{ challenge.docker_image }}</td>
+          <td>{{ challenge.check_script }}</td>
+          <td>{{ challenge.needs_approval }}</td>
+        </tr>  
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% else %}
+    <p>No posts are available.</p>
+  {% endif %}
 
 {% endblock %}
