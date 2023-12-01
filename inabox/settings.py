@@ -35,7 +35,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'admin_interface',
     'colorfield',
-    'app.apps.AppConfig',
+    'challenges.apps.ChallengesConfig',
     'news.apps.NewsConfig',
     'django_bootstrap5',
     'django.contrib.admin',

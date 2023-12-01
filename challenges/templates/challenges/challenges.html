@@ -1,12 +1,7 @@
 {% extends 'app/base.html' %}
-
-{# Load the tag library #}
 {% load django_bootstrap5 %}
-
 {% block title %}In a box{% endblock %}
-
 {% block content %}
-
 {% if latest_challenge_list %}
   <table class="table">
     <thead class="thead-dark">
@@ -32,9 +27,5 @@
       {% endfor %}
     </tbody>
   </table>
-
-  {% else %}
-    <p>No challenges are available.</p>
-  {% endif %}
-
+  {% else %}<p>No challenges are available.</p>{% endif %}
 {% endblock %}

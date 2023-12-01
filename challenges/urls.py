@@ -2,11 +2,11 @@ from django.urls import path
 
 from . import views
 
-app_name = "app"
+app_name = "Challenges"
 
 urlpatterns = [
-    # /app
+    # /challenges
     path("", views.ChallengesIndexView.as_view(), name="challenges"),
-    # /app/5
+    # /challenge/5
     path("<int:pk>/", views.ChallengeDetailView.as_view(), name="challenge_detail"),
 ]

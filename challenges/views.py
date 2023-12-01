@@ -7,7 +7,7 @@ from .models import Challenge
 
 
 class ChallengesIndexView(generic.ListView):
-    template_name = "app/challenges.html"
+    template_name = "challenges/challenges.html"
     context_object_name = "latest_challenge_list"
 
     def get_queryset(self):

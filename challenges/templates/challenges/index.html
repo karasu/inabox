@@ -1,4 +1,4 @@
-{% extends 'app/base.html' %}
+{% extends 'challenges/base.html' %}
 
 {% block title %}News{% endblock %}
 
@@ -7,7 +7,7 @@
 {% if latest_polls_list %}
     <ul>
     {% for challenge in latest_challenge_list %}
-      <li><a href="{% url 'app:challenge_detail' pk=challenge.id %}">{{ challenge.title }}</a></li>
+      <li><a href="{% url 'challenges:challenge_detail' pk=challenge.id %}">{{ challenge.title }}</a></li>
     {% endfor %}
     </ul>
 {% else %}
