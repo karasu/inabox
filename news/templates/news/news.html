@@ -1,0 +1,14 @@
+{% extends 'challenges/base.html' %}
+{% load django_bootstrap5 %}
+{% block title %}News{% endblock %}
+{% block content %}
+{% if latest_polls_list %}
+    <ul>
+    {% for challenge in latest_news_list %}
+      <li>{{ newsentry.title }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No polls are available.</p>
+{% endif %}
+{% endblock %}
