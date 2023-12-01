@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'admin_interface',
     'colorfield',
     'app.apps.AppConfig',
+    'news.apps.NewsConfig',
     'django_bootstrap5',
     'django.contrib.admin',
     'django.contrib.auth',
