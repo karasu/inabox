@@ -1,4 +1,4 @@
-{% extends 'challenges/base.html' %}
+{% extends 'news/base.html' %}
 {% load django_bootstrap5 %}
 {% block title %}News{% endblock %}
 {% block content %}
@@ -9,6 +9,6 @@
     {% endfor %}
     </ul>
 {% else %}
-    <p>No polls are available.</p>
+    <p>No news are available.</p>
 {% endif %}
 {% endblock %}

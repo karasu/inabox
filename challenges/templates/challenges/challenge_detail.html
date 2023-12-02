@@ -1,10 +1,5 @@
-<!doctype html>
-<html lang="en-US">
-  <head>
-    <meta charset="utf-8" />
-    <title>Challenge</title>
-  </head>
-  <body>
+{% extends 'news/base.html' %}
+{% load django_bootstrap5 %}
+{% block title %}In a box{% endblock %}
+{% block content %}
 {{ challenge }}
-</body>
-</html>
