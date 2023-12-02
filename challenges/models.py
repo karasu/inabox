@@ -77,18 +77,34 @@ def challenge_directory_path(instance, filename):
     return "challenge_{0}/{1}".format(
         instance.title, filename)
 
+class Areas(models.Model):
+    name = models.CharField(max_length=256)
+
 class Challenge(models.Model):
+    LEVELS = [
+        ("N", _("Novice")),
+        ("A", _("Advanced Beginner")),
+        ("C", _("Competence")),
+        ("P", _("Proficient")),
+        ("E", _("Expert")),
+    ]   
     title = models.CharField(max_length=256, unique=True)
     creator = models.ForeignKey(
         User, on_delete=models.CASCADE)
-    pub_date = models.DateTimeField("date published")
+    pub_date = models.DateTimeField(_("Date"))
     description = models.TextField()
     docker_image = models.ForeignKey(
         DockerImage, on_delete=models.CASCADE)
-    check_script = models.FileField(
+    check_script = models.FileField(_("Script"), 
         upload_to=challenge_directory_path
     )
-    needs_approval = models.BooleanField(default=True)
+    approved = models.BooleanField(default=True)
+    tries = models.IntegerField(default=0)
+    solved = models.IntegerField(default=0)
+    area = models.ForeignKey(
+        Areas, on_delete=models.CASCADE)
+    difficulty = models.CharField(
+        max_length=1, choices=LEVELS, default="N")
 
     def __str__(self):
         return self.title

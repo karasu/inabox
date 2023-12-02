@@ -2,11 +2,11 @@
 {% load django_bootstrap5 %}
 {% block title %}Challenges{% endblock %}
 {% block content %}
-{% if latest_challenge_list %}
+{% if challenge_list %}
   <table class="table">
     <thead class="thead-dark">
       <tr>
-        <th scope="col">title</th>
+        <th scope="col"></th>
         <th scope="col">creator</th>
         <th scope="col">pub_date</th>
         <th scope="col">docker_image</th>
@@ -15,7 +15,7 @@
       </tr>
     </thead>
     <tbody>
-      {% for challenge in latest_challenge_list %}
+      {% for challenge in challenge_list %}
         <tr>
           <td><a href="{% url 'challenges:challenge_detail' pk=challenge.id %}"> {{ challenge.title }}</a></td>
           <td>{{ challenge.creator }}</td>

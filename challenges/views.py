@@ -6,13 +6,14 @@ from django.views import generic
 from .models import Challenge
 
 
-class ChallengesIndexView(generic.ListView):
+class ChallengesListView(generic.ListView):
     template_name = "challenges/challenges.html"
-    context_object_name = "latest_challenge_list"
+    model = Challenge
+    paginate_by = 100
 
     def get_queryset(self):
-        """ Return the last five published challenges. """
-        return Challenge.objects.order_by("-pub_date")[:10]
+        """ Return all challenges. """
+        return Challenge.objects.order_by("-pub_date")
 
 
 class ChallengeDetailView(generic.DetailView):
