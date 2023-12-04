@@ -102,7 +102,7 @@ class Challenge(models.Model):
     tries = models.IntegerField(default=0)
     solved = models.IntegerField(default=0)
     area = models.ForeignKey(
-        Areas, on_delete=models.CASCADE)
+        Area, on_delete=models.CASCADE)
     difficulty = models.CharField(
         max_length=1, choices=LEVELS, default="N")
 
