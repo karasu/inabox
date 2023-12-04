@@ -77,7 +77,7 @@ def challenge_directory_path(instance, filename):
     return "challenge_{0}/{1}".format(
         instance.title, filename)
 
-class Areas(models.Model):
+class Area(models.Model):
     name = models.CharField(max_length=256)
 
 class Challenge(models.Model):
