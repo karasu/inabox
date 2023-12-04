@@ -79,6 +79,7 @@ def challenge_directory_path(instance, filename):
 
 class Area(models.Model):
     name = models.CharField(max_length=256)
+    description = models.TextField()
 
 class Challenge(models.Model):
     LEVELS = [
