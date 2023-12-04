@@ -8,7 +8,8 @@ from .models import NewsEntry
 
 class NewsIndexView(generic.ListView):
     template_name = "news/news.html"
-    context_object_name = "latest_news_list"
+    model = NewsEntry
+    paginate_by = 100
 
     def get_queryset(self):
         """ Return the last five published news. """

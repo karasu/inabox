@@ -2,9 +2,9 @@
 {% load django_bootstrap5 %}
 {% block title %}News{% endblock %}
 {% block content %}
-{% if latest_polls_list %}
+{% if news_list %}
     <ul>
-    {% for challenge in latest_news_list %}
+    {% for newsentry in news_list %}
       <li>{{ newsentry.title }}</a></li>
     {% endfor %}
     </ul>
