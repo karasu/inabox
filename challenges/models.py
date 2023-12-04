@@ -85,7 +85,7 @@ class Challenge(models.Model):
     LEVELS = [
         ("N", _("Novice")),
         ("A", _("Advanced Beginner")),
-        ("C", _("Competence")),
+        ("C", _("Competent")),
         ("P", _("Proficient")),
         ("E", _("Expert")),
     ]   
@@ -99,7 +99,7 @@ class Challenge(models.Model):
     check_script = models.FileField(_("Script"), 
         upload_to=challenge_directory_path
     )
-    approved = models.BooleanField(default=True)
+    approved = models.BooleanField(default=False)
     tries = models.IntegerField(default=0)
     solved = models.IntegerField(default=0)
     area = models.ForeignKey(
