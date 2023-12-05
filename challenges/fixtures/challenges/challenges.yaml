@@ -1,0 +1,32 @@
+- model: challenges.person
+  pk: 1
+  fields:
+    user_name: gcastel9
+    full_name: Gustau Castells
+    email: gcastel9@none.cat
+    role: T
+    teacher: 1
+- model: challenges.DockerImage
+  pk: 1
+  fields:
+    name: dockerimage1
+    ssh_port: 30001
+    containers_limit: 30
+    reuse_container: False
+    docker_file: Dockerfile
+    docker_image_id: 0
+- model: challenges.Area
+  pk: 1
+  fields:
+    name: DNS
+    description: Related DNS issues
+- model: challenges.Challenge
+  pk: 1
+  fields:
+    title: challenge1
+    creator: 1
+    description: challenge1 description
+    docker_image: 1
+    check_script: check_script.sh
+    approved: False 
+    area: 1

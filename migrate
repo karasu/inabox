@@ -11,3 +11,5 @@ python manage.py migrate
 
 python manage.py createsuperuser --username karasu --email notvalid@inabox.com 
 
+python manage.py loaddata challenges/challenges
+

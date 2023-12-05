@@ -1,6 +1,8 @@
 import hashlib
 import time
 
+from django.utils.timezone import now
+
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -12,7 +14,7 @@ def user_directory_path(instance, filename):
         instance.user.id, filename)
 
 
-class User(models.Model):
+class Person(models.Model):
     ROLES = [
         ("T", _("Teacher")),
         ("S", _("Student")),
@@ -20,8 +22,8 @@ class User(models.Model):
     user_name = models.CharField(max_length=64)
     full_name = models.CharField(max_length=256)
     email = models.CharField(max_length=256)
-    group = models.CharField(
-        max_length=32, blank=True, default='')
+#    group = models.CharField(
+#        max_length=32, blank=True, default='')
     role = models.CharField(
         max_length=1, choices=ROLES, default="S")
     teacher = models.ForeignKey(
@@ -32,6 +34,9 @@ class User(models.Model):
     def __str__(self):
         return self.full_name
 
+#class Institution(models.Model):
+#    name = models.CharField(max_length=64)
+    
 
 def dockerimage_directory_path(instance, filename):
     return "docker_{0}/{1}".format(
@@ -43,7 +48,7 @@ class DockerImage(models.Model):
     ssh_port = models.IntegerField(default=30000, unique=True)
     # How many containers can be running at the same time
     # from this image
-    conatiners_limit = models.IntegerField(default=30)
+    containers_limit = models.IntegerField(default=30)
     # If there is already one container running, use it instead
     # of creating a new one. This should be always false as it is now.
     reuse_container = models.BooleanField(default=False)
@@ -67,7 +72,7 @@ class DockerContainer(models.Model):
     challenge = models.ForeignKey(
         'Challenge', on_delete=models.CASCADE, blank=True, null=True)
     user = models.ForeignKey(
-        'User', on_delete=models.CASCADE, blank=True, null=True)
+        'Person', on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
         return self.container_id
@@ -81,6 +86,9 @@ class Area(models.Model):
     name = models.CharField(max_length=256)
     description = models.TextField()
 
+    def __str__(self):
+        return self.name
+
 class Challenge(models.Model):
     LEVELS = [
         ("N", _("Novice")),
@@ -91,8 +99,9 @@ class Challenge(models.Model):
     ]   
     title = models.CharField(max_length=256, unique=True)
     creator = models.ForeignKey(
-        User, on_delete=models.CASCADE)
-    pub_date = models.DateTimeField(_("Date"))
+        Person, on_delete=models.CASCADE)
+    pub_date = models.DateTimeField(
+        _("Date"), default=now)
     description = models.TextField()
     docker_image = models.ForeignKey(
         DockerImage, on_delete=models.CASCADE)

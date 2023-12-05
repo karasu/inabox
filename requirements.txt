@@ -5,4 +5,4 @@ django-colorfield
 python-twisted
 python-slugify
 django-debug-toolbar
-
+python-yaml
