@@ -13,4 +13,4 @@ class NewsIndexView(generic.ListView):
 
     def get_queryset(self):
         """ Return the last five published news. """
-        return NewsEntry.objects.order_by("-pub_date")[:5]
+        return NewsEntry.objects.order_by("-pub_date")

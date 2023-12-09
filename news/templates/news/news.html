@@ -2,12 +2,16 @@
 {% load django_bootstrap5 %}
 {% block title %}News{% endblock %}
 {% block content %}
-{% if news_list %}
-    <ul>
-    {% for newsentry in news_list %}
-      <li>{{ newsentry.title }}</a></li>
-    {% endfor %}
-    </ul>
+{% if newsentry_list %}
+  {% for newsentry in newsentry_list %}
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title">{{ newsentry.title }}</h5>
+      <h6 class="card-subtitle mb-2 text-body-secondary">{{ newsentry.pub_date }}</h6>
+      <p class="card-text">{{ newsentry.text }}</p>
+    </div>
+  </div>
+  {% endfor %}
 {% else %}
     <p>No news are available.</p>
 {% endif %}
