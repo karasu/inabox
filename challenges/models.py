@@ -13,7 +13,7 @@ def user_directory_path(instance, filename):
     return "user_{0}/{1}".format(
         instance.user.id, filename)
 
-class ClassGroup(modesl.Model):
+class ClassGroup(models.Model):
     name = models.CharField(max_length=64)
     description = models.CharField(max_length=256)
 
