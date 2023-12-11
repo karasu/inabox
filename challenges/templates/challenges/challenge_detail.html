@@ -1,5 +1,16 @@
 {% extends 'news/base.html' %}
 {% load django_bootstrap5 %}
-{% block title %}In a box{% endblock %}
+{% block title %}{{ challenge.title }}{% endblock %}
 {% block content %}
-{{ challenge }}
+<div class="container pt-3">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">{{ challenge.title }}</h5>
+        <h6 class="card-subtitle pt-2">({{ challenge.area }})</h6>
+        <p class="card-text pt-3">{{ challenge.full_description }}</p>
+        <p class="card-text pt-2">Tried {{ challenge.tries }} times, solved {{ challenge.solved }} times.</p>
+        <a href="#" class="btn btn-primary">Let's try to solve it!</a>
+      </div>
+    </div>
+</div>
+{% endblock %}

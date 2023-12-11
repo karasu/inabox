@@ -7,9 +7,11 @@
       <div class="container pt-3">
         <div class="card">
           <div class="card-body">
-            <h5 class="card-title"><a href="{% url 'challenges:challenge_detail' pk=challenge.id %}"> {{ challenge.title }}</a> by {{ challenge.creator }}</h5>
-            <h6 class="card-subtitle">{{ challenge.pub_date }}</h6>
-            <p class="card-text">{{ challenge.summary }}</p>
+            <h5 class="card-title">
+              <a href="{% url 'challenges:challenge_detail' pk=challenge.id %}"> {{ challenge.title }}</a> by {{ challenge.creator }}
+            </h5>
+            <h6 class="card-subtitle pt-2">{{ challenge.area }} ({{ challenge.solved }}/{{ challenge.tries }}) Level {{ challenge.difficulty}} {{ challenge.pub_date }}</h6>
+            <p class="card-text pt-3">{{ challenge.summary }}</p>
             <a href="{% url 'challenges:challenge_detail' pk=challenge.id %}" class="btn btn-primary">Check me out!</a>
           </div>
         </div>
@@ -17,24 +19,3 @@
       {% endfor %}
   {% else %}<p>No challenges are available.</p>{% endif %}
 {% endblock %}
-
-<!--
-title = models.CharField(max_length=256, unique=True)
-    creator = models.ForeignKey(
-        Person, on_delete=models.CASCADE)
-    pub_date = models.DateTimeField(
-        _("Date"), default=now)
-    description = models.TextField()
-    docker_image = models.ForeignKey(
-        DockerImage, on_delete=models.CASCADE, verbose_name="Docker image")
-    check_script = models.FileField(_("Script"), 
-        upload_to=challenge_directory_path
-    )
-    approved = models.BooleanField(default=False)
-    tries = models.IntegerField(default=0)
-    solved = models.IntegerField(default=0)
-    area = models.ForeignKey(
-        Area, on_delete=models.CASCADE, verbose_name="Area")
-    difficulty = models.CharField(
-        max_length=1, choices=LEVELS, default="N")
-        -->
