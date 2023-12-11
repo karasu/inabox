@@ -1,6 +1,9 @@
 {% extends 'news/base.html' %}
 {% load django_bootstrap5 %}
 {% block title %}{{ challenge.title }}{% endblock %}
+{% block javascript %}
+	<script src='/static/js/wssh_client.js'></script>
+{% endblock %}
 {% block content %}
 <div class="container pt-3">
     <div class="card">
