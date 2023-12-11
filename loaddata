@@ -1,0 +1,5 @@
+#!/bin/sh
+python manage.py loaddata challenges/classgroups
+python manage.py loaddata challenges/challenges
+python manage.py loaddata news/news
+

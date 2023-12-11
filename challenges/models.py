@@ -29,7 +29,7 @@ class Person(models.Model):
     full_name = models.CharField(max_length=256)
     email = models.CharField(max_length=256)
     class_group = models.ForeignKey(
-        'ClassGroup', on_delete=models.CASCADE)
+        ClassGroup, on_delete=models.CASCADE)
     role = models.CharField(
         max_length=1, choices=ROLES, default="S")
     teacher = models.ForeignKey(
@@ -72,18 +72,6 @@ class DockerImage(models.Model):
         return self.name
 
 
-class DockerContainer(models.Model):
-    container_id = models.CharField(
-        max_length=128, default="0")
-    challenge = models.ForeignKey(
-        'Challenge', on_delete=models.CASCADE)
-    user = models.ForeignKey(
-        'Person', on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.container_id
-
-
 def challenge_directory_path(instance, filename):
     return "challenge_{0}/{1}".format(
         instance.title, filename)
@@ -124,3 +112,14 @@ class Challenge(models.Model):
 
     def __str__(self):
         return self.title
+
+class DockerContainer(models.Model):
+    container_id = models.CharField(
+        max_length=128, default="0")
+    challenge = models.ForeignKey(
+        Challenge, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        Person, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.container_id

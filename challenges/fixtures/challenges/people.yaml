@@ -1,0 +1,18 @@
+- model: challenges.Person
+  pk: 1
+  fields:
+    user_name: gcastel9
+    full_name: Gustau Castells
+    email: gcastells@none.cat
+    class_group: 1
+    role: T
+    teacher: 1
+- model: challenges.Person
+  pk: 2
+  fields:
+    user_name: pparker
+    full_name: Peter Parker
+    email: pparker@none.cat
+    class_group: 2
+    role: S
+    teacher: 1

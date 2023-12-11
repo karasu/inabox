@@ -1,0 +1,29 @@
+- model: challenges.ClassGroup
+  pk: 1
+  fields:
+    name: Professorat
+    description: Professorat
+  pk: 2
+  fields:
+    name: 1rSMX
+    description: Sistemes Microinformàtics i Xarxes
+  pk: 3
+  fields:
+    name: 2nSMX
+    description: Sistemes Microinformàtics i Xarxes
+  pk: 4
+  fields:
+    name: 1rASIX
+    description: Administració de Sistemes informàtics i Xarxes
+  pk: 5
+  fields:
+    name: 1rDAM
+    description: Disseny d'aplicacions multiplataforma
+  pk: 6
+  fields:
+    name: 1rDAMvi
+    description: Disseny d'aplicacions multiplataforma i videojocs
+  pk: 7
+  fields:
+    name: 2rASIX
+    description: Administració de Sistemes informàtics i Xarxes
