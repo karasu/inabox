@@ -1,17 +1,31 @@
 - model: challenges.DockerImage
   pk: 1
   fields:
-    name: dockerimage1
+    name: inabox
     ssh_port: 30001
     containers_limit: 30
     reuse_container: False
     docker_file: Dockerfile
-    docker_image_id: 0
+    docker_image_id: d62148a8527f
+- model: challenges.DockerImage
+  pk: 1
+  fields:
+    name: alpine
+    ssh_port: 30002
+    containers_limit: 30
+    reuse_container: False
+    docker_file: Dockerfile
+    docker_image_id: 7e01a0d0a1dc
 - model: challenges.Area
   pk: 1
   fields:
     name: DNS
     description: DNS related issues
+- model: challenges.Area
+  pk: 2
+  fields:
+    name: Other
+    description: Uncategorized
 - model: challenges.Challenge
   pk: 1
   fields:
@@ -22,3 +36,14 @@
     check_script: check_script.sh
     approved: False 
     area: 1
+- model: challenges.Challenge
+  pk: 1
+  fields:
+    title: challenge2
+    creator: 1
+    description: challenge2 description
+    docker_image: 1
+    check_script: check_script.sh
+    approved: False 
+    area: 2
+  
