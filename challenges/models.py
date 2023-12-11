@@ -96,9 +96,10 @@ class Challenge(models.Model):
         Person, on_delete=models.CASCADE)
     pub_date = models.DateTimeField(
         _("Date"), default=now)
-    description = models.TextField()
+    summary = models.TextField()
+    full_description = models.TextField()
     docker_image = models.ForeignKey(
-        DockerImage, on_delete=models.CASCADE)
+        DockerImage, on_delete=models.CASCADE, verbose_name="Docker image")
     check_script = models.FileField(_("Script"), 
         upload_to=challenge_directory_path
     )
@@ -106,7 +107,7 @@ class Challenge(models.Model):
     tries = models.IntegerField(default=0)
     solved = models.IntegerField(default=0)
     area = models.ForeignKey(
-        Area, on_delete=models.CASCADE)
+        Area, on_delete=models.CASCADE, verbose_name="Area")
     difficulty = models.CharField(
         max_length=1, choices=LEVELS, default="N")
 

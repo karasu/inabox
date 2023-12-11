@@ -9,12 +9,9 @@ from .models import Challenge
 class ChallengesListView(generic.ListView):
     template_name = "challenges/challenges.html"
     model = Challenge
-    paginate_by = 100
-
-    def get_queryset(self):
-        """ Return all challenges. """
-        return Challenge.objects.order_by("-pub_date")
-
+    paginate_by = 10
+    query_set = Challenge.objects.order_by("-pub_date")
+  
 
 class ChallengeDetailView(generic.DetailView):
     model = Challenge

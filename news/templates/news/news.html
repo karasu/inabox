@@ -1,17 +1,19 @@
 {% extends 'news/base.html' %}
 {% load django_bootstrap5 %}
-{% block title %}News{% endblock %}
+{% block title %}Inabox news{% endblock %}
 {% block content %}
 {% if newsentry_list %}
   {% for newsentry in newsentry_list %}
-  <div class="card">
+  <div class="container pt-3">
+    <div class="card">
     <div class="card-body">
       <h5 class="card-title">{{ newsentry.title }}</h5>
       <h6 class="card-subtitle mb-2 text-body-secondary">{{ newsentry.pub_date }}</h6>
       <p class="card-text">{{ newsentry.text }}</p>
     </div>
   </div>
-  {% endfor %}
+</div>
+{% endfor %}
 {% else %}
     <p>No news are available.</p>
 {% endif %}
