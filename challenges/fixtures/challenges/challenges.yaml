@@ -1,10 +1,49 @@
+- model: challenges.classgroup
+  pk: 1
+  fields:
+    name: Professorat
+    description: Professorat
+  pk: 2
+  fields:
+    name: 1rSMX
+    description: Sistemes Microinformàtics i Xarxes
+  pk: 3
+  fields:
+    name: 2nSMX
+    description: Sistemes Microinformàtics i Xarxes
+  pk: 4
+  fields:
+    name: 1rASIX
+    description: Administració de Sistemes informàtics i Xarxes
+  pk: 5
+  fields:
+    name: 1rDAM
+    description: Disseny d'aplicacions multiplataforma
+  pk: 6
+  fields:
+    name: 1rDAMvi
+    description: Disseny d'aplicacions multiplataforma i videojocs
+  pk: 7
+  fields:
+    name: 2rASIX
+    description: Administració de Sistemes informàtics i Xarxes
 - model: challenges.person
   pk: 1
   fields:
     user_name: gcastel9
     full_name: Gustau Castells
     email: gcastel9@none.cat
+    class_group: 1
     role: T
+    teacher: 1
+- model: challenges.person
+  pk: 2
+  fields:
+    user_name: astudent
+    full_name: A Student
+    email: astudent@none.cat
+    class_group: 2
+    role: S
     teacher: 1
 - model: challenges.DockerImage
   pk: 1
@@ -19,7 +58,7 @@
   pk: 1
   fields:
     name: DNS
-    description: Related DNS issues
+    description: DNS related issues
 - model: challenges.Challenge
   pk: 1
   fields:
