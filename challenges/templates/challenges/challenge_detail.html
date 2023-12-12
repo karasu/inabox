@@ -2,7 +2,10 @@
 {% load django_bootstrap5 %}
 {% block title %}{{ challenge.title }}{% endblock %}
 {% block javascript %}
-	<script src='/static/js/wssh_client.js'></script>
+    {% load static %}
+    <script type="text/javascript" src="{% static 'challenges/js/term.js' %}"></script>
+	<script type="text/javascript" src="{% static 'challenges/js/wssh.js' %}"></script>
+	<script type="text/javascript" src="{% static 'challenges/js/wssh_client.js' %}"></script>
 {% endblock %}
 {% block content %}
 <div class="container pt-3">

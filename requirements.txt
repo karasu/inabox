@@ -6,3 +6,8 @@ python-twisted
 python-slugify
 django-debug-toolbar
 python-yaml
+
+python-gevent
+python-gevent-websocket
+python-paramiko
+python-flask

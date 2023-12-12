@@ -3,7 +3,7 @@ var client = new WSSHClient();
 client.connect({
     // Connection and authentication parameters
     username: 'root',
-    hostname: 'localhost',
+    hostname: 'http://localhost:8888',
     authentication_method: 'password', // can either be password or private_key
     password: 'secretpassword', // do not provide when using private_key
     key_passphrase: 'secretpassphrase', // *may* be provided if the private_key is encrypted
