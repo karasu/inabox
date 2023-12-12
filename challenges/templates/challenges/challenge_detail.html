@@ -13,10 +13,19 @@
         <h6 class="card-subtitle pt-2">({{ challenge.area }})</h6>
         <p class="card-text pt-3">{{ challenge.full_description }}</p>
         <p class="card-text pt-2">Tried {{ challenge.tries }} times, solved {{ challenge.solved }} times.</p>
-        <a href="#" class="btn btn-primary">Let's try to solve it!</a>
+        <button class="btn btn-primary"
+        onclick="wssh.connect('localhost', 30000, 'inabox', btoa('inabox'), '', '', '')">Let's try to solve it!</button>
       </div>
     </div>
 </div>
+
+connect(hostname, port, username, password, privatekey, passphrase, totp)
+
+<div class="container">
+  <div id="status" style="color: red;"></div>
+  <div id="terminal"></div>
+</div>
+
 {% endblock %}
 
 {% block javascript %}
