@@ -1,12 +1,7 @@
 {% extends 'news/base.html' %}
 {% load django_bootstrap5 %}
 {% block title %}{{ challenge.title }}{% endblock %}
-{% block javascript %}
-    {% load static %}
-<!--    <script type="text/javascript" src="{% static 'challenges/js/term.js' %}"></script>
-	<script type="text/javascript" src="{% static 'challenges/js/wssh.js' %}"></script>
-	<script type="text/javascript" src="{% static 'challenges/js/wssh_client.js' %}"></script> -->
-{% endblock %}
+
 {% block content %}
 <div class="container pt-3">
     <div class="card">
@@ -19,4 +14,13 @@
       </div>
     </div>
 </div>
+{% endblock %}
+
+{% block javascript %}
+  {% load static %}
+  <script type="text/javascript" src="{% static 'challenges/js/jquery.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'challenges/js/popper.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'challenges/js/xterm.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'challenges/js/xterm-addon-fit.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'challenges/js/webssh.js' %}"></script>
 {% endblock %}
