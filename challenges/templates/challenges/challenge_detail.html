@@ -1,7 +1,10 @@
 {% extends 'news/base.html' %}
 {% load django_bootstrap5 %}
+{% block css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'challenges/css/xterm.css' %}">
+{% endblock %}
 {% block title %}{{ challenge.title }}{% endblock %}
-
 {% block content %}
 <div class="container pt-3">
     <div class="card">
@@ -17,7 +20,6 @@
 {% endblock %}
 
 {% block javascript %}
-  {% load static %}
   <script type="text/javascript" src="{% static 'challenges/js/jquery.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'challenges/js/popper.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'challenges/js/xterm.min.js' %}"></script>

@@ -6,6 +6,7 @@
 {% bootstrap_javascript %}{% bootstrap_messages %}
 {% load static %}
 <link rel="stylesheet" href="{% static 'news/style.css' %}">
+{% block css %}{% endblock %}
 <title>In a box</title>
 </head>
 <body>{% include 'news/navbar.html' %}{% block bootstrap5_content %}
