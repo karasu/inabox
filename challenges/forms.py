@@ -1,7 +1,7 @@
 from django import forms
 
 
-class ConnectForm(forms.Form):
+class ConnectSshForm(forms.Form):
     hostname = forms.CharField(widget=forms.HiddenInput(), initial="localhost")
     port = forms.IntegerField(widget=forms.HiddenInput(), initial=30001)
     username = forms.CharField(widget=forms.HiddenInput(), initial="inabox")

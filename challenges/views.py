@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 
 from .models import Challenge
 
-from .forms import ConnectForm
+from .forms import ConnectSshForm
 
 
 class ChallengesListView(generic.ListView):
@@ -22,33 +22,27 @@ class ChallengeDetailView(generic.DetailView):
     def get_context_data(self, **kwargs):
         # Add form to our context so we can put it in the template
         context = super(ChallengeDetailView, self).get_context_data(**kwargs)
-        context['connect_form'] = ConnectForm
+        context['connect_ssh_form'] = ConnectSshForm
         return context
 
-    def is_ajax(self, request):
-        return request.headers.get('x-requested-with') == 'XMLHttpRequest'
-
     def post(self, request, *args, **kwargs):
-
         # create a form instance and populate it with data from the request:
-        form = ConnectForm(request.POST)
+        form = ConnectSshForm(request.POST)
         # check whether it's valid:
         if form.is_valid():
             # process the data in form.cleaned_data as required
             self.object = self.get_object()
             context = super(ChallengeDetailView, self).get_context_data(**kwargs)
-            context['connect_form'] = form
+            context['connect_ssh_form'] = form
             #return self.render_to_response(context=context)
 
             print(context['challenge'].creator)
             self.result = dict(id=None, status=None, encoding=None)
-            self.result.update(status=_("Error trying to connect!"))
+ 
+ 
+ 
+            self.result.update(status=_("SSH: Error trying to connect!"))
             return JsonResponse(self.result)
-            
-            #data = form.cleaned_data
-            #print(data)
-            #return JsonResponse(data) 
-
         else:
             print("FALSE")
             self.object = self.get_object()

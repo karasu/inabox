@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
 #    'compressor',
+    'channels',
     'debug_toolbar',
     'admin_interface',
     'colorfield',
@@ -234,3 +235,10 @@ BOOTSTRAP5 = {
         'default': 'django_bootstrap5.renderers.FieldRenderer',
     },
 }
+
+ASGI_APPLICATION = "project.routing.application" #routing.py will be created later
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': "channels.layers.InMemoryChannelLayer"
+        }
+    }
