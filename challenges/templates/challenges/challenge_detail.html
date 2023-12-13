@@ -13,19 +13,30 @@
         <h6 class="card-subtitle pt-2">({{ challenge.area }})</h6>
         <p class="card-text pt-3">{{ challenge.full_description }}</p>
         <p class="card-text pt-2">Tried {{ challenge.tries }} times, solved {{ challenge.solved }} times.</p>
-        <button class="btn btn-primary"
-        onclick="wssh.connect('localhost', 30000, 'inabox', btoa('inabox'), '', '', '')">Let's try to solve it!</button>
+
+        
+
+
+
+        <div id="waiter" style="display: none"> Connecting ... </div>
+        <div class="container form-container" style="display: none">
+          <form id="connect" action="{% url 'challenges:challenge_detail' challenge.id %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ connect_form }}
+            <button type="submit" class="btn btn-primary">Let's try to solve it!</button>
+            <a href="{% url 'challenges:challenges' %}" class="btn btn-danger">Go back</a>
+          </form>
+        </div>
+                
+        <div class="container pt-3">
+          <div id="status" style="color: red;"></div>
+          <div id="terminal"></div>
+        </div>
+
+
       </div>
     </div>
 </div>
-
-connect(hostname, port, username, password, privatekey, passphrase, totp)
-
-<div class="container">
-  <div id="status" style="color: red;"></div>
-  <div id="terminal"></div>
-</div>
-
 {% endblock %}
 
 {% block javascript %}
