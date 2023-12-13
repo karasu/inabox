@@ -2,6 +2,7 @@ from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views import generic
+from django.utils.translation import gettext_lazy as _
 
 from .models import Challenge
 
@@ -39,9 +40,14 @@ class ChallengeDetailView(generic.DetailView):
             context['connect_form'] = form
             #return self.render_to_response(context=context)
 
-            data = form.cleaned_data
-            print(data)
-            return JsonResponse(data) 
+            print(context['challenge'].creator)
+            self.result = dict(id=None, status=None, encoding=None)
+            self.result.update(status=_("Error trying to connect!"))
+            return JsonResponse(self.result)
+            
+            #data = form.cleaned_data
+            #print(data)
+            #return JsonResponse(data) 
 
         else:
             print("FALSE")
