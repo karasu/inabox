@@ -51,6 +51,9 @@ class Person(models.Model):
 
     def __str__(self):
         return self.full_name
+    
+    class Meta:
+        verbose_name_plural = "people"
 
 #class Institution(models.Model):
 #    name = models.CharField(max_length=64)
