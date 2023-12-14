@@ -7,3 +7,5 @@ python-slugify
 django-debug-toolbar
 python-yaml
 python-channels
+paramiko
+python-pycryptodome

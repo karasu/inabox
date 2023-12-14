@@ -8,6 +8,7 @@ from .models import Challenge
 
 from .forms import ConnectSshForm
 
+from .sshclient import SSHClient
 
 class ChallengesListView(generic.ListView):
     template_name = "challenges/challenges.html"
@@ -44,7 +45,6 @@ class ChallengeDetailView(generic.DetailView):
             self.result.update(status=_("SSH: Error trying to connect!"))
             return JsonResponse(self.result)
         else:
-            print("FALSE")
             self.object = self.get_object()
             context = super(ChallengeDetailView, self).get_context_data(**kwargs)
             return self.render_to_response(context=context)

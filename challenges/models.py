@@ -6,6 +6,8 @@ from django.utils.timezone import now
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from Crypto.PublicKey import RSA
+
 # Create your models here.
 
 # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
@@ -19,6 +21,15 @@ class ClassGroup(models.Model):
 
     def __str__(self):
         return self.name    
+
+
+def generate_rsa_key():
+    from Crypto.PublicKey import RSA
+    return RSA.generate(2048).exportKey()
+
+#def get_rsa_public_key(private_key):
+#    rsa_key = RSA.importKey(private_key)
+#    return rsa_key.publickey().exportKey()
 
 class Person(models.Model):
     ROLES = [
@@ -36,6 +47,7 @@ class Person(models.Model):
         'self', on_delete=models.CASCADE)
     avatar = models.ImageField(
         upload_to=user_directory_path, blank=True, null=True)
+    private_key = models.TextField(default=generate_rsa_key())
 
     def __str__(self):
         return self.full_name
