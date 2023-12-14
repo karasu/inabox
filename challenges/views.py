@@ -39,7 +39,7 @@ class ChallengeDetailView(generic.DetailView):
             print(context['challenge'].creator)
             self.result = dict(id=None, status=None, encoding=None)
  
- 
+            # TODO: codi client per cridar per websockets ssh
  
             self.result.update(status=_("SSH: Error trying to connect!"))
             return JsonResponse(self.result)
