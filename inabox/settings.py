@@ -32,7 +32,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
 #    'compressor',
-    'channels',
+    'daphne',
     'debug_toolbar',
     'admin_interface',
     'colorfield',
@@ -236,7 +236,9 @@ BOOTSTRAP5 = {
     },
 }
 
-ASGI_APPLICATION = "project.routing.application" #routing.py will be created later
+# Daphne
+ASGI_APPLICATION = "inabox.asgi.application"
+
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': "channels.layers.InMemoryChannelLayer"
