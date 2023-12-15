@@ -6,7 +6,11 @@ from django.utils.timezone import now
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from Crypto.PublicKey import RSA
+try:
+    from Crypto.PublicKey import RSA
+except ModuleNotFoundError:
+    # Debian
+    from Cryptodome.PublicKey import RSA
 
 try:
     from types import UnicodeType
