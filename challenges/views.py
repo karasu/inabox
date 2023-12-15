@@ -42,11 +42,10 @@ class ChallengeDetailView(generic.DetailView):
  
             # TODO: codi client per cridar per websockets ssh
  
-            self.result.update(status=_("SSH: Error trying to connect!"))
+            #self.result.update(status=_("SSH: Error trying to connect!"))
+            self.result.update(id=1, encoding='ascii')
             return JsonResponse(self.result)
         else:
             self.object = self.get_object()
             context = super(ChallengeDetailView, self).get_context_data(**kwargs)
             return self.render_to_response(context=context)
-
-
