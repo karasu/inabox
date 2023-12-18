@@ -1,4 +1,7 @@
 import json
+import logging
+
+from .sshclient import SSHClient
 
 '''
 from channels.generic.websocket import AsyncWebsocketConsumer
@@ -52,20 +55,77 @@ from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 
 class SshConsumer(WebsocketConsumer):
-    def connect(self):
-        ##self.group_name = self.scope['path']
-        ##self.group_name.replace('/', '_')
-        ##print(self.scope)
-        
+    def connect(self):        
         self.group_name = "challenge_id_" + self.scope['url_route']['kwargs']['challenge_id']
-        
-        print(self.group_name)
+                
         # Join room group
         async_to_sync(self.channel_layer.group_add) (
             self.group_name, self.channel_name
         )
 
+        
+        self.ssh_client = SSHClient()
+
+        args = ('localhost', 22, '', '', None)
+        self.ssh_connect(*args, timeout=1)
+
+
         self.accept()
+
+
+    def ssh_connect(self, args):
+        ssh = self.ssh_client
+        try:
+            ssh.connect(*args, timeout=options.timeout)
+        except socket.error:
+            raise ValueError('Unable to connect to {}:{}'.format(*dst_addr))
+        except paramiko.BadAuthenticationType:
+            raise ValueError('Bad authentication type.')
+        except paramiko.AuthenticationException:
+            raise ValueError('Authentication failed.')
+        except paramiko.BadHostKeyException:
+            raise ValueError('Bad host key.')
+
+        term = self.get_argument('term', u'') or u'xterm'
+        self.chan = ssh.invoke_shell(term=term)
+        self.chan.setblocking(0)
+
+    '''
+    def get_ssh_client(self):
+        ssh = SSHClient()
+        ssh._system_host_keys = self.host_keys_settings['system_host_keys']
+        ssh._host_keys = self.host_keys_settings['host_keys']
+        ssh._host_keys_filename = self.host_keys_settings['host_keys_filename']
+        ssh.set_missing_host_key_policy(self.policy)
+        return ssh
+    '''
+    '''
+    def ssh_connect(self, args):
+        ssh = self.ssh_client
+        dst_addr = args[:2]
+        logging.info('Connecting to {}:{}'.format(*dst_addr))
+
+        try:
+            ssh.connect(*args, timeout=options.timeout)
+        except socket.error:
+            raise ValueError('Unable to connect to {}:{}'.format(*dst_addr))
+        except paramiko.BadAuthenticationType:
+            raise ValueError('Bad authentication type.')
+        except paramiko.AuthenticationException:
+            raise ValueError('Authentication failed.')
+        except paramiko.BadHostKeyException:
+            raise ValueError('Bad host key.')
+
+        term = self.get_argument('term', u'') or u'xterm'
+        chan = ssh.invoke_shell(term=term)
+        chan.setblocking(0)
+        worker = Worker(self.loop, ssh, chan, dst_addr)
+        worker.encoding = options.encoding if options.encoding else \
+            self.get_default_encoding(ssh)
+        return worker
+
+    '''
+
 
     def disconnect(self, close_code):
         # Leave room group
