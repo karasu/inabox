@@ -1,6 +1,8 @@
 import json
 import logging
 
+import socket
+import paramiko
 from .sshclient import SSHClient
 
 '''
@@ -63,22 +65,33 @@ class SshConsumer(WebsocketConsumer):
             self.group_name, self.channel_name
         )
 
-        
-        self.ssh_client = SSHClient()
-
-        args = ('localhost', 22, '', '', None)
-        self.ssh_connect(*args, timeout=1)
-
 
         self.accept()
+
+        self.result = dict(id=None, status=None, encoding=None)
+
+        self.ssh_client = SSHClient()
+
+        args = ('localhost', 22, 'test', 'test', None)
+        try:
+            self.ssh_connect(args)
+            status = "ok"
+        except ValueError as err:
+            status = str(err)
+        except paramiko.SSHException as err:
+            status = str(err)
+
+        self.result.update(status=status)
+        self.result.update(id=1, encoding='ascii')
+        self.send(text_data=json.dumps(status))
 
 
     def ssh_connect(self, args):
         ssh = self.ssh_client
         try:
-            ssh.connect(*args, timeout=options.timeout)
+            ssh.connect(*args, timeout=1)
         except socket.error:
-            raise ValueError('Unable to connect to {}:{}'.format(*dst_addr))
+            raise ValueError('Unable to connect.')
         except paramiko.BadAuthenticationType:
             raise ValueError('Bad authentication type.')
         except paramiko.AuthenticationException:
@@ -136,9 +149,9 @@ class SshConsumer(WebsocketConsumer):
     # Receive message from WebSocket
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        message = text_data_json["data"]
+        #message = text_data_json["data"]
 
-        print(message)
+        print(text_data_json)
         # Send message to room group
         #async_to_sync(self.channel_layer.group_send)(
         #    self.group_name, {"type": "ssh_message", "message": message}
