@@ -10,3 +10,5 @@ python-channels
 python-daphne
 paramiko
 python-pycryptodome
+channels_redis
+

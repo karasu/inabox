@@ -358,21 +358,22 @@ jQuery(function($){
       return;
     }
 
-    var ws_url = window.location.href.split(/\?|#/, 1)[0].replace('http', 'ws'),
-        join = (ws_url[ws_url.length-1] === '/' ? '' : '/'),
-        url = ws_url + join + 'ws?id=' + msg.id,
-        sock = new window.WebSocket(url),
-        encoding = 'utf-8',
-        decoder = window.TextDecoder ? new window.TextDecoder(encoding) : encoding,
-        terminal = document.getElementById('terminal'),
-        termOptions = {
-          cursorBlink: true,
-          theme: {
-            background: url_opts_data.bgcolor || 'black',
-            foreground: url_opts_data.fontcolor || 'white',
-            cursor: url_opts_data.cursor || url_opts_data.fontcolor || 'white'
-          }
-        };
+    var ws_url = window.location.href.split(/\?|#/, 1)[0].replace('http', 'ws');
+    var url_obj = new URL(ws_url);
+    var url = url_obj.protocol + '//' + url_obj.host + '/ws' + url_obj.pathname;
+
+    var sock = new window.WebSocket(url),
+    encoding = 'utf-8',
+    decoder = window.TextDecoder ? new window.TextDecoder(encoding) : encoding,
+    terminal = document.getElementById('terminal'),
+    termOptions = {
+      cursorBlink: true,
+      theme: {
+        background: url_opts_data.bgcolor || 'black',
+        foreground: url_opts_data.fontcolor || 'white',
+        cursor: url_opts_data.cursor || url_opts_data.fontcolor || 'white'
+      }
+    };
 
     if (url_opts_data.fontsize) {
       var fontsize = window.parseInt(url_opts_data.fontsize);
