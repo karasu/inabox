@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import struct
 
 import socket
 import paramiko
@@ -74,7 +75,8 @@ class SshConsumer(WebsocketConsumer):
         )
 
 
-        
+        self.data_to_dst = []
+        self.chan = None
 
         self.result = dict(id=None, status=None, encoding=None)
 
@@ -143,11 +145,12 @@ class SshConsumer(WebsocketConsumer):
         except paramiko.BadHostKeyException:
             raise ValueError('Bad host key.')
 
-        term = self.get_argument('term', u'') or u'xterm'
+        #term = self.get_argument('term', u'') or u'xterm'
+        term = "xterm"
         self.chan = ssh.invoke_shell(term=term)
         self.chan.setblocking(0)
 
-        self.fd = chan.fileno()
+        self.fd = self.chan.fileno()
 
         self.data_to_dst = []
 
@@ -156,9 +159,12 @@ class SshConsumer(WebsocketConsumer):
         
         if not self.data_to_dst:
             return
+        
+        if not self.chan:
+            return
 
         data = ''.join(self.data_to_dst)
-        logging.debug('{!r} to {}:{}'.format(data, *self.dst_addr))
+        #logging.debug('{!r} to {}:{}'.format(data, *self.dst_addr))
 
         try:
             sent = self.chan.send(data)
@@ -226,11 +232,11 @@ class SshConsumer(WebsocketConsumer):
         
         if not isinstance(msg, dict):
             return
-
+        
         print(msg)
         
         resize = msg.get('resize')
-        if resize and len(resize) == 2:
+        if self.chan and resize and len(resize) == 2:
             try:
                 self.chan.resize_pty(*resize)
             except (TypeError, struct.error, paramiko.SSHException):
