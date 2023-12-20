@@ -15,7 +15,7 @@ except ImportError:
 
 from concurrent.futures import ThreadPoolExecutor
 
-from utils import (
+from .utils import (
     is_valid_ip_address, is_valid_port, is_valid_hostname, to_bytes, to_str,
     to_int, to_ip_address, UnicodeType, is_ip_hostname, is_same_primary_domain,
     is_valid_encoding
@@ -102,7 +102,7 @@ class SshConsumer(WebsocketConsumer):
 
 
 
-   def get_ssh_client(self):
+    def get_ssh_client(self):
         ssh = SSHClient()
         ssh._system_host_keys = self.host_keys_settings['system_host_keys']
         ssh._host_keys = self.host_keys_settings['host_keys']
@@ -269,8 +269,8 @@ class SshConsumer(WebsocketConsumer):
 
 
 
-'''
- def on_read(self):
+    '''
+    def on_read(self):
         logging.debug('worker {} on read'.format(self.id))
         try:
             data = self.chan.recv(BUF_SIZE)
@@ -332,7 +332,7 @@ class SshConsumer(WebsocketConsumer):
 
         clear_worker(self, clients)
         logging.debug(clients)
-'''
+    '''
 
    
 

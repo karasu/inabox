@@ -4,20 +4,13 @@ from django.urls import reverse
 from django.views import generic
 from django.utils.translation import gettext_lazy as _
 
-
 from .models import Challenge
 from .forms import ConnectSshForm
-
 
 try:
     from json.decoder import JSONDecodeError
 except ImportError:
     JSONDecodeError = ValueError
-
-try:
-    from urllib.parse import urlparse
-except ImportError:
-    from urlparse import urlparse
 
 class ChallengesListView(generic.ListView):
     template_name = "challenges/challenges.html"
@@ -35,8 +28,6 @@ class ChallengeDetailView(generic.DetailView):
         context['connect_ssh_form'] = ConnectSshForm
         return context
 
-         
-
     def post(self, request, *args, **kwargs):
 
         # create a form instance and populate it with data from the request:
@@ -51,8 +42,6 @@ class ChallengeDetailView(generic.DetailView):
 
             #print(context['challenge'].creator)
  
-            
-
             self.result = dict(id=None, status=None, encoding=None)
 
 
