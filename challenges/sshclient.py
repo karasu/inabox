@@ -60,3 +60,4 @@ class SSHClient(paramiko.SSHClient):
 
         assert saved_exception is not None
         raise saved_exception
+
