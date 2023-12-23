@@ -51,8 +51,10 @@ class Worker(object):
 
     def __call__(self, fd, events):
         if events & IOLoop_READ:
+            print("onread--")
             self.on_read()
         if events & IOLoop_WRITE:
+            print("onwrite--")
             self.on_write()
         if events & IOLoop_ERROR:
             self.close(reason='error event occurred')
@@ -108,6 +110,7 @@ class Worker(object):
                 self.close(reason='chan error on writing')
             else:
                 self.update_handler(IOLoop_WRITE)
+
         else:
             self.data_to_dst = []
             data = data[sent:]

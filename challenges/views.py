@@ -13,6 +13,8 @@ import logging
 import os
 import struct
 import traceback
+import threading
+import asyncio
 
 from .sshclient import SSHClient
 from .args import InvalidValueError, Args
@@ -112,7 +114,18 @@ class ChallengeDetailView(generic.DetailView):
         term = u'xterm'
         chan = ssh.invoke_shell(term=term)
         chan.setblocking(0)
-        worker = Worker(None, ssh, chan, dst_addr)
+
+
+
+        print(threading.main_thread())
+        print(threading.current_thread())
+
+        #loop = asyncio.new_event_loop()
+        #asyncio.set_event_loop(loop)
+        self.loop = asyncio.get_event_loop()
+
+
+        worker = Worker(self.loop, ssh, chan, dst_addr)
         #worker.encoding = options.encoding if options.encoding else \
         #    self.get_default_encoding(ssh)
         worker.encoding = "utf-8"
