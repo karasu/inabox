@@ -144,7 +144,7 @@ class ChallengeDetailView(generic.DetailView):
             self.ssh_client = self.get_ssh_client()
             #self.debug = self.settings.get('debug', False)
             #self.font = self.settings.get('font', '')
-            self.result = dict(id=None, status=None, encoding=None)
+            self.result = dict(workerid=None, status=None, encoding=None)
 
             ip, port = self.get_client_ip(request)
             #print(ip, port)
@@ -175,9 +175,9 @@ class ChallengeDetailView(generic.DetailView):
                 #self.loop.call_later(
                 #    options.delay, recycle_worker, worker)
                 self.result.update(
-                    id=worker.id, encoding=worker.encoding)
+                    workerid=worker.id, status='', encoding=worker.encoding)
 
-
+            print("POST result:", self.result)
 
             return JsonResponse(self.result)
         else:
@@ -204,7 +204,7 @@ class ChallengeDetailView(generic.DetailView):
             self.ssh_client = self.get_ssh_client()
             #self.debug = self.settings.get('debug', False)
             #self.font = self.settings.get('font', '')
-            self.result = dict(id=None, status=None, encoding=None)
+            self.result = dict(workerid=None, status=None, encoding=None)
 
             ip, port = self.get_client_ip(request)
             workers = clients.get(ip, {})
@@ -230,7 +230,7 @@ class ChallengeDetailView(generic.DetailView):
                 worker.src_addr = (ip, port)
                 workers[worker.id] = worker
                 self.loop.call_later(options.delay, recycle_worker, worker)
-                self.result.update(id=worker.id, encoding=worker.encoding)
+                self.result.update(workerid=worker.id, encoding=worker.encoding)
 
             return JsonResponse(self.result)
         else:

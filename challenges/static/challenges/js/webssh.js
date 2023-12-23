@@ -344,7 +344,7 @@ jQuery(function($){
 
   function ajax_complete_callback(resp) {
     button.prop('disabled', false);
-
+    
     if (resp.status !== 200) {
       log_status(resp.status + ': ' + resp.statusText, true);
       state = DISCONNECTED;
@@ -352,7 +352,7 @@ jQuery(function($){
     }
 
     var msg = resp.responseJSON;
-    if (!msg.id) {
+    if (!msg.workerid) {
       log_status(msg.status, true);
       state = DISCONNECTED;
       return;
@@ -360,8 +360,8 @@ jQuery(function($){
 
     var ws_url = window.location.href.split(/\?|#/, 1)[0].replace('http', 'ws');
     var url_obj = new URL(ws_url);
-    var url = url_obj.protocol + '//' + url_obj.host + '/ws' + url_obj.pathname;
-
+    var url = url_obj.protocol + '//' + url_obj.host + '/ws' + url_obj.pathname + '?workerid=' + msg.workerid;
+    
     var sock = new window.WebSocket(url),
     encoding = 'utf-8',
     decoder = window.TextDecoder ? new window.TextDecoder(encoding) : encoding,
