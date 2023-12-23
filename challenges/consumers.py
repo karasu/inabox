@@ -32,7 +32,8 @@ class SshConsumer(WebsocketConsumer):
 
         workers = clients.get(self.scope['client'][0])
         if not workers:
-            self.close(reason='Websocket authentication failed.')
+            logging.warning('Websocket authentication failed.')
+            self.close()
             return
 
 
@@ -55,7 +56,8 @@ class SshConsumer(WebsocketConsumer):
                 #self.loop.add_handler(worker.fd, worker, IOLoop.READ)
                 self.accept()
             else:
-                self.close(reason='Websocket authentication failed.')
+                logging.warning('Websocket authentication failed.')
+                self.close()
 
         
         
@@ -71,16 +73,28 @@ class SshConsumer(WebsocketConsumer):
     # Receive message from WebSocket
     def receive(self, text_data):
         try:
-            msg = json.loads(text_data)
+            message = json.loads(text_data)
         except JSONDecodeError:
             return
         
-        if not isinstance(msg, dict):
+        if not isinstance(message, dict):
             return
         
-        print(msg)
+        print(message)
         
-      
+        logging.debug('{!r} from {}:{}'.format(message, *self.src_addr))
+        worker = self.worker_ref()
+        if not worker:
+            # The worker has likely been closed. Do not process.
+            logging.debug(
+                "received message to closed worker from {}:{}".format(
+                    *self.src_addr
+                )
+            )
+            print('No worker found')
+            self.close()
+            return
+
         '''
         logging.debug('{!r} from {}:{}'.format(message, *self.src_addr))
         worker = self.worker_ref()
