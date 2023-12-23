@@ -6,6 +6,12 @@ except ImportError:
 
 from uuid import uuid4
 
+# These constants were originally based on constants from the
+# epoll module.
+IOLoop_NONE = 0
+IOLoop_READ = 0x001
+IOLoop_WRITE = 0x004
+IOLoop_ERROR = 0x018
 
 BUF_SIZE = 32 * 1024
 clients = {}  # {ip: {id: worker}}
@@ -40,15 +46,15 @@ class Worker(object):
         self.id = self.gen_id()
         self.data_to_dst = []
         self.handler = None
-        self.mode = IOLoop.READ
+        self.mode = IOLoop_READ
         self.closed = False
 
     def __call__(self, fd, events):
-        if events & IOLoop.READ:
+        if events & IOLoop_READ:
             self.on_read()
-        if events & IOLoop.WRITE:
+        if events & IOLoop_WRITE:
             self.on_write()
-        if events & IOLoop.ERROR:
+        if events & IOLoop_ERROR:
             self.close(reason='error event occurred')
 
     @classmethod
@@ -63,8 +69,8 @@ class Worker(object):
         if self.mode != mode:
             self.loop.update_handler(self.fd, mode)
             self.mode = mode
-        if mode == IOLoop.WRITE:
-            self.loop.call_later(0.1, self, self.fd, IOLoop.WRITE)
+        if mode == IOLoop_WRITE:
+            self.loop.call_later(0.1, self, self.fd, IOLoop_WRITE)
 
     def on_read(self):
         logging.debug('worker {} on read'.format(self.id))
@@ -101,15 +107,15 @@ class Worker(object):
             if self.chan.closed or errno_from_exception(e) in _ERRNO_CONNRESET:
                 self.close(reason='chan error on writing')
             else:
-                self.update_handler(IOLoop.WRITE)
+                self.update_handler(IOLoop_WRITE)
         else:
             self.data_to_dst = []
             data = data[sent:]
             if data:
                 self.data_to_dst.append(data)
-                self.update_handler(IOLoop.WRITE)
+                self.update_handler(IOLoop_WRITE)
             else:
-                self.update_handler(IOLoop.READ)
+                self.update_handler(IOLoop_READ)
 
     def close(self, reason=None):
         if self.closed:

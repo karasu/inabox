@@ -8,7 +8,7 @@ import socket
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 
-base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+from .worker import Worker, recycle_worker, clients
 
 # WsockHandler
 class SshConsumer(WebsocketConsumer):
@@ -20,14 +20,38 @@ class SshConsumer(WebsocketConsumer):
             self.group_name, self.channel_name
         )
 
+       
 
-        print("Connect")
+        #self.send(text_data=json.dumps(self.result))
 
-        self.accept()
-        self.send(text_data=json.dumps(self.result))
+        self.src_addr = self.scope['client']
+        logging.info('Connected from {}:{}'.format(*self.src_addr))
+
+        workers = clients.get(self.scope['client'][0])
+        if not workers:
+            self.close(reason='Websocket authentication failed.')
+            return
 
 
 
+        try:
+            worker_id = self.get_value('id')
+            
+        except (tornado.web.MissingArgumentError, InvalidValueError) as exc:
+            self.close(reason=str(exc))
+        else:
+            worker = workers.get(worker_id)
+            if worker:
+                workers[worker_id] = None
+                self.set_nodelay(True)
+                worker.set_handler(self)
+                self.worker_ref = weakref.ref(worker)
+                self.loop.add_handler(worker.fd, worker, IOLoop.READ)
+                self.accept()
+            else:
+                self.close(reason='Websocket authentication failed.')
+
+        
 
 
     def disconnect(self, close_code):

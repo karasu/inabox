@@ -87,6 +87,7 @@ class ChallengeDetailView(generic.DetailView):
         ssh._system_host_keys = self.host_keys_settings['system_host_keys']
         ssh._host_keys = self.host_keys_settings['host_keys']
         ssh._host_keys_filename = self.host_keys_settings['host_keys_filename']
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         #ssh.set_missing_host_key_policy(self.policy)
         return ssh
 
@@ -99,20 +100,22 @@ class ChallengeDetailView(generic.DetailView):
             #ssh.connect(*args, timeout=options.timeout)
             ssh.connect(*args, timeout=1)
         except socket.error:
-            raise ValueError('Unable to connect to {}:{}'.format(*dst_addr))
+            raise ValueError(_('Unable to connect to {}:{}').format(*dst_addr))
         except paramiko.BadAuthenticationType:
-            raise ValueError('Bad authentication type.')
-        except paramiko.AuthenticationException:
-            raise ValueError('Authentication failed.')
+            raise ValueError(_('Bad authentication type.'))
+        except paramiko.AuthenticationException as err:
+            raise ValueError(_('Authentication failed.'))
         except paramiko.BadHostKeyException:
-            raise ValueError('Bad host key.')
-
-        term = self.get_argument('term', u'') or u'xterm'
+            raise ValueError(_('Bad host key.'))
+        
+        # term = self.get_argument('term', u'') or u'xterm'
+        term = u'xterm'
         chan = ssh.invoke_shell(term=term)
         chan.setblocking(0)
-        worker = Worker(self.loop, ssh, chan, dst_addr)
-        worker.encoding = options.encoding if options.encoding else \
-            self.get_default_encoding(ssh)
+        worker = Worker(None, ssh, chan, dst_addr)
+        #worker.encoding = options.encoding if options.encoding else \
+        #    self.get_default_encoding(ssh)
+        worker.encoding = "utf-8"
         return worker
 
     def get_client_ip(self, request):
@@ -169,8 +172,10 @@ class ChallengeDetailView(generic.DetailView):
                     clients[ip] = workers
                 worker.src_addr = (ip, port)
                 workers[worker.id] = worker
-                self.loop.call_later(options.delay, recycle_worker, worker)
-                self.result.update(id=worker.id, encoding=worker.encoding)
+                #self.loop.call_later(
+                #    options.delay, recycle_worker, worker)
+                self.result.update(
+                    id=worker.id, encoding=worker.encoding)
 
 
 

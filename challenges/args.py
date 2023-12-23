@@ -1,6 +1,8 @@
 from .privatekey import PrivateKey
 
+import base64
 import logging
+
 
 class InvalidValueError(Exception):
     pass
@@ -67,11 +69,22 @@ class Args():
             raise InvalidValueError('Missing value {}'.format(name))
         return value
 
+    def decode64str(self, s):
+        # Encode the str into bytes.
+        bencoded = s.encode("utf-8")
+        # decode b64
+        bdecoded = base64.b64decode(bencoded)
+        # return decoded string
+        return bdecoded.decode("utf-8")
+
     def get_args(self):
         hostname = self.get_hostname()
         port = self.get_port()
         username = self.get_value('username')
-        password = self.post.get('password', u'')
+        password = self.decode64str(self.post.get('password', u''))
+
+        if password != "inabox":
+            raise ValueError(password)
 
         privatekey, filename = self.get_privatekey()
         passphrase = self.post.get('passphrase', u'')
