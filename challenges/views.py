@@ -13,7 +13,6 @@ import logging
 import os
 import struct
 import traceback
-import threading
 import asyncio
 
 from .sshclient import SSHClient
@@ -57,6 +56,7 @@ class ChallengesListView(generic.ListView):
 class ChallengeDetailView(generic.DetailView):
     model = Challenge
     executor = ThreadPoolExecutor(max_workers=os.cpu_count()*5)
+    loop = None
 
     def get_context_data(self, **kwargs):
         # Add form to our context so we can put it in the template
@@ -98,6 +98,7 @@ class ChallengeDetailView(generic.DetailView):
         dst_addr = args[:2]
         logging.info('Connecting to {}:{}'.format(*dst_addr))
 
+        print("Connecting...")
         try:
             #ssh.connect(*args, timeout=options.timeout)
             ssh.connect(*args, timeout=1)
@@ -115,23 +116,19 @@ class ChallengeDetailView(generic.DetailView):
         chan = ssh.invoke_shell(term=term)
         chan.setblocking(0)
 
+        if self.loop is None:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            self.loop = asyncio.get_event_loop()
 
-
-        print(threading.main_thread())
-        print(threading.current_thread())
-
-        #loop = asyncio.new_event_loop()
-        #asyncio.set_event_loop(loop)
-        self.loop = asyncio.get_event_loop()
-
-
+        print("Creating worker...")
         worker = Worker(self.loop, ssh, chan, dst_addr)
         #worker.encoding = options.encoding if options.encoding else \
         #    self.get_default_encoding(ssh)
         worker.encoding = "utf-8"
         return worker
 
-    def get_client_ip(self, request):
+    def get_client_ip_and_port(self, request):
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
         if x_forwarded_for:
             # running behind a proxy
@@ -159,15 +156,15 @@ class ChallengeDetailView(generic.DetailView):
             #self.font = self.settings.get('font', '')
             self.result = dict(workerid=None, status=None, encoding=None)
 
-            ip, port = self.get_client_ip(request)
+            src_ip, src_port = self.get_client_ip_and_port(request)
             #print(ip, port)
-            workers = clients.get(ip, {})
+            workers = clients.get(src_ip, {})
             if workers and len(workers) >= MAXCONN:
                 return HttpResponseForbidden(_('Too many live connections.'))
 
             #self.check_origin()
             try:
-                form_args = Args(request.POST)
+                form_args = Args(request)
                 args = form_args.get_args()
             except InvalidValueError as exc:
                 return HttpResponseBadRequest(str(exc))
@@ -175,15 +172,15 @@ class ChallengeDetailView(generic.DetailView):
             future = self.executor.submit(self.ssh_connect, args)
 
             try:
-                #worker = yield future
+                 #worker = yield future
                 worker = future.result()
             except (ValueError, paramiko.SSHException) as exc:
                 logging.error(traceback.format_exc())
                 self.result.update(status=str(exc))
             else:
                 if not workers:
-                    clients[ip] = workers
-                worker.src_addr = (ip, port)
+                    clients[src_ip] = workers
+                worker.src_addr = (src_ip, src_port)
                 workers[worker.id] = worker
                 #self.loop.call_later(
                 #    options.delay, recycle_worker, worker)
@@ -195,5 +192,3 @@ class ChallengeDetailView(generic.DetailView):
             return JsonResponse(self.result)
         else:
             return HttpResponseForbidden()
-
-   

@@ -41,6 +41,7 @@ class Worker(object):
         self.loop = loop
         self.ssh = ssh
         self.chan = chan
+        self.src_addr = None
         self.dst_addr = dst_addr
         self.fd = chan.fileno()
         self.id = self.gen_id()

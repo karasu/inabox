@@ -15,8 +15,9 @@ from webssh.utils import (
 
 class Args():
 
-    def __init__(self, request_post):
-        self.post = request_post
+    def __init__(self, request):
+        self.request = request
+        self.post = request.POST
 
     def get_privatekey(self):
         # TODO
@@ -68,6 +69,17 @@ class Args():
         if not value:
             raise InvalidValueError('Missing value {}'.format(name))
         return value
+
+    def get_client_ip_and_port(self):
+        x_forwarded_for = self.request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            # running behind a proxy
+            ip = x_forwarded_for.split(',')[0]
+            port = self.request.META.get('HTTP_X_FORWARDED_PORT')
+        else:
+            ip = self.request.META.get('REMOTE_ADDR')
+            port = self.request.META.get('REMOTE_PORT')
+        return (ip, port)
 
     def decode64str(self, s):
         # Encode the str into bytes.
