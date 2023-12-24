@@ -68,16 +68,7 @@ class SshConsumer(AsyncWebsocketConsumer):
                 # store worker reference
                 self.worker_ref = weakref.ref(worker)
 
-
                 loop = asyncio.get_event_loop()
-                # TODO: Fix this
-                #self.loop.add_handler(worker.fd, worker, IOLoop.READ)
-                #self.loop.add_signal_handler(worker.fd, worker, IOLoop.READ)
-                
-                
-                #if threading.current_thread() is threading.main_thread():
-                #loop.add_signal_handler(worker.fd, worker, IOLoop_READ)
-                #loop.create_task(client.start(TOKEN))
 
                 loop.add_reader(worker.fd, worker.on_read, IOLoop_READ)
                 loop.add_writer(worker.fd, worker.on_write, IOLoop_WRITE)
@@ -91,12 +82,10 @@ class SshConsumer(AsyncWebsocketConsumer):
 
     #async def disconnect(self, close_code):
     #    # Called when the socket closes
-    #    pass
+        
 
     # Receive message from WebSocket
     async def receive(self, text_data):
-       
-        
         logging.debug('{!r} from {}:{}'.format(text_data, *self.src_addr))
         worker = self.worker_ref()
         if not worker:
@@ -124,7 +113,7 @@ class SshConsumer(AsyncWebsocketConsumer):
         if not isinstance(msg, dict):
             return
         
-        print(msg)
+        print("Websocket consumer received:", msg)
 
         resize = msg.get('resize')
         if resize and len(resize) == 2:
@@ -138,4 +127,8 @@ class SshConsumer(AsyncWebsocketConsumer):
             print("worker.on_write()")
             worker.data_to_dst.append(data)
             worker.on_write()
-        
+
+    def worker_message(self, event):
+        print("worker_message:", event)
+        if event["data"]:
+            self.send(bytes_data=event["data"])

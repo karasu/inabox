@@ -6,6 +6,9 @@ except ImportError:
 
 from uuid import uuid4
 
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+
 # These constants were originally based on constants from the
 # epoll module.
 IOLoop_NONE = 0
@@ -64,16 +67,20 @@ class Worker(object):
             self.mode = mode
         if mode == IOLoop_WRITE:
             self.loop.call_later(0.1, self, self.fd, IOLoop_WRITE)
+    
+    def remove_handler(self):
+        if self.loop:
+            self.loop.remove_reader(self.fd)
+            self.loop.remove_writer(self.fd)
 
     def on_read(self, args=None):
         logging.debug('worker {} on read'.format(self.id))
-        print('worker {} on read'.format(self.id))
+
         try:
             data = self.chan.recv(BUF_SIZE)
-            print("DATAONREAD:", data)
-        except (OSError, IOError) as e:
-            logging.error(e)
-            if self.chan.closed or errno_from_exception(e) in _ERRNO_CONNRESET:
+        except (OSError, IOError) as err:
+            logging.error(err)
+            if self.chan.closed or errno_from_exception(err) in _ERRNO_CONNRESET:
                 self.close(reason='chan error on reading')
         else:
             logging.debug('{!r} from {}:{}'.format(data, *self.dst_addr))
@@ -83,15 +90,34 @@ class Worker(object):
 
             logging.debug('{!r} to {}:{}'.format(data, *self.handler.src_addr))
             try:
-                # TODO: Fix this
-                #self.handler.write_message(data, binary=True)
-                self.handler.send(data)
+                # send a binary frame
+                #self.handler.on_send_bytes(bytes_data=data)
+
+                #print(self.handler.channel_name)
+                #channel_layer = get_channel_layer()
+                #async_to_sync(channel_layer.group_send)(
+                #    self.id,
+                #    {'type': 'send_bytes', 'message': message}
+                #)
+
+                print(data)
+
+                #TODO: Fix this, it doesn't work
+                channel_layer = get_channel_layer()
+                channel_name = self.handler.channel_name
+                print(channel_name)
+                channel_layer.send(channel_name, {
+                    "type": "worker.message",
+                    "data": data,
+                })
+
+
+                #self.handler.send(data)
             except:
                 self.close(reason='websocket closed')
 
     def on_write(self, args=None):
         logging.debug('worker {} on write'.format(self.id))
-        print('worker {} on write'.format(self.id))
 
         if not self.data_to_dst:
             return

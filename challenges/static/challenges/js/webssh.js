@@ -397,11 +397,14 @@ jQuery(function($){
 
     function term_write(text) {
       if (term) {
+        console.log(text);
         term.write(text);
         if (!term.resized) {
           resize_terminal(term);
           term.resized = true;
         }
+      } else {
+        console.error('term not defined');
       }
     }
 
@@ -478,7 +481,7 @@ jQuery(function($){
     wssh.resize = function(cols, rows) {
       // for console use
       if (term === undefined) {
-        console.log('Terminal was already destroryed');
+        console.log('Terminal was already destroyed');
         return;
       }
 
@@ -516,14 +519,14 @@ jQuery(function($){
 
     term.on_resize = function(cols, rows) {
       if (cols !== this.cols || rows !== this.rows) {
-        console.log('Resizing terminal to geometry: ' + format_geometry(cols, rows));
+        console.debug('Resizing terminal to geometry: ' + format_geometry(cols, rows));
         this.resize(cols, rows);
         sock.send(JSON.stringify({'resize': [cols, rows]}));
       }
     };
 
     term.onData(function(data) {
-      // console.log(data);
+      console.log(data);
       sock.send(JSON.stringify({'data': data}));
     });
 
@@ -542,6 +545,7 @@ jQuery(function($){
     };
 
     sock.onmessage = function(msg) {
+      //console.log(msg.data)
       read_file_as_text(msg.data, term_write, decoder);
     };
 
