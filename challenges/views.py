@@ -46,6 +46,9 @@ base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Maximum live connections (ssh sessions) per client
 MAXCONN=20
 
+# The delay to call recycle_worker
+RECYLE_WORKER_DELAY=3
+
 class ChallengesListView(generic.ListView):
     template_name = "challenges/challenges.html"
     model = Challenge
@@ -182,8 +185,9 @@ class ChallengeDetailView(generic.DetailView):
                     clients[src_ip] = workers
                 worker.src_addr = (src_ip, src_port)
                 workers[worker.id] = worker
-                #self.loop.call_later(
-                #    options.delay, recycle_worker, worker)
+                self.loop.call_later(
+                    RECYLE_WORKER_DELAY, recycle_worker, worker)
+                
                 self.result.update(
                     workerid=worker.id, status='', encoding=worker.encoding)
 

@@ -60,9 +60,12 @@ class SshConsumer(AsyncWebsocketConsumer):
 
             worker = workers.get(worker_id)
             if worker:
+                # Remove worker from workers list
                 workers[worker_id] = None
                 #self.set_nodelay(True)
+                # set us as handler
                 worker.set_handler(self)
+                # store worker reference
                 self.worker_ref = weakref.ref(worker)
 
 
@@ -73,7 +76,11 @@ class SshConsumer(AsyncWebsocketConsumer):
                 
                 
                 #if threading.current_thread() is threading.main_thread():
-                #    worker.loop.add_signal_handler(worker.fd, worker, IOLoop_READ)
+                #loop.add_signal_handler(worker.fd, worker, IOLoop_READ)
+                #loop.create_task(client.start(TOKEN))
+
+                loop.add_reader(worker.fd, worker.on_read, IOLoop_READ)
+                loop.add_writer(worker.fd, worker.on_write, IOLoop_WRITE)
 
                 await self.accept()
             else:

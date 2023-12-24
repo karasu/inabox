@@ -50,16 +50,6 @@ class Worker(object):
         self.mode = IOLoop_READ
         self.closed = False
 
-    def __call__(self, fd, events):
-        if events & IOLoop_READ:
-            print("onread--")
-            self.on_read()
-        if events & IOLoop_WRITE:
-            print("onwrite--")
-            self.on_write()
-        if events & IOLoop_ERROR:
-            self.close(reason='error event occurred')
-
     @classmethod
     def gen_id(cls):
         return secrets.token_urlsafe(nbytes=32) if secrets else uuid4().hex
@@ -75,10 +65,12 @@ class Worker(object):
         if mode == IOLoop_WRITE:
             self.loop.call_later(0.1, self, self.fd, IOLoop_WRITE)
 
-    def on_read(self):
+    def on_read(self, args=None):
         logging.debug('worker {} on read'.format(self.id))
+        print('worker {} on read'.format(self.id))
         try:
             data = self.chan.recv(BUF_SIZE)
+            print("DATAONREAD:", data)
         except (OSError, IOError) as e:
             logging.error(e)
             if self.chan.closed or errno_from_exception(e) in _ERRNO_CONNRESET:
@@ -91,12 +83,16 @@ class Worker(object):
 
             logging.debug('{!r} to {}:{}'.format(data, *self.handler.src_addr))
             try:
-                self.handler.write_message(data, binary=True)
-            except tornado.websocket.WebSocketClosedError:
+                # TODO: Fix this
+                #self.handler.write_message(data, binary=True)
+                self.handler.send(data)
+            except:
                 self.close(reason='websocket closed')
 
-    def on_write(self):
+    def on_write(self, args=None):
         logging.debug('worker {} on write'.format(self.id))
+        print('worker {} on write'.format(self.id))
+
         if not self.data_to_dst:
             return
 
