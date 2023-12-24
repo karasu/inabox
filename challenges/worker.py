@@ -75,7 +75,7 @@ class Worker(object):
 
     def on_read(self, args=None):
         logging.debug('worker {} on read'.format(self.id))
-
+        print("ONREAD")
         try:
             data = self.chan.recv(BUF_SIZE)
         except (OSError, IOError) as err:
@@ -93,21 +93,29 @@ class Worker(object):
                 # send a binary frame
                 #self.handler.on_send_bytes(bytes_data=data)
 
+                '''
                 #print(self.handler.channel_name)
-                #channel_layer = get_channel_layer()
-                #async_to_sync(channel_layer.group_send)(
-                #    self.id,
-                #    {'type': 'send_bytes', 'message': message}
-                #)
+                channel_layer = get_channel_layer()
+                async_to_sync(channel_layer.group_send)(
+                    "ssh",
+                    {'type': 'send.message', 'data': data}
+                )
+                '''
 
-                print(data)
+                #print(data)
 
-                #TODO: Fix this, it doesn't work
+                print("TODO: Fix this, it doesn't work")
                 channel_layer = get_channel_layer()
                 channel_name = self.handler.channel_name
                 print(channel_name)
                 channel_layer.send(channel_name, {
-                    "type": "worker.message",
+                    "type": "send.message", 
+                    "data": data,
+                })
+
+
+                channel_layer.group_send("ssh", {
+                    "type": "send.message",
                     "data": data,
                 })
 

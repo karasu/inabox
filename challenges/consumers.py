@@ -36,7 +36,11 @@ class SshConsumer(AsyncWebsocketConsumer):
         logging.info('Connected from {}:{}'.format(*self.src_addr))
 
         print('Connected from {}:{}'.format(*self.src_addr))
-        
+
+
+        self.channel_layer.group_add("ssh", self.channel_name)
+
+
         src_ip = self.src_addr[0]
         workers = clients.get(src_ip, None)
 
@@ -45,8 +49,6 @@ class SshConsumer(AsyncWebsocketConsumer):
             logging.warning('Websocket authentication failed.')
             await self.close()
             return
-
-
 
         try:
             query = self.scope['query_string'].decode("utf-8")
@@ -80,9 +82,9 @@ class SshConsumer(AsyncWebsocketConsumer):
                 await self.close()
 
 
-    #async def disconnect(self, close_code):
-    #    # Called when the socket closes
-        
+    async def disconnect(self, close_code):
+        # Called when the socket closes
+        self.channel_layer.group_discard("ssh", self.channel_name)    
 
     # Receive message from WebSocket
     async def receive(self, text_data):
@@ -124,11 +126,11 @@ class SshConsumer(AsyncWebsocketConsumer):
 
         data = msg.get('data')
         if data and isinstance(data, UnicodeType):
-            print("worker.on_write()")
             worker.data_to_dst.append(data)
             worker.on_write()
 
-    def worker_message(self, event):
-        print("worker_message:", event)
+    async def send_message(self, event):
+        print("****** EVENT ********")
+        print(event)
         if event["data"]:
-            self.send(bytes_data=event["data"])
+            await self.send(bytes_data=event["data"])
