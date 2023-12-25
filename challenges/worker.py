@@ -138,7 +138,7 @@ class Worker(object):
         if self.handler:
             # TODO: Fix this! remove_handler
             # self.loop.remove_handler(self.fd)
-            self.handler.close(reason=reason)
+            self.handler.close()
         self.chan.close()
         self.ssh.close()
         logging.info('Connection to {}:{} lost'.format(*self.dst_addr))

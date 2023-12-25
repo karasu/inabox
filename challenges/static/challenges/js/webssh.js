@@ -42,7 +42,7 @@ jQuery(function($){
       waiter = $('#waiter'),
       term_type = $('#term'),
       style = {},
-      default_title = 'WebSSH',
+      default_title = 'Inabox',
       title_element = document.querySelector('title'),
       form_id = '#connect',
       debug = document.querySelector(form_id).noValidate,
@@ -343,7 +343,8 @@ jQuery(function($){
 
 
   function ajax_complete_callback(resp) {
-    button.prop('disabled', false);
+    //button.prop('disabled', false);
+    button.prop('disabled', true);
     
     if (resp.status !== 200) {
       log_status(resp.status + ': ' + resp.statusText, true);
@@ -372,7 +373,8 @@ jQuery(function($){
         background: url_opts_data.bgcolor || 'black',
         foreground: url_opts_data.fontcolor || 'white',
         cursor: url_opts_data.cursor || url_opts_data.fontcolor || 'white'
-      }
+      },
+      fontSize: 18
     };
 
     if (url_opts_data.fontsize) {
@@ -560,7 +562,7 @@ jQuery(function($){
       reset_wssh();
       log_status(e.reason, true);
       state = DISCONNECTED;
-      default_title = 'WebSSH';
+      default_title = 'Inabox';
       title_element.text = default_title;
     };
 

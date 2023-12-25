@@ -13,27 +13,19 @@
         <h6 class="card-subtitle pt-2">({{ challenge.area }})</h6>
         <p class="card-text pt-3">{{ challenge.full_description }}</p>
         <p class="card-text pt-2">Tried {{ challenge.tries }} times, solved {{ challenge.solved }} times.</p>
-
-        
-
-
-
         <div id="waiter" style="display: none"> Connecting ... </div>
         <div class="container form-container" style="display: none">
           <form id="connect" action="{% url 'challenges:challenge_detail' challenge.id %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             {{ connect_ssh_form }}
-            <button type="submit" class="btn btn-primary">Let's try to solve it!</button>
-            <a href="{% url 'challenges:challenges' %}" class="btn btn-danger">Go back</a>
+            <button id="submit" type="submit" class="btn btn-primary">Let's try to solve it!</button>
+            <a href="{% url 'challenges:challenges' %}" id="cancel" class="btn btn-danger">Go back</a>
           </form>
         </div>
-                
         <div class="container pt-3">
           <div id="status" style="color: red;"></div>
           <div id="terminal"></div>
         </div>
-
-
       </div>
     </div>
 </div>
@@ -42,7 +34,7 @@
 {% block javascript %}
   <script type="text/javascript" src="{% static 'challenges/js/jquery.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'challenges/js/popper.min.js' %}"></script>
-  <script type="text/javascript" src="{% static 'challenges/js/xterm.min.js' %}"></script>
-  <script type="text/javascript" src="{% static 'challenges/js/xterm-addon-fit.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'challenges/js/xterm.js' %}"></script>
+  <script type="text/javascript" src="{% static 'challenges/js/addon-fit.js' %}"></script>
   <script type="text/javascript" src="{% static 'challenges/js/webssh.js' %}"></script>
 {% endblock %}
