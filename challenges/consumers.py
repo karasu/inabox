@@ -29,17 +29,13 @@ IOLoop_ERROR = 0x018
 # WsockHandler
 class SshConsumer(AsyncWebsocketConsumer):
     worker_ref = None
-    groups = ["broadcast"]
+    groups = ["all_terminals"]
 
     async def connect(self):
         self.src_addr = self.scope['client']
         logging.info('Connected from {}:{}'.format(*self.src_addr))
 
         print('Connected from {}:{}'.format(*self.src_addr))
-
-
-        self.channel_layer.group_add("ssh", self.channel_name)
-
 
         src_ip = self.src_addr[0]
         workers = clients.get(src_ip, None)
@@ -56,7 +52,7 @@ class SshConsumer(AsyncWebsocketConsumer):
                 if pair.startswith('workerid='):
                     worker_id = pair.split('=')[1]
         except (KeyError, InvalidValueError) as err:
-            self.close(reason=str(err))
+            await self.close(reason=str(err))
         else:
             print("worker_id:", worker_id)
 
@@ -67,13 +63,19 @@ class SshConsumer(AsyncWebsocketConsumer):
                 #self.set_nodelay(True)
                 # set us as handler
                 worker.set_handler(self)
+
+                # store consumer reference
+                self._weakref = weakref.ref(self)
+                
                 # store worker reference
                 self.worker_ref = weakref.ref(worker)
 
                 loop = asyncio.get_event_loop()
 
-                loop.add_reader(worker.fd, worker.on_read, IOLoop_READ)
-                loop.add_writer(worker.fd, worker.on_write, IOLoop_WRITE)
+                loop.add_reader(
+                    worker.fd, worker.read, self._weakref)
+                loop.add_writer(
+                    worker.fd, worker.write, self._weakref)
 
                 await self.accept()
             else:
@@ -81,10 +83,10 @@ class SshConsumer(AsyncWebsocketConsumer):
                 logging.warning('Websocket authentication failed.')
                 await self.close()
 
-
-    async def disconnect(self, close_code):
-        # Called when the socket closes
-        self.channel_layer.group_discard("ssh", self.channel_name)    
+    #async def disconnect(self, close_code):
+    #    # Called when the socket closes
+    #    self.channel_layer.group_discard("ssh", self.channel_name)
+        
 
     # Receive message from WebSocket
     async def receive(self, text_data):
@@ -127,10 +129,8 @@ class SshConsumer(AsyncWebsocketConsumer):
         data = msg.get('data')
         if data and isinstance(data, UnicodeType):
             worker.data_to_dst.append(data)
-            worker.on_write()
+            worker.write(self._weakref)
 
     async def send_message(self, event):
-        print("****** EVENT ********")
-        print(event)
         if event["data"]:
             await self.send(bytes_data=event["data"])

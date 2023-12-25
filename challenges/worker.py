@@ -1,4 +1,5 @@
 import logging
+import asyncio
 try:
     import secrets
 except ImportError:
@@ -7,6 +8,8 @@ except ImportError:
 from uuid import uuid4
 
 from channels.layers import get_channel_layer
+channel_layer = get_channel_layer()
+
 from asgiref.sync import async_to_sync
 
 # These constants were originally based on constants from the
@@ -73,9 +76,8 @@ class Worker(object):
             self.loop.remove_reader(self.fd)
             self.loop.remove_writer(self.fd)
 
-    def on_read(self, args=None):
+    def read(self, consumer):
         logging.debug('worker {} on read'.format(self.id))
-        print("ONREAD")
         try:
             data = self.chan.recv(BUF_SIZE)
         except (OSError, IOError) as err:
@@ -90,41 +92,16 @@ class Worker(object):
 
             logging.debug('{!r} to {}:{}'.format(data, *self.handler.src_addr))
             try:
-                # send a binary frame
-                #self.handler.on_send_bytes(bytes_data=data)
-
-                '''
-                #print(self.handler.channel_name)
-                channel_layer = get_channel_layer()
-                async_to_sync(channel_layer.group_send)(
-                    "ssh",
-                    {'type': 'send.message', 'data': data}
-                )
-                '''
-
-                #print(data)
-
-                print("TODO: Fix this, it doesn't work")
-                channel_layer = get_channel_layer()
-                channel_name = self.handler.channel_name
-                print(channel_name)
-                channel_layer.send(channel_name, {
+                # send a bytes frame to the consumer
+                loop = asyncio.get_event_loop()
+                channel_name = consumer().channel_name
+                loop.create_task(channel_layer.send(channel_name, {
                     "type": "send.message", 
-                    "data": data,
-                })
-
-
-                channel_layer.group_send("ssh", {
-                    "type": "send.message",
-                    "data": data,
-                })
-
-
-                #self.handler.send(data)
+                    "data": data}))
             except:
                 self.close(reason='websocket closed')
 
-    def on_write(self, args=None):
+    def write(self, consumer):
         logging.debug('worker {} on write'.format(self.id))
 
         if not self.data_to_dst:
@@ -141,7 +118,6 @@ class Worker(object):
                 self.close(reason='chan error on writing')
             else:
                 self.update_handler(IOLoop_WRITE)
-
         else:
             self.data_to_dst = []
             data = data[sent:]
