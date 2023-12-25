@@ -17,7 +17,7 @@
         <div class="container form-container" style="display: none">
           <form id="connect" action="{% url 'challenges:challenge_detail' challenge.id %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            {{ connect_ssh_form }}
+            {{ challenge_ssh_form }}
             <button id="submit" type="submit" class="btn btn-primary">Let's try to solve it!</button>
             <a href="{% url 'challenges:challenges' %}" id="cancel" class="btn btn-danger">Go back</a>
           </form>

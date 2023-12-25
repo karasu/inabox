@@ -2,16 +2,20 @@
   pk: 1
   fields:
     name: inabox
-    ssh_port: 30001
+    container_ssh_port: 30001
+    container_username: inabox
+    container_password: aW5hYm94
     containers_limit: 30
     reuse_container: False
     docker_file: Dockerfile
     docker_image_id: d62148a8527f
 - model: challenges.DockerImage
-  pk: 1
+  pk: 2
   fields:
     name: alpine
-    ssh_port: 30002
+    container_ssh_port: 30002
+    container_username: inabox
+    container_password: aW5hYm94
     containers_limit: 30
     reuse_container: False
     docker_file: Dockerfile

@@ -34,7 +34,7 @@ from .utils import (
 from .worker import Worker, recycle_worker, clients
 
 from .models import Challenge
-from .forms import ConnectSshForm
+from .forms import ChallengeSSHForm
 
 try:
     from json.decoder import JSONDecodeError
@@ -64,7 +64,19 @@ class ChallengeDetailView(generic.DetailView):
     def get_context_data(self, **kwargs):
         # Add form to our context so we can put it in the template
         context = super(ChallengeDetailView, self).get_context_data(**kwargs)
-        context['connect_ssh_form'] = ConnectSshForm
+
+        di = context['challenge'].docker_image
+        data = {
+            "hostname": "localhost",
+            "port": di.container_ssh_port,
+            "username": di.container_username,
+            "password": di.container_password,
+            "privatekey": di.container_privatekey,
+            "passphrase": di.container_passphrase,
+            "totp": 0,
+            "term": "xterm-256color",
+        }
+        context['challenge_ssh_form'] = ChallengeSSHForm(data)
         return context
 
     def load_host_keys(self, path):
@@ -144,7 +156,7 @@ class ChallengeDetailView(generic.DetailView):
     
     def post(self, request, *args, **kwargs):
         # create a form instance and populate it with data from the request:
-        form = ConnectSshForm(request.POST)
+        form = ChallengeSSHForm(request.POST)
         # check whether it's valid:
         if form.is_valid():
             #print(request.META)

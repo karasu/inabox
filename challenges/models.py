@@ -87,7 +87,13 @@ def dockerimage_directory_path(instance, filename):
 
 class DockerImage(models.Model):
     name = models.CharField(max_length=64, unique=True)
-    ssh_port = models.IntegerField(default=30000, unique=True)
+    # data to connect to the docker container
+    container_ssh_port = models.IntegerField(default=30000, unique=True)
+    container_username = models.CharField(max_length=64, default="inabox")
+    container_password = models.CharField(max_length=64, default="aW5hYm94")
+    container_privatekey = models.TextField()
+    container_passphrase = models.CharField(max_length=256)
+
     # How many containers can be running at the same time
     # from this image
     containers_limit = models.IntegerField(default=30)
