@@ -1,8 +1,5 @@
-/*jslint browser:true */
-
 var jQuery;
 var wssh = {};
-
 
 (function() {
   // For FormData without getter and setter
@@ -223,7 +220,7 @@ jQuery(function($){
     }
 
     if (!default_fonts) {
-      default_fonts = term.getOption('fontFamily');
+      //default_fonts = term.getOption('fontFamily');
     }
 
     if (custom_font_is_loaded()) {
@@ -384,10 +381,18 @@ jQuery(function($){
       }
     }
 
-    var term = new window.Terminal(termOptions);
+    // var term = new window.Terminal(termOptions);
+    var term = new Terminal(termOptions);
 
-    term.fitAddon = new window.FitAddon.FitAddon();
+    //term.fitAddon = new window.FitAddon.FitAddon();
+    //term.loadAddon(term.fitAddon);
+    
+    //var fitAddon = new window.FitAddon.FitAddon();
+    term.fitAddon = new FitAddon.FitAddon();
     term.loadAddon(term.fitAddon);
+    
+
+
 
     console.log(url);
     if (!msg.encoding) {
@@ -401,10 +406,11 @@ jQuery(function($){
       if (term) {
         // console.log(text);
         term.write(text);
-        if (!term.resized) {
-          resize_terminal(term);
-          term.resized = true;
-        }
+        //if (!term.resized) {
+        //  resize_terminal(term);
+        //  term.resized = true;
+        //}
+        term.fitAddon.fit();
       } else {
         console.error('term not defined');
       }
@@ -521,14 +527,14 @@ jQuery(function($){
 
     term.on_resize = function(cols, rows) {
       if (cols !== this.cols || rows !== this.rows) {
-        console.debug('Resizing terminal to geometry: ' + format_geometry(cols, rows));
-        this.resize(cols/2, rows);
+        //this.resize(cols, rows);
+        term.fitAddon.fit();
         sock.send(JSON.stringify({'resize': [cols, rows]}));
       }
     };
 
     term.onData(function(data) {
-      console.log(data);
+      // console.log(data);
       sock.send(JSON.stringify({'data': data}));
     });
 

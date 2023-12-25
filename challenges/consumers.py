@@ -6,6 +6,7 @@ import weakref
 import socket
 import threading
 import asyncio
+import paramiko
 
 try:
     from types import UnicodeType
