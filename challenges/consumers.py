@@ -117,7 +117,7 @@ class SshConsumer(AsyncWebsocketConsumer):
         if not isinstance(msg, dict):
             return
         
-        print("Websocket consumer received:", msg)
+        # print("Websocket consumer received:", msg)
 
         resize = msg.get('resize')
         if resize and len(resize) == 2:

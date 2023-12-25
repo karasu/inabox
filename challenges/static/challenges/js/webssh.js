@@ -397,7 +397,7 @@ jQuery(function($){
 
     function term_write(text) {
       if (term) {
-        console.log(text);
+        // console.log(text);
         term.write(text);
         if (!term.resized) {
           resize_terminal(term);
@@ -520,7 +520,7 @@ jQuery(function($){
     term.on_resize = function(cols, rows) {
       if (cols !== this.cols || rows !== this.rows) {
         console.debug('Resizing terminal to geometry: ' + format_geometry(cols, rows));
-        this.resize(cols, rows);
+        this.resize(cols/2, rows);
         sock.send(JSON.stringify({'resize': [cols, rows]}));
       }
     };

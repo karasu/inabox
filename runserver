@@ -1,4 +1,9 @@
 #!/bin/sh
 
+# start redis docker
+docker rm -f redis-inabox
+docker run --name redis-inabox -p 6379:6379 -d redis:5
+
+# start django
 python manage.py runserver
 

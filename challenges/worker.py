@@ -136,7 +136,8 @@ class Worker(object):
             'Closing worker {} with reason: {}'.format(self.id, reason)
         )
         if self.handler:
-            self.loop.remove_handler(self.fd)
+            # TODO: Fix this! remove_handler
+            # self.loop.remove_handler(self.fd)
             self.handler.close(reason=reason)
         self.chan.close()
         self.ssh.close()
