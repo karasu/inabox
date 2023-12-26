@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views import generic
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 import paramiko
 import socket
@@ -56,7 +57,7 @@ class ChallengesListView(generic.ListView):
     query_set = Challenge.objects.order_by("-pub_date")
 
 # IndexHandler
-class ChallengeDetailView(generic.DetailView):
+class ChallengeDetailView(LoginRequiredMixin, generic.DetailView):
     model = Challenge
     executor = ThreadPoolExecutor(max_workers=os.cpu_count()*5)
     loop = None
@@ -155,9 +156,6 @@ class ChallengeDetailView(generic.DetailView):
         return (ip, port)
     
     def post(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return HttpResponseForbidden()
-
         # create a form instance and populate it with data from the request:
         form = ChallengeSSHForm(request.POST)
         # check whether it's valid:
