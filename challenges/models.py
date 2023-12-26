@@ -5,6 +5,7 @@ from django.utils.timezone import now
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.models import User
 
 try:
     from Crypto.PublicKey import RSA
@@ -51,33 +52,40 @@ class RSAUtil():
         rsa_key = RSA.importKey(to_bytes(private_key))
         return rsa_key.publickey().exportKey()
 
-class Person(models.Model):
+
+'''
+Django user has this fields:
+    username
+    password
+    email
+    first_name
+    last_name
+'''
+
+'''
+usr = User.objects.get(username="fsmith")
+freds_role = usr.profile.role
+'''
+
+class Profile(models.Model):
     ROLES = [
         ("T", _("Teacher")),
         ("S", _("Student")),
-    ]    
-    user_name = models.CharField(max_length=64)
-    full_name = models.CharField(max_length=256)
-    email = models.CharField(max_length=256)
+    ]
+    user = models.OneToOneField(User, on_delete=models.CASCADE)    
     class_group = models.ForeignKey(
         ClassGroup, on_delete=models.CASCADE)
     role = models.CharField(
         max_length=1, choices=ROLES, default="S")
     teacher = models.ForeignKey(
-        'self', on_delete=models.CASCADE)
+        User, on_delete=models.CASCADE, related_name="teacher")
     avatar = models.ImageField(
         upload_to=user_directory_path, blank=True, null=True)
     private_key = models.TextField(
         default=RSAUtil.create_rsa_private_key())
 
-    def __str__(self):
-        return self.full_name
-    
-    class Meta:
-        verbose_name_plural = "people"
-
-#class Institution(models.Model):
-#    name = models.CharField(max_length=64)
+    #def __str__(self):
+    #    return self.user
     
 
 def dockerimage_directory_path(instance, filename):
@@ -135,7 +143,7 @@ class Challenge(models.Model):
     ]   
     title = models.CharField(max_length=256, unique=True)
     creator = models.ForeignKey(
-        Person, on_delete=models.CASCADE)
+        User, on_delete=models.CASCADE)
     pub_date = models.DateTimeField(
         _("Date"), default=now)
     summary = models.TextField()
@@ -162,7 +170,7 @@ class DockerContainer(models.Model):
     challenge = models.ForeignKey(
         Challenge, on_delete=models.CASCADE)
     user = models.ForeignKey(
-        Person, on_delete=models.CASCADE)
+        User, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.container_id

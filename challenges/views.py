@@ -155,6 +155,9 @@ class ChallengeDetailView(generic.DetailView):
         return (ip, port)
     
     def post(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return HttpResponseForbidden()
+
         # create a form instance and populate it with data from the request:
         form = ChallengeSSHForm(request.POST)
         # check whether it's valid:
