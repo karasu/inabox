@@ -1,0 +1,60 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-12-27 17:23+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: inabox/templates/loggedout.html:3
+msgid "Logged out"
+msgstr ""
+
+#: inabox/templates/loggedout.html:7
+msgid "mmmm... something has failed."
+msgstr ""
+
+#: inabox/templates/loggedout.html:9
+msgid "You've been logged out successfully."
+msgstr ""
+
+#: inabox/templates/loggedout.html:10
+msgid "Return to main page"
+msgstr ""
+
+#: inabox/templates/registration/login.html:3
+msgid "Log in"
+msgstr ""
+
+#: inabox/templates/registration/login.html:7
+msgid "Your username and password didn't match. Please try again."
+msgstr ""
+
+#: inabox/templates/registration/login.html:12
+msgid ""
+"Your account doesn't have access to this page. To proceed, please login with "
+"an account that has access."
+msgstr ""
+
+#: inabox/templates/registration/login.html:14
+msgid "Please login to see this page."
+msgstr ""
+
+#: inabox/templates/registration/login.html:31
+msgid "login"
+msgstr ""
+
+#: inabox/templates/registration/login.html:37
+msgid "Lost password?"
+msgstr ""

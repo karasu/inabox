@@ -21,7 +21,7 @@
       </div>
 
       <form class="d-flex">
-        <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="{{ _("Search") }}">
+        <input class="form-control mr-sm-2" type="search" placeholder="{{ _("Search") }}" aria-label="{{ _("Search") }}">
         <button class="btn btn-outline-success my-2 my-sm-0" type="submit">{{ _("Search") }}</button>
       </form>
 
@@ -39,7 +39,7 @@
           </option>
           {% endfor %}         
         </select> 
-        <button type="submit" class="btn btn-outline-success my-2 my-sm-0" value="{{ _("Change") }}">{{ _("Change") }}</button>
+        <button type="submit" class="btn btn-outline-success" value="{{ _("Change") }}">{{ _("Change") }}</button>
       </form>
 
       {% if user.is_authenticated %}
