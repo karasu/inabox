@@ -21,13 +21,13 @@
     <input type="hidden" name="next" value="{{ next }}">
     <div class="form-group mb-3">
         {{ form.username.label_tag }}
-        <input type="text" class="form-control" id="{{ form.username.id }}"  aria-describedby="emailHelp" placeholder="{{ form.username.html_name }}">
-        <small id="emailHelp" class="form-text text-muted"></small>
+        <input type="text" class="form-control" autofocus required id="{{ form.username.id_for_label }}" aria-describedby="emailHelp" name="{{ form.username.html_name }}" placeholder="{{ form.username.html_name }}">
+        <small id="emailHelp" class="form-text text-muted">{{ form.username.errors }}</small>
     </div>
     <div class="form-group mb-4">
         {{ form.password.label_tag }}
-        <input type="password" class="form-control" id="{{ form.password.id }}"  aria-describedby="psswordHelp" placeholder="{{ form.password.html_name }}">
-        <small id="passwordHelp" class="form-text text-muted"></small>
+        <input type="password" class="form-control" required id="{{ form.password.id_for_label }}" aria-describedby="psswordHelp" name="{{ form.password.html_name }}" placeholder="{{ form.password.html_name }}">
+        <small id="passwordHelp" class="form-text text-muted">{{ form.password.errors }}</small>
     </div>
     <button type="submit"  class="btn btn-primary" value="login">login</button>
 </form>
