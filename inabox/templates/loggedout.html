@@ -1,12 +1,12 @@
 {% extends 'news/base.html' %}
 {% load django_bootstrap5 %}
-{% block title %}Logged out{% endblock %}
+{% block title %}{{ _("Logged out") }}{% endblock %}
 {% block content %}
 
 {% if user.is_authenticated %}
-mmmm... something has failed.
+{{ _("mmmm... something has failed.") }}
 {% else %}
-You've been logged out successfully.<br />
-<a class="btn btn-success mt-4" href="/">Return to main page</a>
+{{ _("You've been logged out successfully.") }}<br />
+<a class="btn btn-success mt-4" href="/">{{ _("Return to main page") }}</a>
 {% endif %}
 {% endblock %}

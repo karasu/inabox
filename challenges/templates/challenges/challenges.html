@@ -1,6 +1,6 @@
 {% extends 'news/base.html' %}
 {% load django_bootstrap5 %}
-{% block title %}Challenges{% endblock %}
+{% block title %}{{ _("Challenges") }}{% endblock %}
 {% block content %}
 {% if challenge_list %}
       {% for challenge in challenge_list %}
@@ -17,5 +17,5 @@
         </div>
       </div>
       {% endfor %}
-  {% else %}<p>No challenges are available.</p>{% endif %}
+  {% else %}<p>{{ _("No challenges are available.") }}</p>{% endif %}
 {% endblock %}

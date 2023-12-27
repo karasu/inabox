@@ -1,6 +1,6 @@
 {% extends 'news/base.html' %}
 {% load django_bootstrap5 %}
-{% block title %}Inabox news{% endblock %}
+{% block title %}{{ _("News") }}{% endblock %}
 {% block content %}
 {% if newsentry_list %}
   {% for newsentry in newsentry_list %}
@@ -15,6 +15,6 @@
 </div>
 {% endfor %}
 {% else %}
-    <p>No news are available.</p>
+    <p>{{ _("No news are available.") }}</p>
 {% endif %}
 {% endblock %}

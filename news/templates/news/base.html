@@ -1,5 +1,7 @@
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark">
+<html lang="{{ LANGUAGE_CODE }}" data-bs-theme="dark">
     <head>
 {% load django_bootstrap5 %}
 {% bootstrap_css %}

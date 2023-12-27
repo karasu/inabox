@@ -18,8 +18,8 @@
           <form id="connect" action="{% url 'challenges:challenge_detail' challenge.id %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             {{ challenge_ssh_form }}
-            <button id="submit" type="submit" class="btn btn-primary">Let's try to solve it!</button>
-            <a href="{% url 'challenges:challenges' %}" id="cancel" class="btn btn-danger">Go back</a>
+            <button id="submit" type="submit" class="btn btn-primary">{{ _("Let's try to solve it!") }}</button>
+            <a href="{% url 'challenges:challenges' %}" id="cancel" class="btn btn-danger">{{ _("Go back") }}</a>
           </form>
         </div>
         <div class="container pt-3">

@@ -1,18 +1,17 @@
 {% extends 'news/base.html' %}
 {% load django_bootstrap5 %}
-{% block title %}Log in{% endblock %}
+{% block title %}{{ _("Log in") }}{% endblock %}
 {% block content %}
 
 {% if form.errors %}
-<p>Your username and password didn't match. Please try again.</p>
+<p>{{ _("Your username and password didn't match. Please try again.") }}</p>
 {% endif %}
 
 {% if next %}
     {% if user.is_authenticated %}
-    <p>Your account doesn't have access to this page. To proceed,
-    please login with an account that has access.</p>
+    <p>{{ _("Your account doesn't have access to this page. To proceed, please login with an account that has access.") }}</p>
     {% else %}
-    <p>Please login to see this page.</p>
+    <p>{{ _("Please login to see this page.") }}</p>
     {% endif %}
 {% endif %}
 
@@ -29,12 +28,12 @@
         <input type="password" class="form-control" required id="{{ form.password.id_for_label }}" aria-describedby="psswordHelp" name="{{ form.password.html_name }}" placeholder="{{ form.password.html_name }}">
         <small id="passwordHelp" class="form-text text-muted">{{ form.password.errors }}</small>
     </div>
-    <button type="submit"  class="btn btn-primary" value="login">login</button>
+    <button type="submit"  class="btn btn-primary" value="login">{{ _("login") }}</button>
 </form>
 
 
 
 {# Assumes you set up the password_reset view in your URLconf #}
-<p class="mt-2"><a href="{% url 'password_reset' %}">Lost password?</a></p>
+<p class="mt-2"><a href="{% url 'password_reset' %}">{{ _("Lost password?") }}</a></p>
 
 {% endblock %}
