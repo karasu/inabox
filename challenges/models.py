@@ -78,7 +78,8 @@ class Profile(models.Model):
     role = models.CharField(
         max_length=1, choices=ROLES, default="S")
     teacher = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="teacher")
+        User, on_delete=models.CASCADE, related_name="teacher",
+        verbose_name=_("Teacher"))
     avatar = models.ImageField(
         upload_to=user_directory_path, blank=True, null=True)
     private_key = models.TextField(
