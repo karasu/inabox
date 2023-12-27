@@ -85,6 +85,8 @@ class Profile(models.Model):
     private_key = models.TextField(
         default=RSAUtil.create_rsa_private_key())
 
+    #django.conf.locale.LANG_INFO
+
     #def __str__(self):
     #    return self.user
     

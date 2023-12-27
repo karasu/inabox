@@ -1,4 +1,6 @@
 {% load static %}
+{% load i18n %}
+
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container-fluid">
     <a class="navbar-brand" href="{% url 'news:news' %}">
@@ -13,20 +15,37 @@
         <a class="nav-item nav-link" href="#">{{ _("New challenge") }}</a>
         <a class="nav-item nav-link" href="#">{{ _("Users") }}</a>
         <a class="nav-item nav-link" href="#">{{ _("About") }}</a>
-       
         <!--<a class="nav-item nav-link" href="{% url 'admin:index' %}">Admin</a>-->
         <!-- <a class="nav-item nav-link disabled" href="#">Disabled</a> -->
       </div>
+
       <form class="d-flex">
         <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="{{ _("Search") }}">
         <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
       </form>
+
+      <div class="nav-item dropdown mx-lg-3">
+        {% get_current_language as LANGUAGE_CODE %}
+        {% get_available_languages as LANGUAGES %}
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          {{ LANGUAGE_CODE }}
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+          {% get_language_info_list for LANGUAGES as languages %}
+          {% for language in languages %}
+          <a class="dropdown-item" href="/ca">{{ language.name }} ({{ language.code }})</a>
+          {% endfor %}
+        </div>    
+      </div>            
+      
       {% if user.is_authenticated %}
-      <a class="nav-item nav-link px-4" href="#">{{ _("Welcome") }}, {{ user.get_username }}</a>
+      <a class="nav-item nav-link px-lg-4" href="#">{{ _("Welcome") }}, {{ user.get_username }}</a>
       <a class="btn btn-warning" href="{% url 'logout' %}">{{ _("Log out!") }}</a>
       {% else %}
-      <a class="btn btn-primary mx-3" href="{% url 'login' %}">{{ _("Log in!") }}</a>
+      <a class="btn btn-primary mx-lg-2" href="{% url 'login' %}">{{ _("Log in!") }}</a>
       {% endif %}
+
+      
     </div>
   </div>
 </nav>
