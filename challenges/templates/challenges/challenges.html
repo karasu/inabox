@@ -2,20 +2,53 @@
 {% load django_bootstrap5 %}
 {% block title %}{{ _("Challenges") }}{% endblock %}
 {% block content %}
-{% if challenge_list %}
+
+<div class="container pt-3">
+  <div class="row">
+    <div class="col-9">
+      {% if challenge_list %}
       {% for challenge in challenge_list %}
-      <div class="container pt-3">
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">
-              <a href="{% url 'challenges:challenge_detail' pk=challenge.id %}"> {{ challenge.title }}</a> by {{ challenge.creator }}
-            </h5>
-            <h6 class="card-subtitle pt-2">{{ challenge.area }} ({{ challenge.solved }}/{{ challenge.tries }}) Level {{ challenge.difficulty}} {{ challenge.pub_date }}</h6>
-            <p class="card-text pt-3">{{ challenge.summary }}</p>
-            <a href="{% url 'challenges:challenge_detail' pk=challenge.id %}" class="btn btn-primary">Check me out!</a>
-          </div>
+      <div class="card mb-2">
+        <div class="card-body">
+          <h5 class="card-title">
+            <a href="{% url 'challenges:challenge_detail' pk=challenge.id %}"> {{ challenge.title }}</a> by {{ challenge.creator }}
+          </h5>
+          <h6 class="card-subtitle pt-2">{{ challenge.area }} ({{ challenge.solved }}/{{ challenge.tries }}) Level {{ challenge.difficulty}} {{ challenge.pub_date }}</h6>
+          <p class="card-text pt-3">{{ challenge.summary }}</p>
+          <a href="{% url 'challenges:challenge_detail' pk=challenge.id %}" class="btn btn-primary">{{ _("Check me out!") }}</a>
         </div>
       </div>
       {% endfor %}
-  {% else %}<p>{{ _("No challenges are available.") }}</p>{% endif %}
+      {% else %}<p>{{ _("No challenges are available.") }}</p>{% endif %}
+    </div>
+    <div class="col-3">
+      <div class="card">
+        <div class="card-body">
+          
+          <form method="get" action="{% url 'challenges:challenges' %}">
+            {% csrf_token %}
+            <div class="form-group row mb-2">
+              <label for="creator" class="col-lg-4">{{ _("Creator:") }}</label>
+              <div class="col-lg-8">
+                <select name="creator" class="form-control dropdown-toggle" href="#" id="creator" role="button" data-bs-toggle="dropdown" aira-expanded="false">
+                  <option value="All">{{ _("All creators") }}</option>
+                  <option value="{{ creator }}"> {{ creator }}</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group row mb-2">
+              <label for="orderby" class="col-lg-4">{{ _("Order by:") }}</label>
+              <div class="col-lg-8">
+                <select name="orderby" class="form-control dropdown-toggle" href="#" id="orderby" role="button" data-bs-toggle="dropdown" aira-expanded="false">
+                  <option value="{{ orderby }}"> {{ orderby }}</option>
+                </select>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-outline-success" value="{{ _("Filter") }}">{{ _("Filter") }}</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

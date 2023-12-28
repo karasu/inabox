@@ -1,7 +1,7 @@
 - model: news.newsentry
   pk: 1
   fields:
-    title: Welcome!
+    title: Benvinguts!
     text: És important tenir cura del pacient, ser seguit pel pacient, però passarà en un moment que hi hagi molta feina i dolor. Perquè, fins al més mínim detall, ningú no hauria de practicar cap mena de treball a no ser que en tregui algun benefici. No t'enfadis amb el dolor en la reprimenda en el plaer que vol ser un pèl del dolor amb l'esperança que no hi hagi cria. Si no són encegats per la luxúria, no surten; són culpables els que abandonen els seus deures i suavitzen els seus cors, és a dir, els seus treballs.
     language_code: ca
 - model: news.newsentry

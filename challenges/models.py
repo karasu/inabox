@@ -163,6 +163,7 @@ class Challenge(models.Model):
         Area, on_delete=models.CASCADE, verbose_name="Area")
     difficulty = models.CharField(
         max_length=1, choices=LEVELS, default="N")
+    points = models.IntegerField(default=1)
 
     def __str__(self):
         return self.title

@@ -5,13 +5,14 @@ from django.views import generic
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.mixins import LoginRequiredMixin
 
+from django.contrib.auth.models import User
+
 import paramiko
 import socket
 
 import os
 import json
 import logging
-import os
 import struct
 import traceback
 import asyncio
@@ -50,11 +51,32 @@ MAXCONN=20
 # The delay to call recycle_worker
 RECYLE_WORKER_DELAY=3
 
+
 class ChallengesListView(generic.ListView):
     template_name = "challenges/challenges.html"
     model = Challenge
     paginate_by = 10
-    query_set = Challenge.objects.order_by("-pub_date")
+    #query_set = Challenge.objects.order_by("-pub_date")
+
+    def get_queryset(self):
+        #creator = self.request.GET.get('creator', _('All'))
+        order = self.request.GET.get('orderby', '-pub_date')
+
+        #if (creator != _("All")):
+        #    #creator_id = User.username
+        #    new_context = Challenge.objects.filter(
+        #        creator=creator,).order_by(order)
+        #else:
+        new_context = Challenge.objects.order_by(order)
+        return new_context
+
+    def get_context_data(self, **kwargs):
+        context = super(ChallengesListView, self).get_context_data(**kwargs)
+        context['creators'] = User.objects.all()
+        context['creator'] = self.request.GET.get('creator', 'karasu')
+        context['orderby'] = self.request.GET.get('orderby', '-pub_date')
+        return context
+
 
 # IndexHandler
 class ChallengeDetailView(LoginRequiredMixin, generic.DetailView):

@@ -49,7 +49,7 @@ msgstr ""
 
 #: inabox/templates/registration/login.html:14
 msgid "Please login to see this page."
-msgstr ""
+msgstr "Entra per poder veure aquesta pàgina."
 
 #: inabox/templates/registration/login.html:31
 msgid "login"
