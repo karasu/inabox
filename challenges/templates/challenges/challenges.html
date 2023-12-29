@@ -55,7 +55,7 @@
                   <option value="all">{{ _("All areas") }}</option>
                   <option disabled>──────────</option>
                   {% for area in areas %}
-                  <option value="{{ area }}"> {{ area }}</option>
+                  <option value="{{ area }}"{% if sarea == area %}selected{% endif %}>{{ area }}</option>
                   {% endfor %}
                 </select>
               </div>
