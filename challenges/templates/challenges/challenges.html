@@ -34,17 +34,17 @@
                   <option value="all">{{ _("All creators") }}</option>
                   <option disabled>──────────</option>
                   {% for creator in creators %}
-                  <option value="{{ creator }}"> {{ creator }}</option>
+                  <option value="{{ creator }}"{% if screator == creator %}selected{% endif %}>{{ creator }}</option>
                   {% endfor %}
                 </select>
               </div>
             </div>
             <div class="form-group row mb-2">
-              <label for="date" class="col-lg-4 mt-2">{{ _("Date:") }}</label>
+              <label for="order" class="col-lg-4 mt-2">{{ _("Order:") }}</label>
               <div class="col-lg-8">
-                <select name="date" class="form-control dropdown-toggle" href="#" id="date" role="button" data-bs-toggle="dropdown" aira-expanded="false">
-                  <option value="{{ date }}"> {{ _("Newest first") }}</option>
-                  <option value="{{ date }}"> {{ _("Oldest first") }}</option>
+                <select name="order" class="form-control dropdown-toggle" href="#" id="order" role="button" data-bs-toggle="dropdown" aira-expanded="false">
+                  <option value="newest"{% if sorder == order %}selected{% endif %}>{{ _("Newest first") }}</option>
+                  <option value="oldest"{% if sorder == order %}selected{% endif %}>{{ _("Oldest first") }}</option>
                 </select>
               </div>
             </div>

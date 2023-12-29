@@ -59,29 +59,50 @@ class ChallengesListView(generic.ListView):
     #query_set = Challenge.objects.order_by("-pub_date")
 
     def get_queryset(self):
+        # creator, order, area, difficulty
+        new_qs = Challenge.objects.all()
+
         if self.request.GET:
-            creator = self.request.GET.get('creator', _('All'))
-            order = self.request.GET.get('orderby', '-pub_date')
-            print("get_queryset GET:", self.request.GET)
+            creator_name = self.request.GET.get('creator', 'all')
+            order = self.request.GET.get('order', 'newest')
+            area = self.request.GET.get('area', 'all')
+            difficulty = self.request.GET.get('difficulty', 'all')
+        
+            #print(creator_name, order, area, difficulty)
+            
+            if creator_name != 'all':
+                creator_id = User.objects.get(username=creator_name)
+                new_qs = new_qs.filter(creator=creator_id)
+            if order == 'newest':
+                new_qs = new_qs.order_by("-pub_date")
+            else:
+                new_qs = new_qs.order_by("pub_date")
+            if area != 'all':
+                new_qs = new_qs.filter(area=area)
+
         #if (creator != _("All")):
         #    #creator_id = User.username
         #    new_context = Challenge.objects.filter(
         #        creator=creator,).order_by(order)
         #else:
-        new_context = Challenge.objects.order_by("-pub_date")
-        return new_context
+        new_qs = Challenge.objects.order_by("-pub_date")
+        return new_qs
 
     def get_context_data(self, **kwargs):
         context = super(ChallengesListView, self).get_context_data(**kwargs)
-        context['creators'] = User.objects.all()
-        context['areas'] = Area.objects.all()
+        
+        context['creators'] = User.objects.values_list('username', flat=True)
+        context['areas'] = Area.objects.values_list('name', flat=True)
         context['levels'] = Challenge.LEVELS
 
-        if self.request.GET:
-            context['creator'] = self.request.GET.get('creator', 'karasu')
-            context['orderby'] = self.request.GET.get('orderby', '-pub_date')
-            print("get_context_data GET:", self.request.GET)
-        print(context)
+        print(context['creators'])
+
+        context['screator'] = self.request.GET.get('creator', 'all')
+        context['sorder'] = self.request.GET.get('order', 'newest')
+        context['sarea'] = self.request.GET.get('area', 'all')
+        context['slevel'] = self.request.GET.get('level', 'newest')
+        # print("get_context_data GET:", self.request.GET)
+        #print(context)
         return context
 
 
