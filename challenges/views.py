@@ -35,7 +35,7 @@ from .utils import (
 
 from .worker import Worker, recycle_worker, clients
 
-from .models import Challenge
+from .models import Challenge, Area
 from .forms import ChallengeSSHForm
 
 try:
@@ -59,22 +59,29 @@ class ChallengesListView(generic.ListView):
     #query_set = Challenge.objects.order_by("-pub_date")
 
     def get_queryset(self):
-        #creator = self.request.GET.get('creator', _('All'))
-        order = self.request.GET.get('orderby', '-pub_date')
-
+        if self.request.GET:
+            creator = self.request.GET.get('creator', _('All'))
+            order = self.request.GET.get('orderby', '-pub_date')
+            print("get_queryset GET:", self.request.GET)
         #if (creator != _("All")):
         #    #creator_id = User.username
         #    new_context = Challenge.objects.filter(
         #        creator=creator,).order_by(order)
         #else:
-        new_context = Challenge.objects.order_by(order)
+        new_context = Challenge.objects.order_by("-pub_date")
         return new_context
 
     def get_context_data(self, **kwargs):
         context = super(ChallengesListView, self).get_context_data(**kwargs)
         context['creators'] = User.objects.all()
-        context['creator'] = self.request.GET.get('creator', 'karasu')
-        context['orderby'] = self.request.GET.get('orderby', '-pub_date')
+        context['areas'] = Area.objects.all()
+        context['levels'] = Challenge.LEVELS
+
+        if self.request.GET:
+            context['creator'] = self.request.GET.get('creator', 'karasu')
+            context['orderby'] = self.request.GET.get('orderby', '-pub_date')
+            print("get_context_data GET:", self.request.GET)
+        print(context)
         return context
 
 

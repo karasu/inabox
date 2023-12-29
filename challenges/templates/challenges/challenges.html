@@ -28,19 +28,47 @@
           <form method="get" action="{% url 'challenges:challenges' %}">
             {% csrf_token %}
             <div class="form-group row mb-2">
-              <label for="creator" class="col-lg-4">{{ _("Creator:") }}</label>
+              <label for="creator" class="col-lg-4 mt-2">{{ _("Creator:") }}</label>
               <div class="col-lg-8">
                 <select name="creator" class="form-control dropdown-toggle" href="#" id="creator" role="button" data-bs-toggle="dropdown" aira-expanded="false">
-                  <option value="All">{{ _("All creators") }}</option>
+                  <option value="all">{{ _("All creators") }}</option>
+                  <option disabled>──────────</option>
+                  {% for creator in creators %}
                   <option value="{{ creator }}"> {{ creator }}</option>
+                  {% endfor %}
                 </select>
               </div>
             </div>
             <div class="form-group row mb-2">
-              <label for="orderby" class="col-lg-4">{{ _("Order by:") }}</label>
+              <label for="date" class="col-lg-4 mt-2">{{ _("Date:") }}</label>
               <div class="col-lg-8">
-                <select name="orderby" class="form-control dropdown-toggle" href="#" id="orderby" role="button" data-bs-toggle="dropdown" aira-expanded="false">
-                  <option value="{{ orderby }}"> {{ orderby }}</option>
+                <select name="date" class="form-control dropdown-toggle" href="#" id="date" role="button" data-bs-toggle="dropdown" aira-expanded="false">
+                  <option value="{{ date }}"> {{ _("Newest first") }}</option>
+                  <option value="{{ date }}"> {{ _("Oldest first") }}</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group row mb-2">
+              <label for="area" class="col-lg-4 mt-2">{{ _("Area:") }}</label>
+              <div class="col-lg-8">
+                <select name="area" class="form-control dropdown-toggle" href="#" id="area" role="button" data-bs-toggle="dropdown" aira-expanded="false">
+                  <option value="all">{{ _("All areas") }}</option>
+                  <option disabled>──────────</option>
+                  {% for area in areas %}
+                  <option value="{{ area }}"> {{ area }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="form-group row mb-2">
+              <label for="difficulty" class="col-lg-4 mt-2">{{ _("Difficulty:") }}</label>
+              <div class="col-lg-8">
+                <select name="difficulty" class="form-control dropdown-toggle" href="#" id="difficulty" role="button" data-bs-toggle="dropdown" aira-expanded="false">
+                  <option value="all">{{ _("All levels") }}</option>
+                  <option disabled>──────────</option>
+                  {% for level in levels %}
+                  <option value="{{ level.0 }}"> {{ level.1 }}</option>
+                  {% endfor %}
                 </select>
               </div>
             </div>
