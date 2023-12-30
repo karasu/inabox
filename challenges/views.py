@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from django.contrib.auth.models import User
+from django.utils.translation import get_language
 
 import paramiko
 import socket
@@ -73,6 +74,7 @@ class ChallengesListView(generic.ListView):
         if self.request.GET:
             area = self.request.GET.get('area', 'all')
             creator = self.request.GET.get('creator', 'all')
+            lang = self.request.GET.get('lang', 'all')
             level = self.request.GET.get('level', 'all')
             order = self.request.GET.get('order', 'newest')
         
@@ -83,6 +85,9 @@ class ChallengesListView(generic.ListView):
             if creator != 'all':
                 creator_id = User.objects.get(username=creator)
                 new_qs = new_qs.filter(creator=creator_id)
+            
+            if lang != 'all':
+                new_qs = new_qs.filter(language=lang)
 
             if level != 'all':
                 new_qs = new_qs.filter(level=level)
@@ -91,8 +96,7 @@ class ChallengesListView(generic.ListView):
                 new_qs = new_qs.order_by("-pub_date")
             else:
                 new_qs = new_qs.order_by("pub_date")
-            
-            
+
         return new_qs
 
     def get_context_data(self, **kwargs):
@@ -104,8 +108,11 @@ class ChallengesListView(generic.ListView):
 
         context['sarea'] = self.request.GET.get('area', 'all')
         context['screator'] = self.request.GET.get('creator', 'all')
+        context['slang'] = self.request.GET.get('lang', 'all')
         context['slevel'] = self.request.GET.get('level', 'all')
         context['sorder'] = self.request.GET.get('order', 'newest')
+
+        print(context['object_list'][0].level)
 
         return context
 
