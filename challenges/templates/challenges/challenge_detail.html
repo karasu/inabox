@@ -11,7 +11,8 @@
   <div class="card-body">
     <h5 class="card-title">{{ challenge.title }}</h5>
     <h6 class="card-subtitle pt-2">{{ _("Area:")}} {{ challenge.area }} | {{ _("Level:") }} {{ challenge.get_level_display }} | {{ _("Language:") }} {{ challenge.get_language_display }} | {{ _("Tries:") }} {{ challenge.tries }} | {{ _("Solved:") }} {{ challenge.solved }}</h6>
-    <p class="card-text pt-3">{{ challenge.full_description }}</p>
+    <p class="card-text pt-3">{{ challenge.summary }}</p>
+    <p class="card-text">{{ challenge.full_description }}</p>
     <p class="card-text pt-2">Tried {{ challenge.tries }} times, solved {{ challenge.solved }} times.</p>
     <div id="waiter" style="display: none"> Connecting ... </div>
     <div class="container form-container" style="display: none">

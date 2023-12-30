@@ -1,8 +1,6 @@
-from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views import generic
-#from django.contrib.auth import logout
 from django.utils.timezone import now
 from django.utils.translation import get_language
 
@@ -13,7 +11,7 @@ from challenges.models import Profile
 class NewsIndexView(generic.ListView):
     template_name = "news/news.html"
     model = NewsEntry
-    paginate_by = 100
+    paginate_by = 10
 
     def get_user_language(self):
         if self.request.user.is_authenticated:
@@ -23,8 +21,6 @@ class NewsIndexView(generic.ListView):
         else:
             return get_language()
 
-    def get_queryset(self):
-        """ Return the last five published news """
-        # NewsEntry.objects.
-        
-        return NewsEntry.objects.filter(language=self.get_user_language()).order_by("-pub_date")[:5]
+    #def get_queryset(self):
+    #    """ Return the last five published news in the user's language """        
+    #    return NewsEntry.objects.filter(language=self.get_user_language()).order_by("-pub_date")[:5]

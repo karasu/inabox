@@ -1,4 +1,4 @@
-from django.http import HttpResponseRedirect, JsonResponse, HttpResponseForbidden,  HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseForbidden,  HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views import generic
@@ -37,7 +37,7 @@ from .utils import (
 from .worker import Worker, recycle_worker, clients
 
 from .models import Challenge, Area, Profile
-from .forms import ChallengeSSHForm
+from .forms import ChallengeSSHForm, ChallengeForm
 
 try:
     from json.decoder import JSONDecodeError
@@ -52,6 +52,17 @@ MAXCONN=20
 # The delay to call recycle_worker
 RECYLE_WORKER_DELAY=3
 
+class NewChallengeView(generic.base.TemplateView):
+    template_name="challenges/new_challenge.html"
+ 
+    def get_context_data(self, **kwargs):
+        context = super(NewChallengeView, self).get_context_data(**kwargs)
+        context["form"] = ChallengeForm()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        print(request.POST)
+        return HttpResponse("Work in progress.")
 
 class ChallengesListView(generic.ListView):
     template_name = "challenges/challenges.html"
