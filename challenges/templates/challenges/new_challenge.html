@@ -1,0 +1,16 @@
+{% extends 'news/base.html' %}
+{% load django_bootstrap5 %}
+{% block title %}{{ _("Add a new challenge") }}{% endblock %}
+{% block content %}
+<form action="{% url 'challenges:new_challenge' %}" method="post" role="form">
+    {% csrf_token %}
+    {% for e in form.visible_fields %}
+    <div class="form-group mb-3">
+        {{ e.label_tag }}
+        {{ e }}
+    </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-primary mb-4" value="add">{{ _("Add challenge") }}</button>
+    <a href="{% url 'challenges:challenges' %}" class="btn btn-danger mb-4">{{ _("Cancel and go to the challenges page") }}</a>
+</form>
+{% endblock %}
