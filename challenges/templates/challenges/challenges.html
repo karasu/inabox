@@ -2,8 +2,8 @@
 {% load django_bootstrap5 %}
 {% block title %}{{ _("Challenges") }}{% endblock %}
 {% block content %}
-
-<div class="container pt-3">
+{% load i18n %}
+<div class="container-lg pt-3">
   <div class="row">
     <div class="col-9">
       {% if challenge_list %}
@@ -11,15 +11,16 @@
       <div class="card mb-2">
         <div class="card-body">
           <h5 class="card-title">
-            <a href="{% url 'challenges:challenge_detail' pk=challenge.id %}"> {{ challenge.title }}</a> by {{ challenge.creator }}
+            <a href="{% url 'challenges:challenge_detail' pk=challenge.id %}"> {{ challenge.title }}</a> {{ _("by") }} {{ challenge.creator }}
           </h5>
-          <h6 class="card-subtitle pt-2">{{ challenge.area }} ({{ challenge.solved }}/{{ challenge.tries }}) Level {{ challenge.difficulty}} {{ challenge.pub_date }}</h6>
+          <h6>{{ challenge.pub_date }}</h6>
+          <h6 class="card-subtitle pt-2">{{ challenge.area }} {{ challenge.level}} {{ challenge.language }} ({{ challenge.solved }}/{{ challenge.tries }})</h6>
           <p class="card-text pt-3">{{ challenge.summary }}</p>
           <a href="{% url 'challenges:challenge_detail' pk=challenge.id %}" class="btn btn-primary">{{ _("Check me out!") }}</a>
         </div>
       </div>
       {% endfor %}
-      {% else %}<p>{{ _("No challenges are available.") }}</p>{% endif %}
+      {% else %}<p>{{ _("No challenges available. Check your filter settings.") }}</p>{% endif %}
     </div>
     <div class="col-3">
       <div class="card">
@@ -27,27 +28,6 @@
           
           <form method="get" action="{% url 'challenges:challenges' %}">
             {% csrf_token %}
-            <div class="form-group row mb-2">
-              <label for="creator" class="col-lg-4 mt-2">{{ _("Creator:") }}</label>
-              <div class="col-lg-8">
-                <select name="creator" class="form-control dropdown-toggle" href="#" id="creator" role="button" data-bs-toggle="dropdown" aira-expanded="false">
-                  <option value="all">{{ _("All creators") }}</option>
-                  <option disabled>──────────</option>
-                  {% for creator in creators %}
-                  <option value="{{ creator }}"{% if screator == creator %}selected{% endif %}>{{ creator }}</option>
-                  {% endfor %}
-                </select>
-              </div>
-            </div>
-            <div class="form-group row mb-2">
-              <label for="order" class="col-lg-4 mt-2">{{ _("Order:") }}</label>
-              <div class="col-lg-8">
-                <select name="order" class="form-control dropdown-toggle" href="#" id="order" role="button" data-bs-toggle="dropdown" aira-expanded="false">
-                  <option value="newest"{% if sorder == order %}selected{% endif %}>{{ _("Newest first") }}</option>
-                  <option value="oldest"{% if sorder == order %}selected{% endif %}>{{ _("Oldest first") }}</option>
-                </select>
-              </div>
-            </div>
             <div class="form-group row mb-2">
               <label for="area" class="col-lg-4 mt-2">{{ _("Area:") }}</label>
               <div class="col-lg-8">
@@ -61,15 +41,49 @@
               </div>
             </div>
             <div class="form-group row mb-2">
-              <label for="difficulty" class="col-lg-4 mt-2">{{ _("Difficulty:") }}</label>
+              <label for="creator" class="col-lg-4 mt-2">{{ _("Creator:") }}</label>
               <div class="col-lg-8">
-                <select name="difficulty" class="form-control dropdown-toggle" href="#" id="difficulty" role="button" data-bs-toggle="dropdown" aira-expanded="false">
+                <select name="creator" class="form-control dropdown-toggle" href="#" id="creator" role="button" data-bs-toggle="dropdown" aira-expanded="false">
+                  <option value="all">{{ _("All creators") }}</option>
+                  <option disabled>──────────</option>
+                  {% for creator in creators %}
+                  <option value="{{ creator }}"{% if screator == creator %}selected{% endif %}>{{ creator }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="form-group row mb-2">
+              <label for="level" class="col-lg-4 mt-2">{{ _("Level:") }}</label>
+              <div class="col-lg-8">
+                <select name="level" class="form-control dropdown-toggle" href="#" id="level" role="button" data-bs-toggle="dropdown" aira-expanded="false">
                   <option value="all">{{ _("All levels") }}</option>
                   <option disabled>──────────</option>
                   {% for level in levels %}
-                  <option value="{{ level.0 }}"> {{ level.1 }}</option>
+                  <option value="{{ level.0 }}"{% if slevel == level.0 %}selected{% endif %}> {{ level.1 }}</option>
                   {% endfor %}
                 </select>
+              </div>
+            </div>
+            <div class="form-group row mb-2">
+              <label for="order" class="col-lg-4 mt-2">{{ _("Order:") }}</label>
+              <div class="col-lg-8">
+                <select name="order" class="form-control dropdown-toggle" href="#" id="order" role="button" data-bs-toggle="dropdown" aira-expanded="false">
+                  <option value="newest"{% if sorder == order %}selected{% endif %}>{{ _("Newest first") }}</option>
+                  <option value="oldest"{% if sorder == order %}selected{% endif %}>{{ _("Oldest first") }}</option>
+                </select>
+              </div>
+            </div>            
+            <div class="form-group row mb-2">
+              <label for="language" class="col-lg-4 mt-2">{{ _("Language:") }}</label>
+              <div class="col-lg-8">
+                <select name="language" class="form-control dropdown-toggle" href="#" id="language" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <option value="all">{{ _("All") }}</option>
+                {% get_available_languages as LANGUAGES %}
+                {% get_language_info_list for LANGUAGES as languages %}
+                {% for language in languages %}
+                <option value="{{ language.code }}"{% if language.code == slanguage %}selected{% endif %}>{{ language.name }}</option>
+                {% endfor %}
+                </select> 
               </div>
             </div>
             <button type="submit" class="btn btn-outline-success" value="{{ _("Filter") }}">{{ _("Filter") }}</button>

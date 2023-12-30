@@ -73,7 +73,7 @@ class ChallengesListView(generic.ListView):
         if self.request.GET:
             area = self.request.GET.get('area', 'all')
             creator = self.request.GET.get('creator', 'all')
-            difficulty = self.request.GET.get('difficulty', 'all')
+            level = self.request.GET.get('level', 'all')
             order = self.request.GET.get('order', 'newest')
         
             if area != 'all':
@@ -84,7 +84,9 @@ class ChallengesListView(generic.ListView):
                 creator_id = User.objects.get(username=creator)
                 new_qs = new_qs.filter(creator=creator_id)
 
-            # TODO: Difficulty
+            if level != 'all':
+                new_qs = new_qs.filter(level=level)
+
             if order == 'newest':
                 new_qs = new_qs.order_by("-pub_date")
             else:
@@ -100,12 +102,11 @@ class ChallengesListView(generic.ListView):
         context['areas'] = Area.objects.values_list('name', flat=True)
         context['levels'] = Challenge.LEVELS
 
-        context['screator'] = self.request.GET.get('creator', 'all')
-        context['sorder'] = self.request.GET.get('order', 'newest')
         context['sarea'] = self.request.GET.get('area', 'all')
-        context['slevel'] = self.request.GET.get('level', 'newest')
-        # print("get_context_data GET:", self.request.GET)
-        #print(context)
+        context['screator'] = self.request.GET.get('creator', 'all')
+        context['slevel'] = self.request.GET.get('level', 'all')
+        context['sorder'] = self.request.GET.get('order', 'newest')
+
         return context
 
 

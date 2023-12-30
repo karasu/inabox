@@ -46,6 +46,7 @@
     check_script: check_script.sh
     approved: False 
     area: 1
+    level: N
     language: ca
 - model: challenges.Challenge
   pk: 2
@@ -59,6 +60,7 @@
     check_script: check_script.sh
     approved: False 
     area: 2
+    level: A
     language: ca
 - model: challenges.Challenge
   pk: 3
@@ -71,6 +73,7 @@
     check_script: check_script.sh
     approved: False 
     area: 1
+    level: C
     language: en
 - model: challenges.Challenge
   pk: 4
@@ -84,4 +87,5 @@
     check_script: check_script.sh
     approved: False 
     area: 2
+    level: C
     language: ca  

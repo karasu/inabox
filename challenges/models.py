@@ -165,7 +165,7 @@ class Challenge(models.Model):
     solved = models.IntegerField(default=0)
     area = models.ForeignKey(
         Area, on_delete=models.CASCADE, verbose_name="Area")
-    difficulty = models.CharField(
+    level = models.CharField(
         max_length=1, choices=LEVELS, default="N")
     points = models.IntegerField(default=1)
     language = models.CharField(
