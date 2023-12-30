@@ -221,6 +221,7 @@ class ChallengeDetailView(LoginRequiredMixin, generic.DetailView):
         form = ChallengeSSHForm(request.POST)
         # check whether it's valid:
         if form.is_valid():
+            # TODO: update tries
             #print(request.META)
             #print("************")
             #print(request.POST)
