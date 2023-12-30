@@ -6,29 +6,29 @@
 {% endblock %}
 {% block title %}{{ challenge.title }}{% endblock %}
 {% block content %}
-<div class="container pt-3">
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title">{{ challenge.title }}</h5>
-        <h6 class="card-subtitle pt-2">({{ challenge.area }})</h6>
-        <p class="card-text pt-3">{{ challenge.full_description }}</p>
-        <p class="card-text pt-2">Tried {{ challenge.tries }} times, solved {{ challenge.solved }} times.</p>
-        <div id="waiter" style="display: none"> Connecting ... </div>
-        <div class="container form-container" style="display: none">
-          <form id="connect" action="{% url 'challenges:challenge_detail' challenge.id %}" method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ challenge_ssh_form }}
-            <button id="submit" type="submit" class="btn btn-primary">{{ _("Let's try to solve it!") }}</button>
-            <a href="{% url 'challenges:challenges' %}" id="cancel" class="btn btn-danger">{{ _("Go back") }}</a>
-          </form>
-        </div>
-        <div class="container pt-3">
-          <div id="status" style="color: red;"></div>
-          <div id="terminal"></div>
-        </div>
-      </div>
+
+<div class="card">
+  <div class="card-body">
+    <h5 class="card-title">{{ challenge.title }}</h5>
+    <h6 class="card-subtitle pt-2">{{ _("Area:")}} {{ challenge.area }} | {{ _("Level:") }} {{ challenge.get_level_display }} | {{ _("Language:") }} {{ challenge.get_language_display }} | {{ _("Tries:") }} {{ challenge.tries }} | {{ _("Solved:") }} {{ challenge.solved }}</h6>
+    <p class="card-text pt-3">{{ challenge.full_description }}</p>
+    <p class="card-text pt-2">Tried {{ challenge.tries }} times, solved {{ challenge.solved }} times.</p>
+    <div id="waiter" style="display: none"> Connecting ... </div>
+    <div class="container form-container" style="display: none">
+      <form id="connect" action="{% url 'challenges:challenge_detail' challenge.id %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ challenge_ssh_form }}
+        <button id="submit" type="submit" class="btn btn-primary">{{ _("Let's try to solve it!") }}</button>
+        <a href="{% url 'challenges:challenges' %}" id="cancel" class="btn btn-danger">{{ _("Go back") }}</a>
+      </form>
     </div>
+    <div class="container pt-3">
+      <div id="status" style="color: red;"></div>
+      <div id="terminal"></div>
+    </div>
+  </div>
 </div>
+
 {% endblock %}
 
 {% block javascript %}
