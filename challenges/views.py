@@ -52,7 +52,7 @@ MAXCONN=20
 # The delay to call recycle_worker
 RECYLE_WORKER_DELAY=3
 
-class NewChallengeView(generic.base.TemplateView):
+class NewChallengeView(LoginRequiredMixin, generic.base.TemplateView):
     template_name="challenges/new_challenge.html"
  
     def get_context_data(self, **kwargs):

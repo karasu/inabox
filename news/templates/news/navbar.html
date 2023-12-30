@@ -15,7 +15,7 @@
         <a class="nav-item nav-link" href="{% url 'challenges:challenges' %}">{{ _("Challenges") }}</a>
         <a class="nav-item nav-link" href="{% url 'challenges:new_challenge' %}">{{ _("New challenge") }}</a>
         <a class="nav-item nav-link" href="#">{{ _("Users") }}</a>
-        <a class="nav-item nav-link" href="#">{{ _("About") }}</a>
+        <a class="nav-item nav-link" href="{% url 'news:about' %}"">{{ _("About") }}</a>
         <!--<a class="nav-item nav-link" href="{% url 'admin:index' %}">Admin</a>-->
         <!-- <a class="nav-item nav-link disabled" href="#">Disabled</a> -->
       </div>

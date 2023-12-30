@@ -1,7 +1,4 @@
-from django.shortcuts import get_object_or_404, render
-from django.urls import reverse
 from django.views import generic
-from django.utils.timezone import now
 from django.utils.translation import get_language
 
 from .models import NewsEntry
@@ -24,3 +21,6 @@ class NewsIndexView(generic.ListView):
     #def get_queryset(self):
     #    """ Return the last five published news in the user's language """        
     #    return NewsEntry.objects.filter(language=self.get_user_language()).order_by("-pub_date")[:5]
+
+class AboutView(generic.base.TemplateView):
+    template_name = "news/about.html"

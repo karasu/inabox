@@ -1,3 +1,7 @@
+{% extends 'news/base.html' %}
+{% load django_bootstrap5 %}
+{% block title %}{{ _("About") }}{% endblock %}
+{% block content %}
 Five Stages of Skill Acquisition
 
 Novice
@@ -39,3 +43,4 @@ Expert
     Actions are unconscious operating out of intuition and tacit knowledge
     Performance is fluid
     “But when time permits and much is at stake, detached deliberative rationality of the type described can enhance the performance of even the intuitive expert (p. 40).”
+{% endblock %}
