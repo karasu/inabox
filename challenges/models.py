@@ -7,6 +7,9 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
 
+# Get available languages
+from django.conf import settings
+
 try:
     from Crypto.PublicKey import RSA
 except ModuleNotFoundError:
@@ -19,6 +22,7 @@ except ImportError:
     UnicodeType = str
 
 # Create your models here.
+
 
 # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
 def user_directory_path(instance, filename):
@@ -84,8 +88,8 @@ class Profile(models.Model):
         upload_to=user_directory_path, blank=True, null=True)
     private_key = models.TextField(
         default=RSAUtil.create_rsa_private_key())
-
-    #django.conf.locale.LANG_INFO
+    language = models.CharField(
+        choices=settings.LANGUAGES, max_length=2, default="ca")
 
     #def __str__(self):
     #    return self.user
@@ -164,6 +168,8 @@ class Challenge(models.Model):
     difficulty = models.CharField(
         max_length=1, choices=LEVELS, default="N")
     points = models.IntegerField(default=1)
+    language = models.CharField(
+        choices=settings.LANGUAGES, max_length=2, default="ca")
 
     def __str__(self):
         return self.title

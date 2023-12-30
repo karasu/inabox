@@ -35,7 +35,7 @@ from .utils import (
 
 from .worker import Worker, recycle_worker, clients
 
-from .models import Challenge, Area
+from .models import Challenge, Area, Profile
 from .forms import ChallengeSSHForm
 
 try:
@@ -58,28 +58,39 @@ class ChallengesListView(generic.ListView):
     paginate_by = 10
     #query_set = Challenge.objects.order_by("-pub_date")
 
+    def get_user_language(self):
+        if self.request.user.is_authenticated:
+            user_id = self.request.user.id
+            profile = Profile.objects.get(user=user_id)
+            return profile.language
+        else:
+            return get_language()
+
     def get_queryset(self):
-        # creator, order, area, difficulty
-        new_qs = Challenge.objects.all()
+        # new_qs = Challenge.objects.all()
+        new_qs = Challenge.objects.order_by("-pub_date")
 
         if self.request.GET:
-            creator = self.request.GET.get('creator', 'all')
-            order = self.request.GET.get('order', 'newest')
             area = self.request.GET.get('area', 'all')
+            creator = self.request.GET.get('creator', 'all')
             difficulty = self.request.GET.get('difficulty', 'all')
+            order = self.request.GET.get('order', 'newest')
         
+            if area != 'all':
+                area_id = Area.objects.get(name=area)
+                new_qs = new_qs.filter(area=area_id)
+
             if creator != 'all':
                 creator_id = User.objects.get(username=creator)
                 new_qs = new_qs.filter(creator=creator_id)
+
+            # TODO: Difficulty
             if order == 'newest':
                 new_qs = new_qs.order_by("-pub_date")
             else:
                 new_qs = new_qs.order_by("pub_date")
-            if area != 'all':
-                area_id = Area.objects.get(name=area)
-                new_qs = new_qs.filter(area=area_id)
-        
-        #new_qs = Challenge.objects.order_by("-pub_date")
+            
+            
         return new_qs
 
     def get_context_data(self, **kwargs):
