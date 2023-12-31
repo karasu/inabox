@@ -143,7 +143,7 @@ class ChallengesListView(generic.ListView):
 
 
 # IndexHandler
-class ChallengeDetailView(LoginRequiredMixin, generic.DetailView):
+class ChallengeDetailView(generic.DetailView):
     model = Challenge
     executor = ThreadPoolExecutor(max_workers=os.cpu_count()*5)
     loop = None
