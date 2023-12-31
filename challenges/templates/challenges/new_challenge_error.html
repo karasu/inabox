@@ -1,0 +1,9 @@
+{% extends 'news/base.html' %}
+{% load django_bootstrap5 %}
+{% block title %}{{ _("Add a new challenge error") }}{% endblock %}
+{% block content %}
+{{ _("Error inserting a new Challenge! Check the error(s) below:") }}
+<div class="alert alert-danger" role="alert">
+    {{ errors }}
+</div>
+{% endblock %}

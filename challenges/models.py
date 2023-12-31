@@ -157,9 +157,8 @@ class Challenge(models.Model):
     full_description = models.TextField()
     docker_image = models.ForeignKey(
         DockerImage, on_delete=models.CASCADE, verbose_name="Docker image")
-    check_script = models.FileField(_("Script"), 
-        upload_to=challenge_directory_path
-    )
+    check_script = models.FileField(
+        verbose_name="Script", upload_to=challenge_directory_path)
     approved = models.BooleanField(default=False)
     tries = models.IntegerField(default=0)
     solved = models.IntegerField(default=0)

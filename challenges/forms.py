@@ -1,4 +1,6 @@
 from django import forms
+from django.contrib.auth.models import User
+
 from .models import Challenge
 
 class ChallengeSSHForm(forms.Form):
@@ -11,16 +13,22 @@ class ChallengeSSHForm(forms.Form):
     totp = forms.CharField(widget=forms.HiddenInput(), required=False)
     term = forms.CharField(widget=forms.HiddenInput())
 
-class ChallengeForm(forms.ModelForm):
+class NewChallengeForm(forms.ModelForm):
     class Meta:
         model = Challenge
         fields = [
-            "title", "summary", "full_description", "docker_image",
+            "title", "summary", "full_description", "creator", "docker_image",
             "check_script", "area", "level", "points", "language"]
 
     def __init__(self, *args, **kwargs):
-           super(ChallengeForm, self).__init__(*args, **kwargs)
+        user_id = kwargs.pop('user_id', None)
+        super(NewChallengeForm, self).__init__(*args, **kwargs)
 
-           # Add form-control class to all form widgets
-           for field in self.visible_fields():
-               field.field.widget.attrs.update({'class': 'form-control'})
+        # Add form-control class to all form widgets
+        for field in self.visible_fields():
+            field.field.widget.attrs.update({'class': 'form-control'})
+
+        # set the creator field to the current user (and remove the rest)
+        if user_id:
+            self.fields['creator'].queryset = User.objects.filter(id=user_id)
+            self.fields['creator'].empty_label = None

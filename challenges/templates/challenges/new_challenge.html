@@ -2,7 +2,7 @@
 {% load django_bootstrap5 %}
 {% block title %}{{ _("Add a new challenge") }}{% endblock %}
 {% block content %}
-<form action="{% url 'challenges:new_challenge' %}" method="post" role="form">
+<form action="{% url 'challenges:new_challenge' %}" method="post" role="form" enctype="multipart/form-data">
     {% csrf_token %}
     {% for e in form.visible_fields %}
     <div class="form-group mb-3">

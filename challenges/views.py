@@ -37,7 +37,7 @@ from .utils import (
 from .worker import Worker, recycle_worker, clients
 
 from .models import Challenge, Area, Profile
-from .forms import ChallengeSSHForm, ChallengeForm
+from .forms import ChallengeSSHForm, NewChallengeForm
 
 try:
     from json.decoder import JSONDecodeError
@@ -57,12 +57,26 @@ class NewChallengeView(LoginRequiredMixin, generic.base.TemplateView):
  
     def get_context_data(self, **kwargs):
         context = super(NewChallengeView, self).get_context_data(**kwargs)
-        context["form"] = ChallengeForm()
+        context["form"] = NewChallengeForm(user_id=self.request.user.id)
         return context
 
     def post(self, request, *args, **kwargs):
-        print(request.POST)
-        return HttpResponse("Work in progress.")
+        if request.method == "POST":
+            form = NewChallengeForm(request.POST, request.FILES)
+            if form.is_valid():
+                form.save()
+                return HttpResponseRedirect(reverse("challenges:challenges"))
+            else:
+                print(form.errors)
+                return render(
+                    request,
+                    template_name="challenges/new_challenge_error.html",
+                    context={
+                        "errors": form.errors,
+                    })
+        else:
+            return HttpResponseForbidden()            
+
 
 class ChallengesListView(generic.ListView):
     template_name = "challenges/challenges.html"
