@@ -10,12 +10,34 @@
     {% for challenge in challenge_list %}
     <div class="card mb-2">
       <div class="card-body">
-        <h5 class="card-title">
-          <a href="{% url 'challenges:challenge_detail' pk=challenge.id %}"> {{ challenge.title }}</a> {{ _("by") }} {{ challenge.creator }}
-        </h5>
-        <h6>{{ challenge.pub_date }}</h6>
-        <h6 class="card-subtitle pt-2">{{ _("Area:")}} {{ challenge.area }} | {{ _("Level:") }} {{ challenge.get_level_display }} | {{ _("Language:") }} {{ challenge.get_language_display }} | {{ _("Tries:") }} {{ challenge.tries }} | {{ _("Solved:") }} {{ challenge.solved }}</h6>
-        <p class="card-text pt-3">{{ challenge.summary }}</p>
+        <div class="row">
+          <div class="col-6">
+            <h5 class="card-title">
+              <a href="{% url 'challenges:challenge_detail' pk=challenge.id %}"> {{ challenge.title }}</a> {{ _("by") }} {{ challenge.creator }}
+            </h5>
+          </div>
+          <div class="col-6">
+            <span class="float-end">        
+              <button type="button" class="btn btn-outline-dark btn-sm position-relative me-2 mb-2" disabled>{{ challenge.area }}</button>
+              <button type="button" class="btn btn-outline-dark btn-sm position-relative me-2 mb-2" disabled>{{ challenge.get_level_display }}</button>
+              <button type="button" class="btn btn-outline-dark btn-sm position-relative me-2 mb-2" disabled>{{ challenge.get_language_display }}</button>
+              <button type="button" class="btn btn-outline-dark btn-sm position-relative me-2 mb-2" disabled>
+              {{ _("Tries") }}
+              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+              {{ challenge.tries }}
+              </span>
+              </button>
+              <button type="button" class="btn btn-outline-dark btn-sm position-relative me-2 mb-2" disabled>
+              {{ _("Solved") }}
+              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+              {{ challenge.solved }}
+              </span>
+              </button>
+            </span>
+          </div>
+        </div>
+        {{ challenge.pub_date.date }}
+        <p class="card-text pt-2">{{ challenge.summary }}</p>
         <a href="{% url 'challenges:challenge_detail' pk=challenge.id %}" class="btn btn-primary">{{ _("Check me out!") }}</a>
       </div>
     </div>

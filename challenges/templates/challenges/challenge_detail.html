@@ -9,11 +9,45 @@
 
 <div class="card">
   <div class="card-body">
-    <h5 class="card-title">{{ challenge.title }}</h5>
-    <h6 class="card-subtitle pt-2">{{ _("Area:")}} {{ challenge.area }} | {{ _("Level:") }} {{ challenge.get_level_display }} | {{ _("Language:") }} {{ challenge.get_language_display }} | {{ _("Tries:") }} {{ challenge.tries }} | {{ _("Solved:") }} {{ challenge.solved }}</h6>
+    <div class="row">
+      <div class="col-8">
+        <h5 class="card-title">{{ challenge.title }}</h5>
+      </div>
+      <div class="col-4">
+        <h6 class="card-subtitle pt-2 float-end">
+        <button type="button" class="btn btn-outline-dark btn-sm position-relative me-2 mb-2" disabled>{{ challenge.area }}</button>
+        <button type="button" class="btn btn-outline-dark btn-sm position-relative me-2 mb-2" disabled>{{ challenge.get_level_display }}</button>
+        <button type="button" class="btn btn-outline-dark btn-sm position-relative me-2 mb-2" disabled>{{ challenge.get_language_display }}</button>
+        <button type="button" class="btn btn-outline-dark btn-sm position-relative me-2 mb-2" disabled>
+          {{ _("Total tries") }}
+          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+            {{ challenge.tries }}
+          </span>
+        </button>
+        <button type="button" class="btn btn-outline-dark btn-sm position-relative me-2 mb-2" disabled>
+          {{ _("Solved") }}
+          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+            {{ challenge.solved }}
+          </span>
+        </button>
+        </h6>
+      </div>
+    </div>
     <p class="card-text pt-3">{{ challenge.summary }}</p>
     <p class="card-text">{{ challenge.full_description }}</p>
-    <p class="card-text pt-2">Tried {{ challenge.tries }} times, solved {{ challenge.solved }} times.</p>
+    
+    {% if uct.tries > 0 %}
+    {% if uct.solved %}
+    <div class="alert alert-success" role="alert">
+    {{ _("You have tried") }} {{ uct.tries }} {{ _("times and solved it") }}
+    </div>
+    {% else %}
+    <div class="alert alert-warning" role="alert">
+      {{ _("You have tried") }} {{ uct.tries }} {{ _("times and not solved it, yet.") }}
+    </div>
+    {% endif %}
+    {% endif %}
+
     <div id="waiter" style="display: none"> Connecting ... </div>
 
     {% if user.is_authenticated %}

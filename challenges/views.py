@@ -36,7 +36,7 @@ from .utils import (
 
 from .worker import Worker, recycle_worker, clients
 
-from .models import Challenge, Area, Profile
+from .models import Challenge, Area, Profile, UserChallengeTries
 from .forms import ChallengeSSHForm, NewChallengeForm
 
 try:
@@ -103,6 +103,8 @@ class ChallengesListView(generic.ListView):
             level = self.request.GET.get('level', 'all')
             order = self.request.GET.get('order', 'newest')
         
+            # Filter challenges list
+
             if area != 'all':
                 area_id = Area.objects.get(name=area)
                 new_qs = new_qs.filter(area=area_id)
@@ -142,7 +144,6 @@ class ChallengesListView(generic.ListView):
         return context
 
 
-# IndexHandler
 class ChallengeDetailView(generic.DetailView):
     model = Challenge
     executor = ThreadPoolExecutor(max_workers=os.cpu_count()*5)
@@ -162,8 +163,20 @@ class ChallengeDetailView(generic.DetailView):
             "passphrase": di.container_passphrase,
             "totp": 0,
             "term": "xterm-256color",
+            "challenge_id": context['challenge'].id,
         }
         context['challenge_ssh_form'] = ChallengeSSHForm(data)
+
+        try:
+            context['uct'] = UserChallengeTries.objects.get(
+                user=self.request.user,
+                challenge=context['challenge'])
+        except UserChallengeTries.DoesNotExist:
+            # it does not exist, create it
+            context['uct'] = UserChallengeTries.objects.create(
+                user=self.request.user,
+                challenge=context['challenge'],
+                tries=0)
         return context
 
     def load_host_keys(self, path):
@@ -250,11 +263,23 @@ class ChallengeDetailView(generic.DetailView):
         form = ChallengeSSHForm(request.POST)
         # check whether it's valid:
         if form.is_valid():
-            # TODO: update tries
-            #print(request.META)
-            #print("************")
-            #print(request.POST)
-            #print(context['challenge'].creator)
+            # Update tries for this challenge
+            challenge_id = request.POST['challenge_id']
+            challenge = Challenge.objects.get(id=challenge_id)
+            challenge.tries = challenge.tries + 1
+            challenge.save()
+
+            # Also, update tries for this challenge by this user
+            user_id = request.user.id
+            try:
+                # Search row
+                uct = UserChallengeTries.objects.get(user=user_id, challenge=challenge_id)
+            except UserChallengeTries.DoesNotExist:
+                # it does not exist, create it
+                uct = UserChallengeTries.objects.create(user=request.user, challenge=challenge, tries=1)
+            else:
+                uct.tries = uct.tries + 1
+            uct.save() 
 
             #self.policy = policy
             #self.host_keys_settings = host_keys_settings

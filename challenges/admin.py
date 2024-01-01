@@ -11,12 +11,14 @@ from .models import DockerContainer
 from .models import Area
 from .models import ClassGroup
 from .models import Profile
+from .models import UserChallengeTries
 
 admin.site.register(Challenge)
 admin.site.register(Area)
 admin.site.register(DockerImage)
 admin.site.register(DockerContainer)
 admin.site.register(ClassGroup)
+admin.site.register(UserChallengeTries)
 
 # Define an inline admin descriptor for Profile model
 # which acts a bit like a singleton

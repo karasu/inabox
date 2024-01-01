@@ -12,6 +12,7 @@ class ChallengeSSHForm(forms.Form):
     passphrase = forms.CharField(widget=forms.HiddenInput(), required=False)
     totp = forms.CharField(widget=forms.HiddenInput(), required=False)
     term = forms.CharField(widget=forms.HiddenInput())
+    challenge_id = forms.IntegerField(widget=forms.HiddenInput())
 
 class NewChallengeForm(forms.ModelForm):
     class Meta:

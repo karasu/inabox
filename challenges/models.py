@@ -129,16 +129,17 @@ class DockerImage(models.Model):
         return self.name
 
 
-def challenge_directory_path(instance, filename):
-    return "challenge_{0}/{1}".format(
-        instance.title, filename)
-
 class Area(models.Model):
     name = models.CharField(max_length=256)
     description = models.TextField()
 
     def __str__(self):
         return self.name
+
+
+def challenge_directory_path(instance, filename):
+    return "challenge_{0}/{1}".format(
+        instance.title, filename)
 
 class Challenge(models.Model):
     LEVELS = [
@@ -172,6 +173,19 @@ class Challenge(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class UserChallengeTries(models.Model):
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE)
+    challenge = models.ForeignKey(
+        Challenge, on_delete=models.CASCADE)
+    solved = models.BooleanField(default=False)
+    tries = models.IntegerField(default=0)
+
+    def __str__(self):
+        return str(self.tries)
+
 
 class DockerContainer(models.Model):
     container_id = models.CharField(
