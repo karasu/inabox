@@ -57,9 +57,9 @@ class NewChallengeView(LoginRequiredMixin, generic.base.TemplateView):
  
     def get_context_data(self, **kwargs):
         context = super(NewChallengeView, self).get_context_data(**kwargs)
-        context["form"] = NewChallengeForm(user_id=self.request.user.id)
+        context["new_challenge_form"] = NewChallengeForm(user_id=self.request.user.id)
         return context
-
+    
     def post(self, request, *args, **kwargs):
         if request.method == "POST":
             form = NewChallengeForm(request.POST, request.FILES)

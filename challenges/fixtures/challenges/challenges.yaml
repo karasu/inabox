@@ -1,7 +1,7 @@
 - model: challenges.DockerImage
   pk: 1
   fields:
-    name: inabox
+    name: Debian
     container_ssh_port: 30001
     container_username: inabox
     container_password: aW5hYm94
@@ -12,7 +12,7 @@
 - model: challenges.DockerImage
   pk: 2
   fields:
-    name: alpine
+    name: Ubuntu
     container_ssh_port: 30002
     container_username: inabox
     container_password: aW5hYm94

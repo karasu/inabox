@@ -24,16 +24,16 @@
       <a href="{% url 'challenges:challenges' %}" class="btn btn-success">{{ _("Go back") }}</a>
     </form>
     <div id="status" style="color: red;"></div>
-    <div id="terminal"></div>
+    <div class="mt-2">
+      <div id="terminal"></div>
+    </div>
     {% else %}
     <a class="btn btn-success" href="{% url 'challenges:challenges' %}" >{{ _("Go back") }}</a>
     <div class="mt-2" style="color: red;">{{ _("You need to be logged in to try this challenge. Please log in!")}}</div>
     {% endif %}
   </div>
 </div>
-
 {% endblock %}
-
 {% block javascript %}
   <script type="text/javascript" src="{% static 'challenges/js/jquery.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'challenges/js/popper.min.js' %}"></script>

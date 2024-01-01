@@ -17,8 +17,9 @@ class NewChallengeForm(forms.ModelForm):
     class Meta:
         model = Challenge
         fields = [
-            "title", "summary", "full_description", "creator", "docker_image",
-            "check_script", "area", "level", "points", "language"]
+            "title", "summary", "full_description", "creator",
+            "check_script", "area", "level", "points", "language",
+            "docker_image"]
 
     def __init__(self, *args, **kwargs):
         user_id = kwargs.pop('user_id', None)

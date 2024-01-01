@@ -2,15 +2,18 @@
 {% load django_bootstrap5 %}
 {% block title %}{{ _("Add a new challenge") }}{% endblock %}
 {% block content %}
+<div class="alert alert-primary" role="alert">
 <form action="{% url 'challenges:new_challenge' %}" method="post" role="form" enctype="multipart/form-data">
-    {% csrf_token %}
-    {% for e in form.visible_fields %}
+    <h5 class="mb-4">{{ _("Use this form to add a new challenge") }}</h5>
+{% csrf_token %}
+{% for e in new_challenge_form.visible_fields %}
     <div class="form-group mb-3">
-        {{ e.label_tag }}
-        {{ e }}
+    {{ e.label_tag }}
+    {{ e }}
     </div>
-    {% endfor %}
-    <button type="submit" class="btn btn-primary mb-4" value="add">{{ _("Add challenge") }}</button>
-    <a href="{% url 'challenges:challenges' %}" class="btn btn-danger mb-4">{{ _("Cancel and go to the challenges page") }}</a>
+{% endfor %}
+<button type="submit" class="btn btn-primary mb-4" value="add">{{ _("Add challenge") }}</button>
+<a href="{% url 'challenges:challenges' %}" class="btn btn-danger mb-4">{{ _("Cancel and go to the challenges page") }}</a>
 </form>
+
 {% endblock %}
