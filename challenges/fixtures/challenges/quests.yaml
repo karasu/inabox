@@ -1,0 +1,21 @@
+- model: challenges.Quest
+  pk: 1
+  fields:
+    title: First steps
+    creator: 1
+    summary: Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+- model: challenges.QuestChallenge
+  pk: 1
+  fields:
+    quest: 1
+    challenge: 2
+- model: challenges.QuestChallenge
+  pk: 1
+  fields:
+    quest: 1
+    challenge: 4
+- model: challenges.QuestChallenge
+  pk: 1
+  fields:
+    quest: 1
+    challenge: 6

@@ -212,6 +212,7 @@ class ProposedSolution(models.Model):
 # Quests are challenge collections that have some connection between them
 class Quest(models.Model):
     title = models.CharField(max_length=256, unique=True)
+    summary = models.TextField()
     creator = models.ForeignKey(
         User, on_delete=models.CASCADE)
     pub_date = models.DateTimeField(
