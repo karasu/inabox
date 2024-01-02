@@ -53,11 +53,11 @@ msgstr ""
 msgid "Script"
 msgstr ""
 
-#: challenges/templates/challenges/challenge_detail.html:21
+#: challenges/templates/challenges/challenge.html:21
 msgid "Let's try to solve it!"
 msgstr "Intenta-ho!"
 
-#: challenges/templates/challenges/challenge_detail.html:22
+#: challenges/templates/challenges/challenge.html:22
 msgid "Go back"
 msgstr ""
 

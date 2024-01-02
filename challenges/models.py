@@ -23,6 +23,14 @@ except ImportError:
 
 # Create your models here.
 
+# Used in Challenge and Quest models
+LEVELS = [
+    ("N", _("Novice")),
+    ("A", _("Advanced Beginner")),
+    ("C", _("Competent")),
+    ("P", _("Proficient")),
+    ("E", _("Expert")),
+]
 
 # file will be uploaded to MEDIA_ROOT/users/<username>/<filename>
 def user_directory_path(instance, filename):
@@ -142,13 +150,6 @@ def challenge_directory_path(instance, filename):
         instance.title, filename)
 
 class Challenge(models.Model):
-    LEVELS = [
-        ("N", _("Novice")),
-        ("A", _("Advanced Beginner")),
-        ("C", _("Competent")),
-        ("P", _("Proficient")),
-        ("E", _("Expert")),
-    ]   
     title = models.CharField(max_length=256, unique=True)
     creator = models.ForeignKey(
         User, on_delete=models.CASCADE)
@@ -161,8 +162,8 @@ class Challenge(models.Model):
     check_script = models.FileField(
         verbose_name="Script", upload_to=challenge_directory_path)
     approved = models.BooleanField(default=False)
-    tries = models.IntegerField(default=0)
-    solved = models.IntegerField(default=0)
+    total_tries = models.IntegerField(default=0)
+    times_solved = models.IntegerField(default=0)
     area = models.ForeignKey(
         Area, on_delete=models.CASCADE, verbose_name="Area")
     level = models.CharField(
@@ -194,6 +195,7 @@ def user_solutions_path(instance, filename):
         instance.challenge.title,
         filename)
 
+
 # Stores each user's solution to each challenge
 class ProposedSolution(models.Model):
     challenge = models.ForeignKey(
@@ -203,11 +205,12 @@ class ProposedSolution(models.Model):
     solution = models.FileField(
         upload_to=user_solutions_path)
     tries = models.IntegerField(default=1)
-    tested = models.BooleanField(default=False)
-    solved = models.BooleanField(default=False)
+    is_tested = models.BooleanField(default=False)
+    is_solved = models.BooleanField(default=False)
 
     def __str__(self):
         return "{} tried by {}".format(self.challenge, self.user)
+
 
 # Quests are challenge collections that have some connection between them
 class Quest(models.Model):
@@ -217,8 +220,14 @@ class Quest(models.Model):
         User, on_delete=models.CASCADE)
     pub_date = models.DateTimeField(
         _("Date"), default=now)
-    tries = models.IntegerField(default=0)
-    solved = models.IntegerField(default=0)
+    total_tries = models.IntegerField(default=0)
+    times_solved = models.IntegerField(default=0)
+    level = models.CharField(
+        max_length=1, choices=LEVELS, default='N')
+    
+    def __str__(self):
+        return self.title
+
 
 # So we can store the list of challenges that are part of a Quest
 class QuestChallenge(models.Model):
@@ -226,3 +235,6 @@ class QuestChallenge(models.Model):
         Quest, on_delete=models.CASCADE)
     challenge = models.ForeignKey(
         Challenge, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return "{} - {}".format(self.quest, self.challenge)

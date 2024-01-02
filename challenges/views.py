@@ -36,7 +36,8 @@ from .utils import (
 
 from .worker import Worker, recycle_worker, clients
 
-from .models import Challenge, Area, Profile, ProposedSolution
+from .models import Challenge, Area, Profile, ProposedSolution, Quest, QuestChallenge
+from .models import LEVELS
 from .forms import ChallengeSSHForm, NewChallengeForm, UploadSolutionForm
 
 try:
@@ -77,6 +78,60 @@ class NewChallengeView(LoginRequiredMixin, generic.base.TemplateView):
                     })
         else:
             return HttpResponseForbidden()            
+
+
+class QuestsListView(generic.ListView):
+    template_name = "challenges/quests.html"
+    model = Quest
+    paginate_by = 10
+
+    def get_queryset(self):
+        new_qs = Quest.objects.order_by("-pub_date")
+
+        if self.request.GET:
+            creator = self.request.GET.get('creator', 'all')
+            level = self.request.GET.get('level', 'all')
+            order = self.request.GET.get('order', 'newest')
+        
+            # Filter challenges list
+            if creator != 'all':
+                creator_id = User.objects.get(username=creator)
+                new_qs = new_qs.filter(creator=creator_id)
+
+            if level != 'all':
+                new_qs = new_qs.filter(level=level)
+
+            if order == 'newest':
+                new_qs = new_qs.order_by("-pub_date")
+            else:
+                new_qs = new_qs.order_by("pub_date")
+
+        return new_qs
+
+    def get_context_data(self, **kwargs):
+        context = super(QuestsListView, self).get_context_data(**kwargs)
+        
+        context['creators'] = User.objects.values_list('username', flat=True)
+        context['levels'] = LEVELS
+
+        context['screator'] = self.request.GET.get('creator', 'all')
+        context['slevel'] = self.request.GET.get('level', 'all')
+        context['sorder'] = self.request.GET.get('order', 'newest')
+
+        return context
+
+
+class QuestDetailView(generic.DetailView):
+    model = Quest
+    template_name = "challenges/quest.html"
+    # challenge_list
+
+    def get_context_data(self, **kwargs):
+        context = super(QuestDetailView, self).get_context_data(**kwargs)
+        context['challenge_list'] = []
+        for quest_challenge in QuestChallenge.objects.filter(quest=context['quest']):
+            context['challenge_list'].append(quest_challenge.challenge)
+        return context
 
 
 class ChallengesListView(generic.ListView):
@@ -132,7 +187,7 @@ class ChallengesListView(generic.ListView):
         
         context['creators'] = User.objects.values_list('username', flat=True)
         context['areas'] = Area.objects.values_list('name', flat=True)
-        context['levels'] = Challenge.LEVELS
+        context['levels'] = LEVELS
 
         context['sarea'] = self.request.GET.get('area', 'all')
         context['screator'] = self.request.GET.get('creator', 'all')
@@ -145,6 +200,7 @@ class ChallengesListView(generic.ListView):
 
 class ChallengeDetailView(generic.DetailView):
     model = Challenge
+    template_name = "challenges/challenge.html"
     executor = ThreadPoolExecutor(max_workers=os.cpu_count()*5)
     loop = None
 
@@ -266,7 +322,6 @@ class ChallengeDetailView(generic.DetailView):
         if not request.user.is_authenticated:
             return HttpResponseForbidden()
 
-        print("eo 1")
         if request.POST.get("form_name") == "UploadSolutionForm":
             # TODO: We need to check if user has already tried and update the ProposedSolution
             # if not just save this as the first one
@@ -281,9 +336,9 @@ class ChallengeDetailView(generic.DetailView):
             if form.is_valid():
                 form.save()
                 # Also, update tries field for this challenge
-                # FIXME: This is redundant, tries should be stored only in ProposedSolution
+                # I know, this is redundant, but it's easier this way
                 challenge = Challenge.objects.get(id=challenge)
-                challenge.tries = challenge.tries + 1
+                challenge.total_tries = challenge.total_tries + 1
                 challenge.save()
                 # TODO: test the uploaded solution
 
@@ -303,10 +358,8 @@ class ChallengeDetailView(generic.DetailView):
 
         # create a form instance and populate it with data from the request:
         form = ChallengeSSHForm(request.POST)
-        # check whether it's valid:
-        if form.is_valid():
-            
 
+        if form.is_valid():
             # Prepare SSH connection
 
             #self.policy = policy
@@ -347,8 +400,6 @@ class ChallengeDetailView(generic.DetailView):
                 
                 self.result.update(
                     workerid=worker.id, status='', encoding=worker.encoding)
-
-            print("POST result:", self.result)
 
             return JsonResponse(self.result)
         else:

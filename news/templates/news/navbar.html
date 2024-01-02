@@ -12,6 +12,7 @@
     
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <div class="navbar-nav me-auto mb-2 mb-lg-0">
+        <a class="nav-item nav-link" href="{% url 'challenges:quests' %}">{{ _("Quests") }}</a>
         <a class="nav-item nav-link" href="{% url 'challenges:challenges' %}">{{ _("Challenges") }}</a>
         <a class="nav-item nav-link" href="#">{{ _("Users") }}</a>
         {% if user.is_authenticated %}
@@ -21,7 +22,6 @@
         {% if user.is_staff %}
           <a class="nav-item nav-link" href="{% url 'admin:index' %}">Admin</a>
         {% endif %}
-        <!-- <a class="nav-item nav-link disabled" href="#">Disabled</a> -->
       </div>
 
       <form class="d-flex">

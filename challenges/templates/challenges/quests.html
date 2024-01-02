@@ -4,57 +4,56 @@
 {% block content %}
 {% load i18n %}
 
+
 <div class="row">
   <div class="col-9">
-    {% if challenge_list %}
-    {% for challenge in challenge_list %}
+
+    {% if quest_list %}
+    {% for quest in quest_list %}
     <div class="card mb-3">
       <div class="card-header">
         <div class="row pt-2">
           <div class="col-6">
             <h5 class="card-title">
-              <a href="{% url 'challenges:challenge' pk=challenge.id %}" class="btn btn-outline-primary">
-                {{ challenge.title }} {{ _("by") }}
-                {% if challenge.creator.first_name %}
-                  {{ challenge.creator.first_name }} {{ challenge.creator.last_name }}
+              <a href="{% url 'challenges:quest' pk=quest.id %}" class="btn btn-outline-primary">
+                {{ quest.title }} {{ _("by") }}
+                {% if quest.creator.first_name %}
+                  {{ quest.creator.first_name }} {{ quest.creator.last_name }}
                 {% else %}
-                  {{ challenge.creator.username }}
+                  {{ quest.creator.username }}
                 {% endif %}
               </a> 
             </h5>
           </div>
           <div class="col-6">
             <span class="float-end">        
-              <button type="button" class="btn btn-outline-dark btn-sm position-relative me-2 mb-2" disabled>{{ challenge.area }}</button>
-              <button type="button" class="btn btn-outline-dark btn-sm position-relative me-2 mb-2" disabled>{{ challenge.get_level_display }}</button>
-              <button type="button" class="btn btn-outline-dark btn-sm position-relative me-2 mb-2" disabled>{{ challenge.get_language_display }}</button>
+              <button type="button" class="btn btn-outline-dark btn-sm position-relative me-2 mb-2" disabled>{{ quest.get_level_display }}</button>
               <button type="button" class="btn btn-outline-dark btn-sm position-relative me-2 mb-2" disabled>
-              {{ _("Tries") }}
-              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-              {{ challenge.total_tries }}
-              </span>
+                {{ _("Tries") }}
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                {{ quest.total_tries }}
+                </span>
               </button>
               <button type="button" class="btn btn-outline-dark btn-sm position-relative me-2 mb-2" disabled>
-              {{ _("Solved") }}
-              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-              {{ challenge.times_solved }}
-              </span>
+                {{ _("Solved") }}
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                {{ quest.times_solved }}
+                </span>
               </button>
             </span>
           </div>
         </div>
       </div>
       <div class="card-body">
-        <p class="card-text pt-2">{{ challenge.summary }}</p>
+        <p class="card-text pt-2">{{ quest.summary }}</p>
       </div>
     </div>
     {% endfor %}
     {% else %}
-    <div class="alert alert-warning" role="alert">
-      {{ _("No challenges available. Check your filter settings.") }}
-    </div>
+    <p>{{ _("No quests available. Check your filter settings.") }}</p>
     {% endif %}
   </div>
+  
   <div class="col-3">
     <div class="card">
       <div class="card-header">
@@ -63,18 +62,7 @@
       <div class="card-body">
         <form method="get" action="{% url 'challenges:challenges' %}">
           {% csrf_token %}
-          <div class="form-group row mb-2">
-            <label for="area" class="col-lg-4 mt-2">{{ _("Area:") }}</label>
-            <div class="col-lg-8">
-              <select name="area" class="form-control dropdown-toggle" href="#" id="area" role="button" data-bs-toggle="dropdown" aira-expanded="false">
-                <option value="all">{{ _("All areas") }}</option>
-                <option disabled>──────────</option>
-                {% for area in areas %}
-                <option value="{{ area }}"{% if sarea == area %} selected{% endif %}>{{ area }}</option>
-                {% endfor %}
-              </select>
-            </div>
-          </div>
+          
           <div class="form-group row mb-2">
             <label for="creator" class="col-lg-4 mt-2">{{ _("Creator:") }}</label>
             <div class="col-lg-8">
@@ -85,20 +73,6 @@
                 <option value="{{ creator }}" {% if screator == creator %} selected{% endif %}>{{ creator }}</option>
                 {% endfor %}
               </select>
-            </div>
-          </div>
-          <div class="form-group row mb-2">
-            <label for="lang" class="col-lg-4 mt-2">{{ _("Language:") }}</label>
-            <div class="col-lg-8">
-              <select name="lang" class="form-control dropdown-toggle" href="#" id="lang" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <option value="all">{{ _("All languages") }}</option>
-              <option disabled>──────────</option>
-              {% get_available_languages as LANGUAGES %}
-              {% get_language_info_list for LANGUAGES as languages %}
-              {% for language in languages %}
-              <option value="{{ language.code }}"{% if slang == language.code %} selected{% endif %}>{{ language.name }}</option>
-              {% endfor %}
-              </select> 
             </div>
           </div>
           <div class="form-group row mb-2">

@@ -10,5 +10,9 @@ urlpatterns = [
     # /challenges/new
     path("new/", views.NewChallengeView.as_view(), name="new_challenge"),
     # /challenges/5
-    path("<int:pk>/", views.ChallengeDetailView.as_view(), name="challenge_detail"),
+    path("<int:pk>/", views.ChallengeDetailView.as_view(), name="challenge"),
+    # /challenges/quests
+    path("quests/", views.QuestsListView.as_view(), name="quests"),
+    # /challenges/quests/5
+    path("quests/<int:pk>/", views.QuestDetailView.as_view(), name="quest"),
 ]
