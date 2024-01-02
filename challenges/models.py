@@ -202,7 +202,7 @@ class ProposedSolution(models.Model):
         User, on_delete=models.CASCADE)
     solution = models.FileField(
         upload_to=user_solutions_path)
-    tries = models.IntegerField(default=0)
+    tries = models.IntegerField(default=1)
     tested = models.BooleanField(default=False)
     solved = models.BooleanField(default=False)
 

@@ -182,6 +182,9 @@ class ChallengeDetailView(generic.DetailView):
                     user=self.request.user,
                     challenge=context['challenge'],
                     tries=0)
+            except ProposedSolution.MultipleObjectsReturned:
+                print("Multiple entries in ProposedSolution table!")
+
         return context
 
     def load_host_keys(self, path):
@@ -263,11 +266,27 @@ class ChallengeDetailView(generic.DetailView):
         if not request.user.is_authenticated:
             return HttpResponseForbidden()
 
+        print("eo 1")
         if request.POST.get("form_name") == "UploadSolutionForm":
-            form = UploadSolutionForm(request.POST, request.FILES)
+            # TODO: We need to check if user has already tried and update the ProposedSolution
+            # if not just save this as the first one
+            user = request.POST.get('user')
+            challenge = request.POST.get('challenge') 
+            instance = ProposedSolution.objects.get(user=user, challenge=challenge)
+            if instance:
+                # TODO:Update user's tries
+                pass
+
+            form = UploadSolutionForm(request.POST, request.FILES, instance=instance)
             if form.is_valid():
                 form.save()
+                # Also, update tries field for this challenge
+                # FIXME: This is redundant, tries should be stored only in ProposedSolution
+                challenge = Challenge.objects.get(id=challenge)
+                challenge.tries = challenge.tries + 1
+                challenge.save()
                 # TODO: test the uploaded solution
+
                 return HttpResponseRedirect(reverse("challenges:challenges"))
             else:
                 print(form.errors)
@@ -286,23 +305,7 @@ class ChallengeDetailView(generic.DetailView):
         form = ChallengeSSHForm(request.POST)
         # check whether it's valid:
         if form.is_valid():
-            # First, update tries field for this challenge
-            challenge_id = request.POST['challenge_id']
-            challenge = Challenge.objects.get(id=challenge_id)
-            challenge.tries = challenge.tries + 1
-            challenge.save()
-
-            # Also, update tries for this challenge by this user
-            user_id = request.user.id
-            try:
-                # Search row
-                proposed = ProposedSolution.objects.get(user=user_id, challenge=challenge_id)
-            except ProposedSolution.DoesNotExist:
-                # it does not exist, create it
-                proposed = ProposedSolution.objects.create(user=request.user, challenge=challenge, tries=1)
-            else:
-                uct.tries = uct.tries + 1
-            uct.save() 
+            
 
             # Prepare SSH connection
 
