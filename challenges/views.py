@@ -36,7 +36,7 @@ from .utils import (
 
 from .worker import Worker, recycle_worker, clients
 
-from .models import Challenge, Area, Profile, UserChallengeTries
+from .models import Challenge, Area, Profile, ProposedSolution
 from .forms import ChallengeSSHForm, NewChallengeForm, UploadSolutionForm
 
 try:
@@ -173,12 +173,12 @@ class ChallengeDetailView(generic.DetailView):
             )
 
             try:
-                context['uct'] = UserChallengeTries.objects.get(
+                context['proposed'] = ProposedSolution.objects.get(
                     user=self.request.user,
                     challenge=context['challenge'])
-            except UserChallengeTries.DoesNotExist:
+            except ProposedSolution.DoesNotExist:
                 # it does not exist, create it
-                context['uct'] = UserChallengeTries.objects.create(
+                context['proposed'] = ProposedSolution.objects.create(
                     user=self.request.user,
                     challenge=context['challenge'],
                     tries=0)
@@ -296,10 +296,10 @@ class ChallengeDetailView(generic.DetailView):
             user_id = request.user.id
             try:
                 # Search row
-                uct = UserChallengeTries.objects.get(user=user_id, challenge=challenge_id)
-            except UserChallengeTries.DoesNotExist:
+                proposed = ProposedSolution.objects.get(user=user_id, challenge=challenge_id)
+            except ProposedSolution.DoesNotExist:
                 # it does not exist, create it
-                uct = UserChallengeTries.objects.create(user=request.user, challenge=challenge, tries=1)
+                proposed = ProposedSolution.objects.create(user=request.user, challenge=challenge, tries=1)
             else:
                 uct.tries = uct.tries + 1
             uct.save() 

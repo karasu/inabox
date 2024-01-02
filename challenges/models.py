@@ -175,18 +175,6 @@ class Challenge(models.Model):
         return self.title
 
 
-class UserChallengeTries(models.Model):
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE)
-    challenge = models.ForeignKey(
-        Challenge, on_delete=models.CASCADE)
-    tries = models.IntegerField(default=0)
-    solved = models.BooleanField(default=False)
-
-    def __str__(self):
-        return "{} - {} - {}".format(self.challenge, self.user, self.tries)
-
-
 class DockerContainer(models.Model):
     container_id = models.CharField(
         max_length=128, default="0")
@@ -206,16 +194,34 @@ def user_solutions_path(instance, filename):
         instance.challenge.title,
         filename)
 
-class Sendings(models.Model):
+# Stores each user's solution to each challenge
+class ProposedSolution(models.Model):
     challenge = models.ForeignKey(
         Challenge, on_delete=models.CASCADE)
     user = models.ForeignKey(
         User, on_delete=models.CASCADE)
     solution = models.FileField(
         upload_to=user_solutions_path)
-    is_tested = models.BooleanField(default=False)
-    is_ok = models.BooleanField(default=False)
+    tries = models.IntegerField(default=0)
+    tested = models.BooleanField(default=False)
+    solved = models.BooleanField(default=False)
 
-    def __str__():
+    def __str__(self):
         return "{} tried by {}".format(self.challenge, self.user)
-    
+
+# Quests are challenge collections that have some connection between them
+class Quest(models.Model):
+    title = models.CharField(max_length=256, unique=True)
+    creator = models.ForeignKey(
+        User, on_delete=models.CASCADE)
+    pub_date = models.DateTimeField(
+        _("Date"), default=now)
+    tries = models.IntegerField(default=0)
+    solved = models.IntegerField(default=0)
+
+# So we can store the list of challenges that are part of a Quest
+class QuestChallenge(models.Model):
+    quest = models.ForeignKey(
+        Quest, on_delete=models.CASCADE)
+    challenge = models.ForeignKey(
+        Challenge, on_delete=models.CASCADE)

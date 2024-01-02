@@ -43,11 +43,11 @@
     {{ challenge.creator.username }}
     {% endif %}
 
-    {% if uct.tries > 0 %}
+    {% if proposed.tries > 0 %}
     <div class="my-2">
       {{ _("Your stats:") }}
-      <button type="button" class="btn btn-outline-dark btn-sm position-relative me-2 mb-2" disabled>{{ uct.tries }} {{ _("tries") }}</button>
-      {% if uct.solved %}    
+      <button type="button" class="btn btn-outline-dark btn-sm position-relative me-2 mb-2" disabled>{{ proposed.tries }} {{ _("tries") }}</button>
+      {% if proposed.solved %}    
       <button type="button" class="btn btn-outline-success btn-sm position-relative me-2 mb-2" disabled>{{ _("solved") }}</button>
       {% else %}
       <button type="button" class="btn btn-outline-danger btn-sm position-relative me-2 mb-2" disabled>{{ _("not solved") }}</button>

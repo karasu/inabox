@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 
-from .models import Challenge, Sendings
+from .models import Challenge, ProposedSolution
 
 class ChallengeSSHForm(forms.Form):
     hostname = forms.CharField(widget=forms.HiddenInput())
@@ -37,7 +37,7 @@ class NewChallengeForm(forms.ModelForm):
 
 class UploadSolutionForm(forms.ModelForm):
     class Meta:
-        model = Sendings
+        model = ProposedSolution
         fields = ["challenge", "user", "solution"]
 
     def __init__(self, *args, **kwargs):
