@@ -24,10 +24,10 @@ except ImportError:
 # Create your models here.
 
 
-# file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+# file will be uploaded to MEDIA_ROOT/users/<username>/<filename>
 def user_directory_path(instance, filename):
-    return "user_{0}/{1}".format(
-        instance.user.id, filename)
+    return "users/{0}/{1}".format(
+        instance.user.username, filename)
 
 class ClassGroup(models.Model):
     name = models.CharField(max_length=64)
@@ -94,11 +94,10 @@ class Profile(models.Model):
     #def __str__(self):
     #    return self.user
     
-
+# file will be uploaded to MEDIA_ROOT/dockerimages/<dockerimagename>/<filename>
 def dockerimage_directory_path(instance, filename):
-    return "docker_{0}/{1}".format(
+    return "dockerimages/{0}/{1}".format(
         instance.name, filename)
-
 
 class DockerImage(models.Model):
     name = models.CharField(max_length=64, unique=True)
@@ -137,8 +136,9 @@ class Area(models.Model):
         return self.name
 
 
+# file will be uploaded to MEDIA_ROOT/challenges/<challengetitle>/<filename>
 def challenge_directory_path(instance, filename):
-    return "challenge_{0}/{1}".format(
+    return "challenges/{0}/{1}".format(
         instance.title, filename)
 
 class Challenge(models.Model):
@@ -180,11 +180,11 @@ class UserChallengeTries(models.Model):
         User, on_delete=models.CASCADE)
     challenge = models.ForeignKey(
         Challenge, on_delete=models.CASCADE)
-    solved = models.BooleanField(default=False)
     tries = models.IntegerField(default=0)
+    solved = models.BooleanField(default=False)
 
     def __str__(self):
-        return str(self.tries)
+        return "{} - {} - {}".format(self.challenge, self.user, self.tries)
 
 
 class DockerContainer(models.Model):
@@ -197,3 +197,25 @@ class DockerContainer(models.Model):
 
     def __str__(self):
         return self.container_id
+
+
+# file will be uploaded to MEDIA_ROOT/solutions/<username>/<challengetitle>
+def user_solutions_path(instance, filename):
+    return "solutions/{0}/{1}/{2}".format(
+        instance.user.username,
+        instance.challenge.title,
+        filename)
+
+class Sendings(models.Model):
+    challenge = models.ForeignKey(
+        Challenge, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE)
+    solution = models.FileField(
+        upload_to=user_solutions_path)
+    is_tested = models.BooleanField(default=False)
+    is_ok = models.BooleanField(default=False)
+
+    def __str__():
+        return "{} tried by {}".format(self.challenge, self.user)
+    

@@ -37,7 +37,7 @@ from .utils import (
 from .worker import Worker, recycle_worker, clients
 
 from .models import Challenge, Area, Profile, UserChallengeTries
-from .forms import ChallengeSSHForm, NewChallengeForm
+from .forms import ChallengeSSHForm, NewChallengeForm, UploadSolutionForm
 
 try:
     from json.decoder import JSONDecodeError
@@ -70,8 +70,9 @@ class NewChallengeView(LoginRequiredMixin, generic.base.TemplateView):
                 print(form.errors)
                 return render(
                     request,
-                    template_name="challenges/new_challenge_error.html",
+                    template_name="challenges/form_error.html",
                     context={
+                        "title": _("Error inserting a new Challenge! Check the error(s) below:"),
                         "errors": form.errors,
                     })
         else:
@@ -139,8 +140,6 @@ class ChallengesListView(generic.ListView):
         context['slevel'] = self.request.GET.get('level', 'all')
         context['sorder'] = self.request.GET.get('order', 'newest')
 
-        print(context['object_list'][0].level)
-
         return context
 
 
@@ -150,33 +149,39 @@ class ChallengeDetailView(generic.DetailView):
     loop = None
 
     def get_context_data(self, **kwargs):
-        # Add form to our context so we can put it in the template
         context = super(ChallengeDetailView, self).get_context_data(**kwargs)
 
-        di = context['challenge'].docker_image
-        data = {
-            "hostname": "localhost",
-            "port": di.container_ssh_port,
-            "username": di.container_username,
-            "password": di.container_password,
-            "privatekey": di.container_privatekey,
-            "passphrase": di.container_passphrase,
-            "totp": 0,
-            "term": "xterm-256color",
-            "challenge_id": context['challenge'].id,
-        }
-        context['challenge_ssh_form'] = ChallengeSSHForm(data)
+        if (self.request.user.is_authenticated):
+            # Add forms to our context so we can put them in the template
+            di = context['challenge'].docker_image
+            data = {
+                "hostname": "localhost",
+                "port": di.container_ssh_port,
+                "username": di.container_username,
+                "password": di.container_password,
+                "privatekey": di.container_privatekey,
+                "passphrase": di.container_passphrase,
+                "totp": 0,
+                "term": "xterm-256color",
+                "challenge_id": context['challenge'].id,
+            }
+            context['challenge_ssh_form'] = ChallengeSSHForm(data)
 
-        try:
-            context['uct'] = UserChallengeTries.objects.get(
-                user=self.request.user,
-                challenge=context['challenge'])
-        except UserChallengeTries.DoesNotExist:
-            # it does not exist, create it
-            context['uct'] = UserChallengeTries.objects.create(
-                user=self.request.user,
-                challenge=context['challenge'],
-                tries=0)
+            context['upload_solution_form'] = UploadSolutionForm(
+                user_id = self.request.user.id,
+                challenge_id = context['challenge'].id
+            )
+
+            try:
+                context['uct'] = UserChallengeTries.objects.get(
+                    user=self.request.user,
+                    challenge=context['challenge'])
+            except UserChallengeTries.DoesNotExist:
+                # it does not exist, create it
+                context['uct'] = UserChallengeTries.objects.create(
+                    user=self.request.user,
+                    challenge=context['challenge'],
+                    tries=0)
         return context
 
     def load_host_keys(self, path):
@@ -213,7 +218,6 @@ class ChallengeDetailView(generic.DetailView):
         dst_addr = args[:2]
         logging.info('Connecting to {}:{}'.format(*dst_addr))
 
-        print("Connecting...")
         try:
             #ssh.connect(*args, timeout=options.timeout)
             ssh.connect(*args, timeout=1)
@@ -257,13 +261,32 @@ class ChallengeDetailView(generic.DetailView):
     def post(self, request, *args, **kwargs):
         # check that user is authenticated
         if not request.user.is_authenticated:
-            HttpResponseForbidden()
+            return HttpResponseForbidden()
+
+        if request.POST.get("form_name") == "UploadSolutionForm":
+            form = UploadSolutionForm(request.POST, request.FILES)
+            if form.is_valid():
+                form.save()
+                # TODO: test the uploaded solution
+                return HttpResponseRedirect(reverse("challenges:challenges"))
+            else:
+                print(form.errors)
+                return render(
+                    request,
+                    template_name="challenges/form_error.html",
+                    context={
+                        "title": _("Error uploading a new solution! Check the error(s) below:"),
+                        "errors": form.errors,
+                    })
+  
+        if request.POST.get("form_name") != "ChallengeSSHForm":
+            return HttpResponseForbidden()
 
         # create a form instance and populate it with data from the request:
         form = ChallengeSSHForm(request.POST)
         # check whether it's valid:
         if form.is_valid():
-            # Update tries for this challenge
+            # First, update tries field for this challenge
             challenge_id = request.POST['challenge_id']
             challenge = Challenge.objects.get(id=challenge_id)
             challenge.tries = challenge.tries + 1
@@ -280,6 +303,8 @@ class ChallengeDetailView(generic.DetailView):
             else:
                 uct.tries = uct.tries + 1
             uct.save() 
+
+            # Prepare SSH connection
 
             #self.policy = policy
             #self.host_keys_settings = host_keys_settings
@@ -324,4 +349,11 @@ class ChallengeDetailView(generic.DetailView):
 
             return JsonResponse(self.result)
         else:
-            return HttpResponseForbidden()
+            print(form.errors)
+            return render(
+                request,
+                template_name="challenges/form_error.html",
+                context={
+                    "title": _("Error form data trying to connect! Check the error(s) below:"),
+                    "errors": form.errors,
+                })

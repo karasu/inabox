@@ -6,9 +6,17 @@
   {% for newsentry in newsentry_list %}
   <div class="container pt-3">
     <div class="card">
-    <div class="card-body">
-      <h5 class="card-title">{{ newsentry.title }}</h5>
-      <h6 class="card-subtitle mb-2 text-body-secondary">{{ newsentry.pub_date }}</h6>
+      <div class="card-header" style="background-color: #e3f2fd;">
+        <div class="row">
+          <div class="col-9">
+            {{ newsentry.title }}
+          </div>
+          <div class="col-3">
+            <span class="float-end">{{ newsentry.pub_date }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
       <p class="card-text">{{ newsentry.text }}</p>
     </div>
   </div>
@@ -18,3 +26,10 @@
     <p>{{ _("No news are available.") }}</p>
 {% endif %}
 {% endblock %}
+
+<!--
+
+          <div class="col-9"><h5 class="card-title">{{ newsentry.title }}</h5></div>
+        <div class="col-4"><h6 class="card-subtitle mb-2 text-body-secondary float-end">{{ newsentry.pub_date }}</h6></div>
+ 
+-->

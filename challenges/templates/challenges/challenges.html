@@ -8,12 +8,19 @@
   <div class="col-9">
     {% if challenge_list %}
     {% for challenge in challenge_list %}
-    <div class="card mb-2">
-      <div class="card-body">
-        <div class="row">
+    <div class="card mb-3">
+      <div class="card-header">
+        <div class="row pt-2">
           <div class="col-6">
             <h5 class="card-title">
-              <a href="{% url 'challenges:challenge_detail' pk=challenge.id %}"> {{ challenge.title }}</a> {{ _("by") }} {{ challenge.creator }}
+              <a href="{% url 'challenges:challenge_detail' pk=challenge.id %}" class="btn btn-outline-primary">
+                {{ challenge.title }} {{ _("by") }}
+                {% if challenge.creator.first_name %}
+                  {{ challenge.creator.first_name }} {{ challenge.creator.last_name }}
+                {% else %}
+                  {{ challenge.creator.username }}
+                {% endif %}
+              </a> 
             </h5>
           </div>
           <div class="col-6">
@@ -36,16 +43,20 @@
             </span>
           </div>
         </div>
-        {{ challenge.pub_date.date }}
+      </div>
+      <div class="card-body">
         <p class="card-text pt-2">{{ challenge.summary }}</p>
-        <a href="{% url 'challenges:challenge_detail' pk=challenge.id %}" class="btn btn-primary">{{ _("Check me out!") }}</a>
       </div>
     </div>
     {% endfor %}
-    {% else %}<p>{{ _("No challenges available. Check your filter settings.") }}</p>{% endif %}
+    {% else %}
+    <p>{{ _("No challenges available. Check your filter settings.") }}</p>{% endif %}
   </div>
   <div class="col-3">
     <div class="card">
+      <div class="card-header">
+        {{ _("Filter settings") }}
+      </div>
       <div class="card-body">
         <form method="get" action="{% url 'challenges:challenges' %}">
           {% csrf_token %}
