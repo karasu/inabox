@@ -13,3 +13,5 @@ python-pycryptodome
 channels_redis
 python-msgpack
 python-redis
+python-celery
+

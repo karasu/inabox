@@ -1,0 +1,3 @@
+#!/bin/sh
+
+celery -A validator worker --loglevel=INFO
