@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'challenges.apps.ChallengesConfig',
     'news.apps.NewsConfig',
     'django_bootstrap5',
+    'django_celery_results',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -77,7 +78,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'inabox.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -249,3 +249,13 @@ LOGIN_REDIRECT_URL = "/"
 LOGIN_URL = '/accounts/login/'
 
 LOGOUT_REDIRECT_URL = "loggedout"
+
+# Celery Configuration Options
+CELERY_TIMEZONE = "Europe/Rome"
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_CACHE_BACKEND = 'django-cache'
+
+CELERY_BROKER_URL = 'amqp://guest:guest@localhost'
+
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'

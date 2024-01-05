@@ -14,4 +14,5 @@ channels_redis
 python-msgpack
 python-redis
 python-celery
+django-celery-results
 

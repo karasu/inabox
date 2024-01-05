@@ -1,25 +1,36 @@
 - model: challenges.DockerImage
   pk: 1
   fields:
-    name: Debian
+    name: Debian (latest)
     container_ssh_port: 30001
     container_username: inabox
     container_password: aW5hYm94
     containers_limit: 30
     reuse_container: False
     docker_file: Dockerfile
-    docker_image_id: d62148a8527f
+    docker_name: inabox_debian
 - model: challenges.DockerImage
   pk: 2
   fields:
-    name: Ubuntu
+    name: Ubuntu (latest)
     container_ssh_port: 30002
     container_username: inabox
     container_password: aW5hYm94
     containers_limit: 30
     reuse_container: False
     docker_file: Dockerfile
-    docker_image_id: 7e01a0d0a1dc
+    docker_name: inabox_ubuntu
+- model: challenges.DockerImage
+  pk: 3
+  fields:
+    name: Alpine (latest)
+    container_ssh_port: 30003
+    container_username: inabox
+    container_password: aW5hYm94
+    containers_limit: 30
+    reuse_container: False
+    docker_file: Dockerfile
+    docker_name: inabox_alpine
 - model: challenges.Area
   pk: 1
   fields:
@@ -43,7 +54,7 @@
     summary: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
     full_description: Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?
     docker_image: 1
-    check_script: check_script.sh
+    check_solution_script: check_script.sh
     approved: False 
     area: 1
     level: N
@@ -57,7 +68,7 @@
     summary: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
     full_description: Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?
     docker_image: 1
-    check_script: check_script.sh
+    check_solution_script: check_script.sh
     approved: False 
     area: 2
     level: A
@@ -70,7 +81,7 @@
     summary: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
     full_description: Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?
     docker_image: 1
-    check_script: check_script.sh
+    check_solution_script: check_script.sh
     approved: False 
     area: 1
     level: C
@@ -83,7 +94,7 @@
     summary: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
     full_description: Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?
     docker_image: 1
-    check_script: check_script.sh
+    check_solution_script: check_script.sh
     approved: False 
     area: 2
     level: C
@@ -96,7 +107,7 @@
     summary: Whispered tales find a savior in a curious soul, rewriting destinies long left untold.
     full_description: In a quaint town nestled between misty mountains, an old library harbors forgotten stories. Mia, an inquisitive teenager, stumbles upon a dusty book bound in faded leather. As she opens it, the characters from neglected tales come alive, seeking redemption. Mia becomes the bridge between reality and fiction, guiding the forgotten beings to rewrite their narratives. Together, they breathe life into the town's forgotten legends, leaving behind a tapestry of revived stories for generations to come.
     docker_image: 1
-    check_script: check_script.sh
+    check_solution_script: check_script.sh
     approved: False 
     area: 2
     level: A
@@ -109,7 +120,7 @@
     summary: Between the stars, a janitor guards the cosmic secrets, torn between revealing the celestial battles or shielding humanity from the cosmic truth.
     full_description: "In the heart of a bustling city, an unassuming janitor named Alex discovers an ancient telescope with the power to reveal glimpses of celestial beings. Each night, Alex witnesses cosmic struggles and celestial wars waged beyond human perception. As the only witness to these otherworldly events, Alex faces a moral dilemma: to reveal the secrets of the cosmos or protect humanity from the knowledge that could alter the course of their existence."
     docker_image: 1
-    check_script: check_script.sh
+    check_solution_script: check_script.sh
     approved: False 
     area: 2
     level: C
@@ -122,7 +133,7 @@
     summary: An heirloom unlocks a hidden world, revealing a legacy of magic and a duty to protect the enchanted balance.
     full_description: "On her grandmother's 90th birthday, Emma receives an antique locket with a small note attached: 'Wear this and see the magic around you.' Skeptical but intrigued, Emma puts on the locket and discovers a hidden world of magic, where everyday objects come to life and whispers of the wind carry ancient secrets. As Emma delves deeper into this enchanting realm, she uncovers her family's forgotten legacy and a responsibility to preserve the magical equilibrium."
     docker_image: 1
-    check_script: check_script.sh
+    check_solution_script: check_script.sh
     approved: False 
     area: 2
     level: C
@@ -135,7 +146,7 @@
     summary: A forgotten composition bridges the realms, weaving the stories of lost souls into a symphony of redemption.
     full_description: In a dilapidated concert hall, musician Clara stumbles upon an abandoned sheet of music that seems to play itself. The haunting melody transports her to a realm where echoes of lost souls reside. Clara must navigate this spectral symphony, confronting the unresolved stories of those who met tragic ends. As she unravels their tales through the haunting music, Clara discovers a chance for redemption for both the living and the departed.
     docker_image: 1
-    check_script: check_script.sh
+    check_solution_script: check_script.sh
     approved: False 
     area: 2
     level: C
@@ -148,7 +159,7 @@
     summary: Manipulating time, a librarian faces the dilemma of resetting the hourglass or accepting the irreversible consequences of his actions.
     full_description: In a world where time is a tangible force, a librarian named Owen discovers an ancient hourglass that can manipulate the flow of time. Initially using it for small conveniences, Owen soon realizes the consequences of altering the natural order. As time unravels around him, Owen must decide whether to reset the hourglass, erasing the consequences but risking a cycle of perpetual chaos, or face the irreversible changes he unwittingly unleashed upon the world.
     docker_image: 1
-    check_script: check_script.sh
+    check_solution_script: check_script.sh
     approved: False 
     area: 2
     level: C

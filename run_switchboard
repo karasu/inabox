@@ -1,0 +1,7 @@
+#!/bin/sh
+
+cd ../switchboard
+python switchboard.py
+cd ../inabox
+
+

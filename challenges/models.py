@@ -108,6 +108,7 @@ def dockerimage_directory_path(instance, filename):
         instance.name, filename)
 
 class DockerImage(models.Model):
+    # This name is what will be shown to the user (it can be different from the real image name)
     name = models.CharField(max_length=64, unique=True)
     # data to connect to the docker container
     container_ssh_port = models.IntegerField(default=30000, unique=True)
@@ -125,9 +126,8 @@ class DockerImage(models.Model):
     # docker file used to generate this docker image
     docker_file = models.FileField(
         upload_to=dockerimage_directory_path)
-    # (when the docker image is generated, its id will be stored here
-    docker_image_id = models.CharField(
-        max_length=12, default="0")
+    # docker image name in Docker
+    docker_name = models.CharField(max_length=64)
     # optional docker parameters
     optional_docker_ports = models.CharField(max_length=256, blank=True, default='')
     optional_docker_volumes = models.TextField(blank=True, default='')
@@ -159,7 +159,7 @@ class Challenge(models.Model):
     full_description = models.TextField()
     docker_image = models.ForeignKey(
         DockerImage, on_delete=models.CASCADE, verbose_name="Docker image")
-    check_script = models.FileField(
+    check_solution_script = models.FileField(
         verbose_name="Script", upload_to=challenge_directory_path)
     approved = models.BooleanField(default=False)
     total_tries = models.IntegerField(default=0)
@@ -202,11 +202,13 @@ class ProposedSolution(models.Model):
         Challenge, on_delete=models.CASCADE)
     user = models.ForeignKey(
         User, on_delete=models.CASCADE)
-    solution = models.FileField(
-        upload_to=user_solutions_path)
+    script = models.FileField(
+        upload_to=user_solutions_path,
+        verbose_name='Solution script')
     tries = models.IntegerField(default=1)
     is_tested = models.BooleanField(default=False)
     is_solved = models.BooleanField(default=False)
+    last_test_result = models.TextField()
 
     def __str__(self):
         return "{} tried by {}".format(self.challenge, self.user)

@@ -1,18 +1,6 @@
 #!/bin/sh
 
-# start rabbitmq docker for celery
-docker rm -f rabbitmq-celery
-docker run --name rabbitmq-celery -p 5672:5672 -d rabbitmq
-
-# start redis docker for django-channels messaging
-docker rm -f redis-inabox
-docker run --name redis-inabox -p 6379:6379 -d redis:5
-
-# start switchboard (TODO: service)
-cd ../switchboard
-python switchboard.py &!
-cd ../inabox
-
-# start django
-python manage.py runserver
-
+PWD=`pwd`
+kitty --detach --title switchboard --directory $PWD ./run_switchboard
+kitty --detach --title django --directory $PWD ./run_django
+sleep 4s && kitty --detach --title celery --directory $PWD ./run_celery

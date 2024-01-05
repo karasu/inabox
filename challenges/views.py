@@ -40,6 +40,9 @@ from .models import Challenge, Area, Profile, ProposedSolution, Quest, QuestChal
 from .models import LEVELS
 from .forms import ChallengeSSHForm, NewChallengeForm, UploadSolutionForm
 
+# Celery task to check if a proposed solution is valid or not
+from .tasks import validate_solution_task
+
 try:
     from json.decoder import JSONDecodeError
 except ImportError:
@@ -323,24 +326,39 @@ class ChallengeDetailView(generic.DetailView):
             return HttpResponseForbidden()
 
         if request.POST.get("form_name") == "UploadSolutionForm":
-            # TODO: We need to check if user has already tried and update the ProposedSolution
+            # We need to check if user has already tried and update the ProposedSolution
             # if not just save this as the first one
             user = request.POST.get('user')
             challenge = request.POST.get('challenge') 
-            instance = ProposedSolution.objects.get(user=user, challenge=challenge)
-            if instance:
-                # TODO:Update user's tries
-                pass
+            proposed_solution = ProposedSolution.objects.get(
+                user=user,
+                challenge=challenge)
 
-            form = UploadSolutionForm(request.POST, request.FILES, instance=instance)
+            if proposed_solution:
+                # Update user's tries
+                proposed_solution.tries = proposed_solution.tries + 1
+                proposed_solution.save()
+
+            form = UploadSolutionForm(
+                request.POST,
+                request.FILES,
+                instance=proposed_solution)
+
             if form.is_valid():
                 form.save()
-                # Also, update tries field for this challenge
+                # Update tries field for this challenge
                 # I know, this is redundant, but it's easier this way
                 challenge = Challenge.objects.get(id=challenge)
                 challenge.total_tries = challenge.total_tries + 1
                 challenge.save()
-                # TODO: test the uploaded solution
+                
+                # Tell Celery to test the uploaded solution so we don't
+                # have to wait for it
+                proposed_solution = ProposedSolution.objects.get(
+                    user=user,
+                    challenge=challenge)
+
+                validate_solution_task.delay(proposed_solution.id)
 
                 return HttpResponseRedirect(reverse("challenges:challenges"))
             else:

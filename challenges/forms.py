@@ -19,7 +19,7 @@ class NewChallengeForm(forms.ModelForm):
         model = Challenge
         fields = [
             "title", "summary", "full_description", "creator",
-            "check_script", "area", "level", "points", "language",
+            "check_solution_script", "area", "level", "points", "language",
             "docker_image"]
 
     def __init__(self, *args, **kwargs):
@@ -38,7 +38,7 @@ class NewChallengeForm(forms.ModelForm):
 class UploadSolutionForm(forms.ModelForm):
     class Meta:
         model = ProposedSolution
-        fields = ["challenge", "user", "solution"]
+        fields = ["challenge", "user", "script"]
 
     def __init__(self, *args, **kwargs):
         user_id = kwargs.pop('user_id', None)

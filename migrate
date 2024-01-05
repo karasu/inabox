@@ -7,12 +7,16 @@ rm -rf news/migrations/__pycache__
 
 mv inabox.sqlite3 inabox.sqlite3.bak
 
+echo Running makemigrations step...
+python manage.py makemigrations
 python manage.py makemigrations challenges
 python manage.py makemigrations news
-python manage.py makemigrations
+
+echo Running migrate step...
 python manage.py migrate
 
 python manage.py createsuperuser --username karasu --email notvalid@inabox.com 
 
+# Load fixtures into database
 ./loaddata
 
