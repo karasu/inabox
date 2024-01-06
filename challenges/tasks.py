@@ -116,19 +116,19 @@ def validate_solution_task(proposed_solution_id):
         logging.error(_("Did not get any output from the check script"))
         return False
     else:
-        logging.warning(output.decode("utf-8"))
-
         proposed_solution.is_tested = True
         proposed_solution.last_test_result = output.decode("utf-8")
+        
         if exit_code == 0:
             # Seems that proposed solution works!
             proposed_solution.is_solved = True
         else:
             # Proposed solution does not work
             proposed_solution.is_solved = False
+        
         proposed_solution.save()
 
-    # Delete container
+    # Stop and delete the container (this takes a long time...)
     try:
         container.stop()
         container.remove()
