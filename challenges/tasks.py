@@ -61,7 +61,12 @@ def validate_solution_task(proposed_solution_id):
 
     for script in scripts:
         # FIXME: Obviously not a good thing to do
-        os.chmod(script, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
+        try:
+            os.chmod(script, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
+        except FileNotFoundError as err:
+            logging.error(err)
+            return False
+
         tar_path = script + '.tar'
         with tarfile.open(tar_path, mode='w') as tar:
             tar.add(script)

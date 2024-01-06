@@ -3,7 +3,6 @@
 {% block title %}{{ _("Challenges") }}{% endblock %}
 {% block content %}
 {% load i18n %}
-
 <div class="row">
   <div class="col-9">
     {% if challenge_list %}
@@ -13,7 +12,7 @@
         <div class="row pt-2">
           <div class="col-6">
             <h5 class="card-title">
-              <a href="{% url 'challenges:challenge' pk=challenge.id %}" class="btn btn-outline-primary">
+              <a href="{% url 'challenges:challenge' pk=challenge.id %}" class="btn btn-primary">
                 {{ challenge.title }} {{ _("by") }}
                 {% if challenge.creator.first_name %}
                   {{ challenge.creator.first_name }} {{ challenge.creator.last_name }}
@@ -25,16 +24,16 @@
           </div>
           <div class="col-6">
             <span class="float-end">        
-              <button type="button" class="btn btn-outline-dark btn-sm position-relative me-2 mb-2" disabled>{{ challenge.area }}</button>
-              <button type="button" class="btn btn-outline-dark btn-sm position-relative me-2 mb-2" disabled>{{ challenge.get_level_display }}</button>
-              <button type="button" class="btn btn-outline-dark btn-sm position-relative me-2 mb-2" disabled>{{ challenge.get_language_display }}</button>
-              <button type="button" class="btn btn-outline-dark btn-sm position-relative me-2 mb-2" disabled>
+              <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>{{ challenge.area }}</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>{{ challenge.get_level_display }}</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>{{ challenge.get_language_display }}</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>
               {{ _("Tries") }}
               <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
               {{ challenge.total_tries }}
               </span>
               </button>
-              <button type="button" class="btn btn-outline-dark btn-sm position-relative me-2 mb-2" disabled>
+              <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>
               {{ _("Solved") }}
               <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
               {{ challenge.times_solved }}
@@ -123,7 +122,7 @@
               </select>
             </div>
           </div>            
-          <button type="submit" class="btn btn-outline-success" value="{{ _("Filter") }}">{{ _("Filter") }}</button>
+          <button type="submit" class="btn btn-success" value="{{ _("Filter") }}">{{ _("Filter") }}</button>
         </form>
       </div>
     </div>

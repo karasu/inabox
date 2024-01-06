@@ -1,13 +1,10 @@
 {% extends 'news/base.html' %}
 {% load django_bootstrap5 %}
-{% block title %}{{ _("Challenges") }}{% endblock %}
+{% block title %}{{ _("Quests") }}{% endblock %}
 {% block content %}
 {% load i18n %}
-
-
 <div class="row">
   <div class="col-9">
-
     {% if quest_list %}
     {% for quest in quest_list %}
     <div class="card mb-3">
