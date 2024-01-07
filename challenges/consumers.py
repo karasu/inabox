@@ -82,14 +82,17 @@ class SshConsumer(AsyncWebsocketConsumer):
                 logging.warning('Websocket authentication failed.')
                 await self.close()
 
-    #async def disconnect(self, close_code):
-    #    # Called when the socket closes
-    #    self.channel_layer.group_discard("ssh", self.channel_name)
+    async def disconnect(self, close_code):
+        # Called when the socket closes
+        print("SOCKET CLOSED!")
         
 
     # Receive message from WebSocket
     async def receive(self, text_data):
         logging.debug('{!r} from {}:{}'.format(text_data, *self.src_addr))
+
+        print('{!r} from {}:{}'.format(text_data, *self.src_addr))
+
         worker = self.worker_ref()
         if not worker:
             # The worker has likely been closed. Do not process.

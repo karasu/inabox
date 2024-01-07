@@ -425,10 +425,13 @@ class ChallengeDetailView(generic.DetailView):
         # check that user is authenticated
         if not request.user.is_authenticated:
             return HttpResponseForbidden()
+        
+        #print(request.POST)
 
         if request.POST.get("form_name") == "UploadSolutionForm":
-            self.upload_solution_form(request)
+            return self.upload_solution_form(request)
   
         if request.POST.get("form_name") == "ChallengeSSHForm":
-            self.challenge_ssh_form(request)
+            return self.challenge_ssh_form(request)
 
+        return HttpResponseBadRequest()

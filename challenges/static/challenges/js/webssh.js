@@ -34,7 +34,8 @@ var wssh = {};
 
 jQuery(function($){
   var status = $('#status'),
-      button = $('.btn-primary'),
+      //button = $('.btn-primary'),
+      button = $('#term-btn'),
       form_container = $('.form-container'),
       waiter = $('#waiter'),
       term_type = $('#term'),
@@ -390,9 +391,6 @@ jQuery(function($){
     //var fitAddon = new window.FitAddon.FitAddon();
     term.fitAddon = new FitAddon.FitAddon();
     term.loadAddon(term.fitAddon);
-    
-
-
 
     console.log(url);
     if (!msg.encoding) {
