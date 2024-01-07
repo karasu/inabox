@@ -71,7 +71,7 @@ class NewChallengeView(LoginRequiredMixin, generic.base.TemplateView):
                 form.save()
                 return HttpResponseRedirect(reverse("challenges:challenges"))
             else:
-                print(form.errors)
+                logging.error(form.errors)
                 return render(
                     request,
                     template_name="challenges/form_error.html",
@@ -242,7 +242,7 @@ class ChallengeDetailView(generic.DetailView):
                     challenge=context['challenge'],
                     tries=0)
             except ProposedSolution.MultipleObjectsReturned:
-                print("Multiple entries in ProposedSolution table!")
+                logging.error("Multiple entries in ProposedSolution table!")
 
         return context
 
@@ -302,7 +302,6 @@ class ChallengeDetailView(generic.DetailView):
             asyncio.set_event_loop(loop)
             self.loop = asyncio.get_event_loop()
 
-        print("Creating worker...")
         worker = Worker(self.loop, ssh, chan, dst_addr)
         #worker.encoding = options.encoding if options.encoding else \
         #    self.get_default_encoding(ssh)
@@ -320,60 +319,7 @@ class ChallengeDetailView(generic.DetailView):
             port = request.META.get('REMOTE_PORT')
         return (ip, port)
     
-    def post(self, request, *args, **kwargs):
-        # check that user is authenticated
-        if not request.user.is_authenticated:
-            return HttpResponseForbidden()
-
-        if request.POST.get("form_name") == "UploadSolutionForm":
-            # We need to check if user has already tried and update the ProposedSolution
-            # if not just save this as the first one
-            user = request.POST.get('user')
-            challenge = request.POST.get('challenge') 
-            proposed_solution = ProposedSolution.objects.get(
-                user=user,
-                challenge=challenge)
-
-            if proposed_solution:
-                # Update user's tries
-                proposed_solution.tries = proposed_solution.tries + 1
-                proposed_solution.save()
-
-            form = UploadSolutionForm(
-                request.POST,
-                request.FILES,
-                instance=proposed_solution)
-
-            if form.is_valid():
-                form.save()
-                # Update tries field for this challenge
-                # I know, this is redundant, but it's easier this way
-                challenge = Challenge.objects.get(id=challenge)
-                challenge.total_tries = challenge.total_tries + 1
-                challenge.save()
-                
-                # Tell Celery to test the uploaded solution so we don't
-                # have to wait for it
-                proposed_solution = ProposedSolution.objects.get(
-                    user=user,
-                    challenge=challenge)
-
-                validate_solution_task.delay(proposed_solution.id)
-
-                return HttpResponseRedirect(reverse("challenges:challenges"))
-            else:
-                print(form.errors)
-                return render(
-                    request,
-                    template_name="challenges/form_error.html",
-                    context={
-                        "title": _("Error uploading a new solution! Check the error(s) below:"),
-                        "errors": form.errors,
-                    })
-  
-        if request.POST.get("form_name") != "ChallengeSSHForm":
-            return HttpResponseForbidden()
-
+    def challenge_ssh_form(self, request):
         # create a form instance and populate it with data from the request:
         form = ChallengeSSHForm(request.POST)
 
@@ -421,7 +367,7 @@ class ChallengeDetailView(generic.DetailView):
 
             return JsonResponse(self.result)
         else:
-            print(form.errors)
+            logging.error(form.errors)
             return render(
                 request,
                 template_name="challenges/form_error.html",
@@ -429,3 +375,60 @@ class ChallengeDetailView(generic.DetailView):
                     "title": _("Error form data trying to connect! Check the error(s) below:"),
                     "errors": form.errors,
                 })
+    
+    def upload_solution_form(self, request):
+        # We need to check if user has already tried and update the ProposedSolution
+        # if not just save this as the first one
+        user = request.POST.get('user')
+        challenge = request.POST.get('challenge') 
+        proposed_solution = ProposedSolution.objects.get(
+            user=user,
+            challenge=challenge)
+
+        if proposed_solution:
+            # Update user's tries
+            proposed_solution.tries = proposed_solution.tries + 1
+            proposed_solution.save()
+
+        form = UploadSolutionForm(
+            request.POST,
+            request.FILES,
+            instance=proposed_solution)
+
+        if form.is_valid():
+            form.save()
+            # Update tries field for this challenge
+            # I know, this is redundant, but it's easier this way
+            challenge = Challenge.objects.get(id=challenge)
+            challenge.total_tries = challenge.total_tries + 1
+            challenge.save()
+            
+            # Tell Celery to test the uploaded solution so we don't
+            # have to wait for it
+            proposed_solution = ProposedSolution.objects.get(
+                user=user,
+                challenge=challenge)
+            validate_solution_task.delay(proposed_solution.id)
+
+            return HttpResponseRedirect(reverse("challenges:challenges"))
+        else:
+            logging.error(form.errors)
+            return render(
+                request,
+                template_name="challenges/form_error.html",
+                context={
+                    "title": _("Error uploading a new solution! Check the error(s) below:"),
+                    "errors": form.errors,
+                })
+
+    def post(self, request, *args, **kwargs):
+        # check that user is authenticated
+        if not request.user.is_authenticated:
+            return HttpResponseForbidden()
+
+        if request.POST.get("form_name") == "UploadSolutionForm":
+            self.upload_solution_form(request)
+  
+        if request.POST.get("form_name") == "ChallengeSSHForm":
+            self.challenge_ssh_form(request)
+

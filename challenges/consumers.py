@@ -34,15 +34,13 @@ class SshConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
         self.src_addr = self.scope['client']
-        logging.info('Connected from {}:{}'.format(*self.src_addr))
-
-        print('Connected from {}:{}'.format(*self.src_addr))
+        logging.debug('Connected from {}:{}'.format(*self.src_addr))
 
         src_ip = self.src_addr[0]
         workers = clients.get(src_ip, None)
 
         if not workers:
-            print("Worker not found 1")
+            logging.debug("Worker not found 1")
             logging.warning('Websocket authentication failed.')
             await self.close()
             return
@@ -55,7 +53,7 @@ class SshConsumer(AsyncWebsocketConsumer):
         except (KeyError, InvalidValueError) as err:
             await self.close(reason=str(err))
         else:
-            print("worker_id:", worker_id)
+            logging.debug("worker_id:", worker_id)
 
             worker = workers.get(worker_id)
             if worker:
@@ -80,7 +78,7 @@ class SshConsumer(AsyncWebsocketConsumer):
 
                 await self.accept()
             else:
-                print("Worker not found 2")
+                logging.debug("Worker not found 2")
                 logging.warning('Websocket authentication failed.')
                 await self.close()
 
@@ -101,7 +99,6 @@ class SshConsumer(AsyncWebsocketConsumer):
                 )
             )
             logging.debug('No worker found')
-            print('No worker found 3')
             self.close()
             return
 
@@ -117,8 +114,6 @@ class SshConsumer(AsyncWebsocketConsumer):
         
         if not isinstance(msg, dict):
             return
-        
-        # print("Websocket consumer received:", msg)
 
         resize = msg.get('resize')
         if resize and len(resize) == 2:

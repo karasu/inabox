@@ -60,7 +60,6 @@ def validate_solution_task(proposed_solution_id):
         challenge.check_solution_script.path]
 
     for script in scripts:
-        # FIXME: Obviously not a good thing to do
         try:
             os.chmod(script, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
         except FileNotFoundError as err:
@@ -76,7 +75,8 @@ def validate_solution_task(proposed_solution_id):
             with open(tar_path, 'rb') as fd:
                 res = container.put_archive(path='/', data=fd)
             if not res:
-                logging.error("put_archive failed. Cannot put {} contents inside the container".format(tar_path))
+                logging.error(
+                    "put_archive failed. Cannot put {} contents inside the container".format(tar_path))
                 return False
         except docker.errors.APIError as err:
             logging.error(err)
@@ -87,7 +87,6 @@ def validate_solution_task(proposed_solution_id):
         # source file containing a ' in its name will mess it up
         script = proposed_solution.script.path
         script = "'" + script.replace("'", "'\\''") + "'"
-
         cmd = ["/bin/sh", "-c", script]
         exit_code, output = container.exec_run(
             cmd=cmd,
@@ -105,7 +104,6 @@ def validate_solution_task(proposed_solution_id):
         # source file containing a ' in its name will mess it up
         script = challenge.check_solution_script.path
         script = "'" + script.replace("'", "'\\''") + "'"
-
         cmd = ["/bin/sh", "-c", script]
         exit_code, output = container.exec_run(
             cmd=cmd,
@@ -114,13 +112,12 @@ def validate_solution_task(proposed_solution_id):
         logging.error(err)
         return False 
 
-    if output:
-        logging.warning(output.decode("utf-8"))
-
     if output is None:
         logging.error(_("Did not get any output from the check script"))
         return False
     else:
+        logging.warning(output.decode("utf-8"))
+
         proposed_solution.is_tested = True
         proposed_solution.last_test_result = output.decode("utf-8")
         
