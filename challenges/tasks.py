@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from .models import ProposedSolution, Challenge
 
 from celery import shared_task
+from celery_progress.backend import ProgressRecorder
 
 import docker
 import logging
@@ -14,8 +15,12 @@ import os
 import stat
 import tempfile
 
-@shared_task
-def validate_solution_task(proposed_solution_id):
+@shared_task(bind=True)
+def validate_solution_task(self, proposed_solution_id):
+    # Create the progress recorder instance
+	# which we'll use to update the web page
+	
+    progress_recorder = ProgressRecorder(self)
 
     # Get proposed solution and challenge
     proposed_solution = ProposedSolution.objects.get(id=proposed_solution_id)
@@ -24,6 +29,8 @@ def validate_solution_task(proposed_solution_id):
     # Get challenge docker image name
     docker_image_name = challenge.docker_image.docker_name
 
+    progress_recorder.set_progress(1, 4, description="Checking docker image...")
+
     # Connect to docker and check it is running
     try:
         docker_client = docker.DockerClient(base_url='unix://var/run/docker.sock')
@@ -31,7 +38,7 @@ def validate_solution_task(proposed_solution_id):
     except docker.errors.APIError as err:
         logging.error(err)
         return False
-
+    
     # Check docker image
     try:
         docker_image = docker_client.images.get(docker_image_name)
@@ -41,7 +48,9 @@ def validate_solution_task(proposed_solution_id):
     except docker.errors.APIError as err:
         logging.error(err)
         return False
-    
+
+    progress_recorder.set_progress(2, 4, description="Creating container...")
+
     # Run a docker container from the challenge image and maintain ir
     # running with tail command
     try:
@@ -81,7 +90,9 @@ def validate_solution_task(proposed_solution_id):
         except docker.errors.APIError as err:
             logging.error(err)
             return False
-    
+
+    progress_recorder.set_progress(3, 4, description="Checking proposed solution...")
+
     # Run the user's proposed solution script in the container
     try:
         # source file containing a ' in its name will mess it up
@@ -135,6 +146,8 @@ def validate_solution_task(proposed_solution_id):
         
         proposed_solution.save()
 
+    progress_recorder.set_progress(4, 4, description="Deleting test container...")
+
     # Stop and delete the container (this takes a long time...)
     try:
         container.stop()
@@ -142,4 +155,5 @@ def validate_solution_task(proposed_solution_id):
     except docker.errors.APIError as err:
         logging.error(err)
     
-    return True
+    return _("Task complete")
+

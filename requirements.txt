@@ -15,4 +15,4 @@ python-msgpack
 python-redis
 python-celery
 django-celery-results
-
+celery-progress

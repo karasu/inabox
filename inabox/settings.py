@@ -34,10 +34,11 @@ INSTALLED_APPS = [
     #'debug_toolbar',
     'admin_interface',
     'colorfield',
-    'challenges.apps.ChallengesConfig',
-    'news.apps.NewsConfig',
     'django_bootstrap5',
     'django_celery_results',
+    'celery_progress',
+    'challenges.apps.ChallengesConfig',
+    'news.apps.NewsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -255,6 +256,10 @@ CELERY_TIMEZONE = "Europe/Rome"
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_CACHE_BACKEND = 'django-cache'
 
+# Use redis
+#CELERY_BROKER_URL = 'redis://localhost:6379'
+
+# Use rabbitmq
 CELERY_BROKER_URL = 'amqp://guest:guest@localhost'
 
 CELERY_ACCEPT_CONTENT = ['json']
