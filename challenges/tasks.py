@@ -37,17 +37,18 @@ def validate_solution_task(self, proposed_solution_id):
         docker_client.ping()
     except docker.errors.APIError as err:
         logging.error(err)
-        return False
+        return False, str(err)
     
     # Check docker image
     try:
         docker_image = docker_client.images.get(docker_image_name)
     except docker.errors.ImageNotFound:
-        logging.error("Docker image {} not found".format(docker_image_name))
-        return False
+        err = str("Docker image {} not found".format(docker_image_name))
+        logging.error(err)
+        return False, str(err)
     except docker.errors.APIError as err:
         logging.error(err)
-        return False
+        return False, str(err)
 
     progress_recorder.set_progress(2, 4, description="Creating container...")
 
@@ -61,7 +62,7 @@ def validate_solution_task(self, proposed_solution_id):
             detach=True)
     except docker.errors.APIError as err:
         logging.error(err)
-        return False
+        return False, str(err)
 
     # Create a tar file for each script (so we can put them inside our container)    
     scripts = [
@@ -73,7 +74,7 @@ def validate_solution_task(self, proposed_solution_id):
             os.chmod(script, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
         except FileNotFoundError as err:
             logging.error(err)
-            return False
+            return False, str(err)
 
         tar_path = script + '.tar'
         with tarfile.open(tar_path, mode='w') as tar:
@@ -84,12 +85,12 @@ def validate_solution_task(self, proposed_solution_id):
             with open(tar_path, 'rb') as fd:
                 res = container.put_archive(path='/', data=fd)
             if not res:
-                logging.error(
-                    "put_archive failed. Cannot put {} contents inside the container".format(tar_path))
-                return False
+                err = "put_archive failed. Cannot put {} contents inside the container".format(tar_path)
+                logging.error(err)
+                return False, str(err)
         except docker.errors.APIError as err:
             logging.error(err)
-            return False
+            return False, str(err)
 
     progress_recorder.set_progress(3, 4, description="Checking proposed solution...")
 
@@ -104,7 +105,7 @@ def validate_solution_task(self, proposed_solution_id):
             user="inabox")
     except docker.errors.APIError as err:
         logging.error(err)
-        return False 
+        return False, str(err)
 
     if output:
         logging.warning(output.decode("utf-8"))
@@ -121,11 +122,11 @@ def validate_solution_task(self, proposed_solution_id):
             user="inabox")
     except docker.errors.APIError as err:
         logging.error(err)
-        return False 
+        return False, str(err) 
 
     if output is None:
-        logging.error(_("Did not get any output from the check script"))
-        return False
+        err = _("Did not get any output from the check script")
+        return False, str(err)
     else:
         logging.warning(output.decode("utf-8"))
 
@@ -154,6 +155,6 @@ def validate_solution_task(self, proposed_solution_id):
         container.remove()
     except docker.errors.APIError as err:
         logging.error(err)
+        return False, str(err)
     
-    return _("Task complete")
-
+    return True, _("Task complete")

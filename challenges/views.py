@@ -319,7 +319,7 @@ class ChallengeDetailView(generic.DetailView):
             port = request.META.get('REMOTE_PORT')
         return (ip, port)
     
-    def challenge_ssh_form(self, request):
+    def challenge_ssh_form(self, request, *args, **kwargs):
         # create a form instance and populate it with data from the request:
         form = ChallengeSSHForm(request.POST)
 
@@ -374,9 +374,10 @@ class ChallengeDetailView(generic.DetailView):
                 context={
                     "title": _("Error form data trying to connect! Check the error(s) below:"),
                     "errors": form.errors,
-                })
+                    }
+                )
     
-    def upload_solution_form(self, request):
+    def upload_solution_form(self, request, *args, **kwargs):
         # We need to check if user has already tried and update the ProposedSolution
         # if not just save this as the first one
         user = request.POST.get('user')
@@ -413,10 +414,19 @@ class ChallengeDetailView(generic.DetailView):
             #task_id = validate_solution_task.task_id
             task_id = validate_solution_task.request.id
 
+            #context = super(ChallengeDetailView, self).get_context_data(**kwargs)
+            context = self.get_context_data(**kwargs)
+            context['task_id'] = task_id
+            
+            return self.render_to_response(context=context)
+            '''
             return render(
                 request,
-                "challenges/challenge.html",
-                {'task_id': task_id})
+                template_name="challenges/challenge.html",
+                context=context)
+            '''
+            #context = super(ChallengeDetailView, self).get_context_data(**kwargs)
+            #return self.render_to_response(context=context)
         else:
             logging.error(form.errors)
             return render(
@@ -425,19 +435,21 @@ class ChallengeDetailView(generic.DetailView):
                 context={
                     "title": _("Error uploading a new solution! Check the error(s) below:"),
                     "errors": form.errors,
-                })
+                    }
+                )
 
     def post(self, request, *args, **kwargs):
+        # assign the object to the view
+        self.object = self.get_object()
+
         # check that user is authenticated
         if not request.user.is_authenticated:
             return HttpResponseForbidden()
-        
-        #print(request.POST)
 
         if request.POST.get("form_name") == "UploadSolutionForm":
-            return self.upload_solution_form(request)
+            return self.upload_solution_form(request, *args, **kwargs)
   
         if request.POST.get("form_name") == "ChallengeSSHForm":
-            return self.challenge_ssh_form(request)
+            return self.challenge_ssh_form(request, *args, **kwargs)
 
         return HttpResponseBadRequest()

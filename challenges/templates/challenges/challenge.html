@@ -50,7 +50,7 @@
     {% if proposed.tries > 0 %}
     <div class="my-2">
       {{ _("Your stats:") }}
-      <button type="button" class="btn btn-outline-dark btn-sm position-relative me-2 mb-2" disabled>{{ proposed.tries }} {{ _("tries") }}</button>
+      <button type="button" class="btn btn-outline-secondary btn-sm position-relative mx-2 mb-2" disabled>{{ proposed.tries }} {{ _("tries") }}</button>
       {% if proposed.is_solved %}    
       <button type="button" class="btn btn-outline-success btn-sm position-relative me-2 mb-2" disabled>{{ _("solved") }}</button>
       {% else %}

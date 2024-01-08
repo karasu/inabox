@@ -4,5 +4,7 @@
 docker rm -f rabbitmq-celery
 docker run --name rabbitmq-celery -p 5672:5672 -d rabbitmq
 
+sleep 6s
+
 # Start Celery worker process
 celery -A inabox worker --loglevel=INFO
