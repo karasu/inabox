@@ -105,7 +105,7 @@
 </div>
 {% endif %}
 
-{% endblock %}
+
 
 <div class="container" style="padding-top: 20px;">
 	<div class="card" style="height: 120px;">
@@ -121,6 +121,7 @@
     </div>
 	</div>
 </div>
+{% endblock %}
 
 {% block javascript %}
   <script type="text/javascript" src="{% static 'challenges/js/jquery.min.js' %}"></script>
@@ -128,6 +129,8 @@
   <script type="text/javascript" src="{% static 'challenges/js/addon-fit.js' %}"></script>
   <script type="text/javascript" src="{% static 'challenges/js/xterm.js' %}"></script>
   <script type="text/javascript" src="{% static 'challenges/js/webssh.js' %}"></script>
+  <!-- Celery Progress -->
+  <script type="text/javascript" src="{% static 'celery_progress/celery_progress.js' %}"></script>
   {% if task_id %}
   <script type="text/javascript">
     // Progress Bar (JQuery)

@@ -409,11 +409,12 @@ class ChallengeDetailView(generic.DetailView):
             proposed_solution = ProposedSolution.objects.get(
                 user=user,
                 challenge=challenge)
-            validate_solution_task.delay(proposed_solution.id)
+            
+            res = validate_solution_task.delay(proposed_solution.id)
             # Get task id
             #task_id = validate_solution_task.task_id
-            task_id = validate_solution_task.request.id
-
+            task_id = res.id
+            print(res.id, res.status)
             #context = super(ChallengeDetailView, self).get_context_data(**kwargs)
             context = self.get_context_data(**kwargs)
             context['task_id'] = task_id

@@ -26,4 +26,6 @@ urlpatterns = [
     path('challenges/', include("challenges.urls")),
     path("loggedout/", TemplateView.as_view(template_name="loggedout.html"), name="loggedout"),
     path('', include("news.urls")),
+    # Celery progress
+	path('celery-progress/', include('celery_progress.urls')),
 ]
