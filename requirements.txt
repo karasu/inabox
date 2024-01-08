@@ -13,6 +13,7 @@ python-pycryptodome
 channels_redis
 python-msgpack
 python-redis
+celery
 python-celery
 django-celery-results
 celery-progress
