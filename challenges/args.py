@@ -7,7 +7,7 @@ import logging
 class InvalidValueError(Exception):
     pass
 
-from utils import (
+from .utils import (
     is_valid_ip_address, is_valid_port, is_valid_hostname
 )
 
