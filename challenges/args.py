@@ -7,10 +7,8 @@ import logging
 class InvalidValueError(Exception):
     pass
 
-from webssh.utils import (
-    is_valid_ip_address, is_valid_port, is_valid_hostname, to_bytes, to_str,
-    to_int, to_ip_address, UnicodeType, is_ip_hostname, is_same_primary_domain,
-    is_valid_encoding
+from utils import (
+    is_valid_ip_address, is_valid_port, is_valid_hostname
 )
 
 class Args():
