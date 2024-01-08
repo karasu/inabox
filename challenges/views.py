@@ -410,10 +410,13 @@ class ChallengeDetailView(generic.DetailView):
                 challenge=challenge)
             validate_solution_task.delay(proposed_solution.id)
             # Get task id
-            task_id = validate_solution_task.task_id
-            #return render(request, 'progress.html', {'task_id': task_id})
+            #task_id = validate_solution_task.task_id
+            task_id = validate_solution_task.request.id
 
-            return render(request, "challenge.html", {'task_id': task_id})
+            return render(
+                request,
+                "challenges/challenge.html",
+                {'task_id': task_id})
         else:
             logging.error(form.errors)
             return render(

@@ -8,8 +8,10 @@ class InvalidValueError(Exception):
     pass
 
 from .utils import (
-    is_valid_ip_address, is_valid_port, is_valid_hostname
+    is_valid_ip_address, is_valid_port, is_valid_hostname, to_int
 )
+
+DEFAULT_PORT=22
 
 class Args():
 
@@ -57,6 +59,7 @@ class Args():
 
         if self.ssh_client._system_host_keys.lookup(key) is None:
             if self.ssh_client._host_keys.lookup(key) is None:
+                # FIXME: forgot to port this
                 raise tornado.web.HTTPError(
                         403, 'Connection to {}:{} is not allowed.'.format(
                             hostname, port)
