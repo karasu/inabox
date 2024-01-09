@@ -1,3 +1,6 @@
 [submodule "switchboard"]
 	path = switchboard
 	url = git@github.com:karasu/switchboard.git
+[submodule "inabox/static/inabox/user-avatars"]
+	path = inabox/static/inabox/avatars
+	url = git@github.com:karasu/user-avatars.git
