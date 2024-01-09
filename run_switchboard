@@ -1,7 +1,7 @@
 #!/bin/sh
 
-cd ../switchboard
+cd switchboard
 python switchboard.py
-cd ../inabox
+cd ..
 
 
