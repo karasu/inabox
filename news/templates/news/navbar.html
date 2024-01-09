@@ -48,7 +48,10 @@
 
 
       {% if user.is_authenticated %}
-      <a class="nav-item nav-link px-lg-4" href="#">{{ user.get_username }}</a>
+      
+      <a class="nav-item nav-link px-lg-4" href="#">
+        <img class="img-thumbnail" src="{% static 'challenges/images/avatars/256x256/001.jpg' %}"
+        alt="avatar" width="30" height="30" class="d-inline-block align-top">{{ user.get_username }}</a>
       <a class="btn btn-warning" href="{% url 'logout' %}">{{ _("Log out!") }}</a>
       {% else %}
       <a class="btn btn-primary ms-lg-4" href="{% url 'login' %}">{{ _("Log in!") }}</a>
