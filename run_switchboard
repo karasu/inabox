@@ -1,6 +1,7 @@
 #!/bin/sh
 
 cd switchboard
+./build_images
 python switchboard.py
 cd ..
 
