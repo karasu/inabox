@@ -1,0 +1,28 @@
+{% extends 'news/base.html' %}
+{% load django_bootstrap5 %}
+{% block title %}{{ _("Search results for") }} {{ search }} {% endblock %}
+{% block content %}
+{% if newsentry_list %}
+  {% for newsentry in newsentry_list %}
+  <div class="container pt-3">
+    <div class="card">
+      <div class="card-header">
+        <div class="row">
+          <div class="col-9">
+            {{ newsentry.title }}
+          </div>
+          <div class="col-3">
+            <span class="float-end">{{ newsentry.pub_date }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+      <p class="card-text">{{ newsentry.text }}</p>
+    </div>
+  </div>
+</div>
+{% endfor %}
+{% else %}
+    <p>{{ _("Sorry, no results available.") }}</p>
+{% endif %}
+{% endblock %}

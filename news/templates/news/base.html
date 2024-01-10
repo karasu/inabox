@@ -14,7 +14,7 @@
 </head>
 <body>{% include 'news/navbar.html' %}{% block bootstrap5_content %}
     <div class="container-lg">
-        <h1 class="mb-4">{% block title %}(no title){% endblock %}</h1>
+        <h1 class="mb-4 mt-4">{% block title %}(no title){% endblock %}</h1>
         {% autoescape off %}{% bootstrap_messages %}{% endautoescape %}
         {% block content %}(no content){% endblock %}
     </div>{% endblock %}
