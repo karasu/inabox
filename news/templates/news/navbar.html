@@ -1,38 +1,44 @@
 {% load static %}
 {% load i18n %}
 
-<nav class="navbar navbar-expand-lg bg-body-tertiary sticky-top">
+<nav class="navbar navbar-expand-lg sticky-top">
   <div class="container-fluid">
-    <img src="{% static 'challenges/images/multicolor-cargo-containers.jpg' %}" width="30" height="30" class="d-inline-block align-top" alt="In a box">
+    <img src="{% static 'challenges/images/multicolor-cargo-containers.jpg' %}"
+      width="32" height="32" alt="In a box" class="d-inline-block align-text-top">
     <a class="navbar-brand ms-2" href="{% url 'news:news' %}">
       In a box</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+      data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+      aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <div class="navbar-nav me-auto mb-2 mb-lg-0">
-        <a class="nav-item nav-link" href="{% url 'challenges:quests' %}">{{ _("Quests") }}</a>
-        <a class="nav-item nav-link" href="{% url 'challenges:challenges' %}">{{ _("Challenges") }}</a>
-        <a class="nav-item nav-link" href="#">{{ _("Users") }}</a>
+        <a class="nav-item nav-link" aria-current="page" href="{% url 'challenges:quests' %}">{{ _("Quests") }}</a>
+        <a class="nav-item nav-link" aria-current="page" href="{% url 'challenges:challenges' %}">{{ _("Challenges") }}</a>
+        <a class="nav-item nav-link" aria-current="page" href="#">{{ _("Users") }}</a>
         {% if user.is_authenticated %}
-        <a class="nav-item nav-link" href="{% url 'challenges:new_challenge' %}">{{ _("New challenge") }}</a>
+        <a class="nav-item nav-link" aria-current="page" href="{% url 'challenges:new_challenge' %}">{{ _("New challenge") }}</a>
         {% endif %}
-        <a class="nav-item nav-link" href="{% url 'news:about' %}">{{ _("About") }}</a>
+        <a class="nav-item nav-link" aria-current="page" href="{% url 'news:about' %}">{{ _("About") }}</a>
         {% if user.is_staff %}
-          <a class="nav-item nav-link" href="{% url 'admin:index' %}">Admin</a>
+          <a class="nav-item nav-link" aria-current="page" href="{% url 'admin:index' %}">Admin</a>
         {% endif %}
       </div>
 
-      <form class="d-flex">
-        <input class="form-control mr-sm-2" type="search" placeholder="{{ _('Search') }}" aria-label="{{ _('Search') }}" />
-        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">{{ _("Search") }}</button>
+      <form class="d-flex" role="search" action="#" method="post">
+        {% csrf_token %}
+        <input name="search" class="form-control me-1" type="search" placeholder="{{ _('Search') }}"
+          aria-label="{{ _('Search') }}">
+        <button class="btn btn-outline-success" type="submit">{{ _("Search") }}</button>
       </form>
 
-      <form class="d-flex" action="{% url 'set_language' %}" method="post">
+      <form class="d-flex ms-4" role="language" action="{% url 'set_language' %}" method="post">
         {% csrf_token %}
         <input name="next" type="hidden" value="{{ redirect_to }}" />
-        <select name="language" class="form-control dropdown-toggle ms-lg-4" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <select name="language" class="form-control dropdown-toggle me-1" href="#"
+          id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
           {% get_current_language as LANGUAGE_CODE %}
           {% get_available_languages as LANGUAGES %}
           {{ LANGUAGE_CODE }}
@@ -43,20 +49,25 @@
           </option>
           {% endfor %}         
         </select> 
-        <button type="submit" class="btn btn-outline-success" value="{{ _("Change") }}">{{ _("Change") }}</button>
+        <button class="btn btn-outline-success" type="submit" value="{{ _('Change') }}">{{ _("Change") }}</button>
       </form>
 
-
       {% if user.is_authenticated %}
-      
-      <a class="nav-item nav-link px-lg-4" href="#">
-        <img class="img-thumbnail" src="{% static 'challenges/images/avatars/256x256/001.jpg' %}"
-        alt="avatar" width="30" height="30" class="d-inline-block align-top">{{ user.get_username }}</a>
+      <a class="nav-item nav-link px-lg-4" href="http://localhost:8000/admin/auth/user/1/change/">
+        {% if user.avatar %}
+        <img class="img-thumbnail" style="max-width:64px;max-height:38px"
+         src="{{ user.avatar.url }}" alt="avatar">
+        {% else %}
+        <img class="img-thumbnail" style="max-width:64px;max-height:38px"
+         src="{% static 'challenges/images/avatars/256x256/005.jpg' %}" alt="avatar">
+        {% endif %}
+        {{ user.get_username }}
+      </a>
       <a class="btn btn-warning" href="{% url 'logout' %}">{{ _("Log out!") }}</a>
       {% else %}
       <a class="btn btn-primary ms-lg-4" href="{% url 'login' %}">{{ _("Log in!") }}</a>
       {% endif %}
-      
+      </div>
       
     </div>
   </div>
