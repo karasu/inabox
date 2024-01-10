@@ -24,3 +24,6 @@ class NewsIndexView(generic.ListView):
 
 class AboutView(generic.base.TemplateView):
     template_name = "news/about.html"
+
+class SearchView(generic.base.TemplateView):
+    template_name = "news/search.html"
