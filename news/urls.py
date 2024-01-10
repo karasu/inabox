@@ -9,4 +9,5 @@ urlpatterns = [
     path("", views.NewsIndexView.as_view(), name="news"),
     path("about", views.AboutView.as_view(), name="about"),
     path("search", views.SearchView.as_view(), name="search"),
+    path("profile", views.ProfileView.as_view(), name="profile"),
 ]

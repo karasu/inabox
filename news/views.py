@@ -26,6 +26,7 @@ class NewsIndexView(generic.ListView):
 class AboutView(generic.base.TemplateView):
     template_name = "news/about.html"
 
+
 class SearchView(generic.base.TemplateView):
     template_name = "news/search.html"
 
@@ -33,3 +34,23 @@ class SearchView(generic.base.TemplateView):
         print(request)
         form = SearchForm({'search': request.get.search})
 
+
+class ProfileView(generic.base.TemplateView):
+    template_name = "news/profile.html"
+
+'''
+ username
+    password
+    email
+    first_name
+    last_name
+
+    user
+    class_group
+    role
+    teacher
+    avatar
+    private_key
+    language
+'''
+    
