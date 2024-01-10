@@ -1,6 +1,6 @@
 {% extends 'news/base.html' %}
 {% load django_bootstrap5 %}
-{% block title %}{{ _("Search results:") }}{% endblock %}
+{% block title %}{{ _("Search results for") }} {{ search }} {% endblock %}
 {% block content %}
 {% if newsentry_list %}
   {% for newsentry in newsentry_list %}

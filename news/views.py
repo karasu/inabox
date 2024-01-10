@@ -2,6 +2,7 @@ from django.views import generic
 from django.utils.translation import get_language
 
 from .models import NewsEntry
+from .forms import SearchForm
 from challenges.models import Profile
 
 
@@ -27,3 +28,8 @@ class AboutView(generic.base.TemplateView):
 
 class SearchView(generic.base.TemplateView):
     template_name = "news/search.html"
+
+    def search(self, request, *args, **kwargs):
+        print(request)
+        form = SearchForm({'search': request.get.search})
+

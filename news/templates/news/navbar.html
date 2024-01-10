@@ -24,8 +24,9 @@
         {% endif %}
       </div>
 
-      <form class="d-flex" action="{% url 'news:search' %}">
-        <input class="form-control mr-sm-2" type="search" placeholder="{{ _('Search') }}" aria-label="{{ _('Search') }}" />
+      <form class="d-flex" action="{% url 'news:search' %}" method="get">
+        {% csrf_token %}
+        <input class="form-control mr-sm-2" type="text" placeholder="{{ _('Search') }}" aria-label="{{ _('Search') }}" />
         <button class="btn btn-outline-success my-2 my-sm-0" type="submit">{{ _("Search") }}</button>
       </form>
 
