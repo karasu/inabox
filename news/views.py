@@ -1,10 +1,17 @@
 from django.views import generic
 from django.utils.translation import get_language
+from django.shortcuts import get_object_or_404, render
+from django.urls import reverse
+#from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseForbidden,  HttpResponseBadRequest
+from django.http import HttpResponseRedirect
+from django.utils.translation import gettext_lazy as _
+
 
 from .models import NewsEntry
 from .forms import SearchForm
 from challenges.models import Profile
 
+import logging
 
 class NewsIndexView(generic.ListView):
     template_name = "news/news.html"
@@ -30,21 +37,33 @@ class AboutView(generic.base.TemplateView):
 class SearchView(generic.base.TemplateView):
     template_name = "news/search.html"
 
-    def search(self, request, *args, **kwargs):
-        print(request)
-        form = SearchForm({'search': request.get.search})
-
+    def get(self, request, *args, **kwargs):
+        form = SearchForm(request.GET)
+        print(request.GET)
+        if form.is_valid():
+            
+            return HttpResponseRedirect(reverse("news:news"))
+        else:
+            logging.error(form.errors)
+            return render(
+                request,
+                template_name="challenges/form_error.html",
+                context={
+                    "title": _("Error in search form. Check the error(s) below:"),
+                    "errors": form.errors,
+                })
 
 class ProfileView(generic.base.TemplateView):
     template_name = "news/profile.html"
 
 '''
- username
+username
     password
     email
     first_name
     last_name
 
+profile
     user
     class_group
     role
