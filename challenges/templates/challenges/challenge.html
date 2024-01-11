@@ -4,20 +4,20 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'challenges/css/xterm.css' %}">
 {% endblock %}
-{% block title %}{{ challenge.title }}{% endblock %}
+{% block title %}{% endblock %}
 {% block content %}
 
 {% if user.is_authenticated %}
 <div class="row">
-<div class="col-9">
+<div class="col-lg-9">
 {% endif %}
 <div class="card">
   <div class="card-header">
     <div class="row pt-2">
-      <div class="col-6">
+      <div class="col-sm-6">
         <h5 class="card-title">{{ challenge.title }}</h5>
       </div>
-      <div class="col-6">
+      <div class="col-sm-6">
         <span class="float-end">
           <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>{{ challenge.area }}</button>
           <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>{{ challenge.get_level_display }}</button>
@@ -80,8 +80,25 @@
   </div>
 </div>
 {% if user.is_authenticated %}
+  <!-- Progress bar used when checking user's proposed solution -->
+	<div class="card" style="height: 120px;">
+		<div class="text-center" style="font-size: 14px">
+      <div id="progress-bar-message">
+      </div>
+    </div>
+    <div class='progress-wrapper' style="padding-top: 10px;">
+      <div id='progress-bar' class='progress-bar progress-bar-striped' role='progressbar' style="height:30px; width: 0%; border-radius: 5px">&nbsp;</div>
+    </div>
+    <div id="celery-result">
+    </div>
+	</div>
+  {% endif %}
+
 </div>
-<div class="col-3">
+
+{% if user.is_authenticated %}
+<!-- Your solution form -->
+<div class="col-lg-3">
   <div class="card">
     <div class="card-header">
       <h5 class="card-title">{{ _("Your solution") }}</h5>
@@ -97,30 +114,13 @@
       </div>
       {% endfor %}
       <button id="upload-solution" type="submit" class="btn btn-primary">{{ _("Let's check your solution!") }}</button>
-      
       </form>
     </div>
   </div>
 </div>
-</div>
 {% endif %}
-
-
-
-<div class="container" style="padding-top: 20px;">
-	<div class="card" style="height: 120px;">
-		<div class="text-center" style="font-size: 14px">
-      <div id="progress-bar-message">
-      Click the "Download" button
-      </div>
-    </div>
-    <div class='progress-wrapper' style="padding-top: 10px;">
-      <div id='progress-bar' class='progress-bar progress-bar-striped' role='progressbar' style="height:30px; width: 0%; border-radius: 5px">&nbsp;</div>
-    </div>
-    <div id="celery-result">
-    </div>
-	</div>
 </div>
+
 {% endblock %}
 
 {% block javascript %}

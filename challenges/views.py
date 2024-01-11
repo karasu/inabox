@@ -462,18 +462,34 @@ class SearchView(generic.base.TemplateView):
         form = SearchForm(request.GET)
 
         if form.is_valid():
-            term = request.GET['search']
+            search_term = request.GET['search']
+            # Try to find a challenge title or a quest title that has that term
+            context = {}
+            context['search_term'] = search_term
 
-            if term:
-                # Try to find a challenge title or a quest title that has that term
-                quests = QuestChallenge.objects.filter(quest=context['quest'])
-                challenges = Challenge.objects.filter()
-                context = []
-                context['challenge_list'] = []
-                for quest_challenge in QuestChallenge.objects.filter(quest=context['quest']):
-                    context['challenge_list'].append(quest_challenge.challenge)
+            context['quests'] = []
+            for quest in Quest.objects.filter(title__contains=search_term):
+                context['quests'].append(quest)
 
+            num_quests = len(context['quests'])
+            if  num_quests > 0:
+                if num_quests > 1:
+                    context['quests_found'] = _("Found {} quests").format(num_quests)
+                else:
+                    context['quests_found'] = _("Found 1 quest")
 
+            context['challenges'] = []
+            for challenge in Challenge.objects.filter(title__contains=search_term):
+                context['challenges'].append(challenge)
+
+            num_challenges = len(context['challenges'])
+            if  num_challenges > 0:
+                if num_challenges > 1:
+                    context['challenges_found'] = _("Found {} challenges").format(num_challenges)
+                else:
+                    context['challenges_found'] = _("Found 1 challenge")
+
+            return self.render_to_response(context=context)
             #return HttpResponseRedirect(reverse("news:news"))
         else:
             logging.error(form.errors)

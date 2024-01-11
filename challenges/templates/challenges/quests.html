@@ -4,13 +4,13 @@
 {% block content %}
 {% load i18n %}
 <div class="row">
-  <div class="col-9">
+  <div class="col-lg-9">
     {% if quest_list %}
     {% for quest in quest_list %}
     <div class="card mb-3">
       <div class="card-header">
         <div class="row pt-2">
-          <div class="col-6">
+          <div class="col-sm-6">
             <h5 class="card-title">
               <a href="{% url 'challenges:quest' pk=quest.id %}" class="btn btn-outline-primary">
                 {{ quest.title }} {{ _("by") }}
@@ -22,16 +22,16 @@
               </a> 
             </h5>
           </div>
-          <div class="col-6">
+          <div class="col-sm-6">
             <span class="float-end">        
-              <button type="button" class="btn btn-outline-dark btn-sm position-relative me-2 mb-2" disabled>{{ quest.get_level_display }}</button>
-              <button type="button" class="btn btn-outline-dark btn-sm position-relative me-2 mb-2" disabled>
+              <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>{{ quest.get_level_display }}</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>
                 {{ _("Tries") }}
                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                 {{ quest.total_tries }}
                 </span>
               </button>
-              <button type="button" class="btn btn-outline-dark btn-sm position-relative me-2 mb-2" disabled>
+              <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>
                 {{ _("Solved") }}
                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                 {{ quest.times_solved }}
@@ -51,7 +51,7 @@
     {% endif %}
   </div>
   
-  <div class="col-3">
+  <div class="col-lg-3">
     <div class="card">
       <div class="card-header">
         {{ _("Filter settings") }}
@@ -59,42 +59,26 @@
       <div class="card-body">
         <form method="get" action="{% url 'challenges:challenges' %}">
           {% csrf_token %}
-          
-          <div class="form-group row mb-2">
-            <label for="creator" class="col-lg-4 mt-2">{{ _("Creator:") }}</label>
-            <div class="col-lg-8">
-              <select name="creator" class="form-control dropdown-toggle" href="#" id="creator" role="button" data-bs-toggle="dropdown" aira-expanded="false">
-                <option value="all">{{ _("All creators") }}</option>
-                <option disabled>──────────</option>
-                {% for creator in creators %}
-                <option value="{{ creator }}" {% if screator == creator %} selected{% endif %}>{{ creator }}</option>
-                {% endfor %}
-              </select>
-            </div>
-          </div>
-          <div class="form-group row mb-2">
-            <label for="level" class="col-lg-4 mt-2">{{ _("Level:") }}</label>
-            <div class="col-lg-8">
-              <select name="level" class="form-control dropdown-toggle" href="#" id="level" role="button" data-bs-toggle="dropdown" aira-expanded="false">
-                <option value="all">{{ _("All levels") }}</option>
-                <option disabled>──────────</option>
-                {% for level in levels %}
-                <option value="{{ level.0 }}"{% if slevel == level.0 %} selected{% endif %}>{{ level.1 }}</option>
-                {% endfor %}
-              </select>
-            </div>
-          </div>
-          <div class="form-group row mb-2">
-            <label for="order" class="col-lg-4 mt-2">{{ _("Order:") }}</label>
-            <div class="col-lg-8">
-              <select name="order" class="form-control dropdown-toggle" href="#" id="order" role="button" data-bs-toggle="dropdown"
-                aira-expanded="false">
-                <option value="newest"{% if sorder == order %} selected{% endif %}>{{ _("Newest first") }}</option>
-                <option value="oldest"{% if sorder == order %} selected{% endif %}>{{ _("Oldest first") }}</option>
-              </select>
-            </div>
-          </div>            
-          <button type="submit" class="btn btn-outline-success" value="{{ _("Filter") }}">{{ _("Filter") }}</button>
+          <select name="creator" class="form-control dropdown-toggle mb-2" href="#" id="creator" role="button" data-bs-toggle="dropdown" aira-expanded="false">
+            <option value="all">{{ _("All creators") }}</option>
+            <option disabled>──────────</option>
+            {% for creator in creators %}
+            <option value="{{ creator }}" {% if screator == creator %} selected{% endif %}>{{ creator }}</option>
+            {% endfor %}
+          </select>
+          <select name="level" class="form-control dropdown-toggle mb-2" href="#" id="level" role="button" data-bs-toggle="dropdown" aira-expanded="false">
+            <option value="all">{{ _("All levels") }}</option>
+            <option disabled>──────────</option>
+            {% for level in levels %}
+            <option value="{{ level.0 }}"{% if slevel == level.0 %} selected{% endif %}>{{ level.1 }}</option>
+            {% endfor %}
+          </select>
+          <select name="order" class="form-control dropdown-toggle mb-2" href="#" id="order" role="button" data-bs-toggle="dropdown"
+            aira-expanded="false">
+            <option value="newest"{% if sorder == order %} selected{% endif %}>{{ _("Newest first") }}</option>
+            <option value="oldest"{% if sorder == order %} selected{% endif %}>{{ _("Oldest first") }}</option>
+          </select>
+          <button type="submit" class="btn btn-outline-success float-end" value="{{ _("Filter") }}">{{ _("Filter") }}</button>
         </form>
       </div>
     </div>
