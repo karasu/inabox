@@ -99,8 +99,8 @@ class Profile(models.Model):
     language = models.CharField(
         choices=settings.LANGUAGES, max_length=2, default="ca")
 
-    #def __str__(self):
-    #    return self.user
+    def __str__(self):
+        return "{}'s profile".format(self.user.username)
     
 # file will be uploaded to MEDIA_ROOT/dockerimages/<dockerimagename>/<filename>
 def dockerimage_directory_path(instance, filename):

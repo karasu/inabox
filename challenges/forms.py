@@ -14,26 +14,6 @@ class ChallengeSSHForm(forms.Form):
     term = forms.CharField(widget=forms.HiddenInput())
     challenge_id = forms.IntegerField(widget=forms.HiddenInput())
 
-class NewChallengeForm(forms.ModelForm):
-    class Meta:
-        model = Challenge
-        fields = [
-            "title", "summary", "full_description", "creator",
-            "check_solution_script", "area", "level", "points", "language",
-            "docker_image"]
-
-    def __init__(self, *args, **kwargs):
-        user_id = kwargs.pop('user_id', None)
-        super(NewChallengeForm, self).__init__(*args, **kwargs)
-
-        # Add form-control class to all form widgets
-        for field in self.visible_fields():
-            field.field.widget.attrs.update({'class': 'form-control'})
-
-        # set the creator field to the current user (and remove the rest)
-        if user_id:
-            self.fields['creator'].queryset = User.objects.filter(id=user_id)
-            self.fields['creator'].empty_label = None
 
 class UploadSolutionForm(forms.ModelForm):
     class Meta:
@@ -59,5 +39,28 @@ class UploadSolutionForm(forms.ModelForm):
             self.fields['challenge'].queryset = Challenge.objects.filter(id=challenge_id)
             self.fields['challenge'].empty_label = None
 
+
 class SearchForm(forms.Form):
     search = forms.CharField()
+
+
+class NewChallengeForm(forms.ModelForm):
+    class Meta:
+        model = Challenge
+        fields = [
+            "title", "summary", "full_description", "creator",
+            "check_solution_script", "area", "level", "points",
+            "language", "docker_image"]
+
+    def __init__(self, *args, **kwargs):
+        user_id = kwargs.pop('user_id', None)
+        super(NewChallengeForm, self).__init__(*args, **kwargs)
+
+        # Add form-control class to all form widgets
+        for field in self.visible_fields():
+            field.field.widget.attrs.update({'class': 'form-control'})
+
+        # set the creator field to the current user (and remove the rest)
+        if user_id:
+            self.fields['creator'].queryset = User.objects.filter(id=user_id)
+            self.fields['creator'].empty_label = None

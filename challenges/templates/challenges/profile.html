@@ -1,28 +1,19 @@
 {% extends 'news/base.html' %}
 {% load django_bootstrap5 %}
-{% block title %}{{ _("User profile") }}{% endblock %}
-{% block content %}
-{% if newsentry_list %}
-  {% for newsentry in newsentry_list %}
-  <div class="container pt-3">
-    <div class="card">
-      <div class="card-header">
-        <div class="row">
-          <div class="col-9">
-            {{ newsentry.title }}
-          </div>
-          <div class="col-3">
-            <span class="float-end">{{ newsentry.pub_date }}</span>
-          </div>
-        </div>
-      </div>
-      <div class="card-body">
-      <p class="card-text">{{ newsentry.text }}</p>
-    </div>
-  </div>
-</div>
-{% endfor %}
+{% block title %}
+{% if user.first_name and user.last_name %}
+{{ user.first_name }} {{ user.last_name }}'s profile
 {% else %}
-    <p>{{ _("Could not load user's profile.") }}</p>
+{{ user.username }}'s profile
+{% endif %}
+{% endblock %}
+{% block content %}
+
+{% if user.is_authenticated and user_data and profile_data %}
+
+{{ _("Last login:") }}{{ user_data.last_login }}
+
+{% else %}
+<h2>Error</h2>
 {% endif %}
 {% endblock %}

@@ -502,23 +502,16 @@ class SearchView(generic.base.TemplateView):
                     "errors": form.errors,
                 })
 
-class ProfileView(generic.base.TemplateView):
+class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
     template_name = "challenges/profile.html"
 
-'''
-username
-    password
-    email
-    first_name
-    last_name
+    def get_queryset(self):
+        new_qs = User.objects.filter(id=self.request.user.id)
+        return new_qs
 
-profile
-    user
-    class_group
-    role
-    teacher
-    avatar
-    private_key
-    language
-'''
-    
+    def get_context_data(self, **kwargs):
+        context = super(ProfileView, self).get_context_data(**kwargs)
+        #context['levels'] = LEVELS
+        context['user_data'] = User.objects.get(id=self.request.user.id)
+        context['profile_data'] = Profile.objects.get(user=self.request.user)
+        return context 
