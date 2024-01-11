@@ -58,3 +58,6 @@ class UploadSolutionForm(forms.ModelForm):
             # set the challenge field to the current challenge (and remove the rest)
             self.fields['challenge'].queryset = Challenge.objects.filter(id=challenge_id)
             self.fields['challenge'].empty_label = None
+
+class SearchForm(forms.Form):
+    search = forms.CharField()

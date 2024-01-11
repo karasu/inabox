@@ -8,7 +8,6 @@ from django.utils.translation import gettext_lazy as _
 
 
 from .models import NewsEntry
-from .forms import SearchForm
 from challenges.models import Profile
 
 import logging
@@ -34,42 +33,4 @@ class AboutView(generic.base.TemplateView):
     template_name = "news/about.html"
 
 
-class SearchView(generic.base.TemplateView):
-    template_name = "news/search.html"
 
-    def get(self, request, *args, **kwargs):
-        form = SearchForm(request.GET)
-        print(request.GET)
-        if form.is_valid():
-            
-            return HttpResponseRedirect(reverse("news:news"))
-        else:
-            logging.error(form.errors)
-            return render(
-                request,
-                template_name="challenges/form_error.html",
-                context={
-                    "title": _("Error in search form. Check the error(s) below:"),
-                    "errors": form.errors,
-                })
-
-class ProfileView(generic.base.TemplateView):
-    template_name = "news/profile.html"
-
-'''
-username
-    password
-    email
-    first_name
-    last_name
-
-profile
-    user
-    class_group
-    role
-    teacher
-    avatar
-    private_key
-    language
-'''
-    

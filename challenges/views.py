@@ -38,7 +38,7 @@ from .worker import Worker, recycle_worker, clients
 
 from .models import Challenge, Area, Profile, ProposedSolution, Quest, QuestChallenge
 from .models import LEVELS
-from .forms import ChallengeSSHForm, NewChallengeForm, UploadSolutionForm
+from .forms import ChallengeSSHForm, NewChallengeForm, UploadSolutionForm, SearchForm
 
 # Celery task to check if a proposed solution is valid or not
 from .tasks import validate_solution_task
@@ -454,3 +454,54 @@ class ChallengeDetailView(generic.DetailView):
             return self.challenge_ssh_form(request, *args, **kwargs)
 
         return HttpResponseBadRequest()
+
+class SearchView(generic.base.TemplateView):
+    template_name = "challenges/search.html"
+
+    def get(self, request, *args, **kwargs):
+        form = SearchForm(request.GET)
+
+        if form.is_valid():
+            term = request.GET['search']
+
+            if term:
+                # Try to find a challenge title or a quest title that has that term
+                quests = QuestChallenge.objects.filter(quest=context['quest'])
+                challenges = Challenge.objects.filter()
+                context = []
+                context['challenge_list'] = []
+                for quest_challenge in QuestChallenge.objects.filter(quest=context['quest']):
+                    context['challenge_list'].append(quest_challenge.challenge)
+
+
+            #return HttpResponseRedirect(reverse("news:news"))
+        else:
+            logging.error(form.errors)
+            return render(
+                request,
+                template_name="challenges/form_error.html",
+                context={
+                    "title": _("Error in search form. Check the error(s) below:"),
+                    "errors": form.errors,
+                })
+
+class ProfileView(generic.base.TemplateView):
+    template_name = "challenges/profile.html"
+
+'''
+username
+    password
+    email
+    first_name
+    last_name
+
+profile
+    user
+    class_group
+    role
+    teacher
+    avatar
+    private_key
+    language
+'''
+    

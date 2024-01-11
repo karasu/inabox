@@ -29,7 +29,7 @@
 
 
       <!-- search form -->
-      <form class="d-flex" role="search" action="{% url 'news:search' %}" method="get">
+      <form class="d-flex" role="search" action="{% url 'challenges:search' %}" method="get">
         {% csrf_token %}
         <input name="search" class="form-control me-1" type="search" placeholder="{{ _('Search') }}"
           aria-label="{{ _('Search') }}">
