@@ -21,14 +21,14 @@
         </div>
         <div class="col-6">
           <span class="float-end">        
-            <button type="button" class="btn btn-outline-dark btn-sm position-relative me-2 mb-2" disabled>{{ quest.get_level_display }}</button>
-            <button type="button" class="btn btn-outline-dark btn-sm position-relative me-2 mb-2" disabled>
+            <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>{{ quest.get_level_display }}</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>
               {{ _("Tries") }}
               <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
               {{ quest.total_tries }}
               </span>
             </button>
-            <button type="button" class="btn btn-outline-dark btn-sm position-relative me-2 mb-2" disabled>
+            <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>
               {{ _("Solved") }}
               <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
               {{ quest.times_solved }}
@@ -60,16 +60,16 @@
         </div>
         <div class="col-6">
             <span class="float-end">        
-            <button type="button" class="btn btn-outline-dark btn-sm position-relative me-2 mb-2" disabled>{{ challenge.area }}</button>
-            <button type="button" class="btn btn-outline-dark btn-sm position-relative me-2 mb-2" disabled>{{ challenge.get_level_display }}</button>
-            <button type="button" class="btn btn-outline-dark btn-sm position-relative me-2 mb-2" disabled>{{ challenge.get_language_display }}</button>
-            <button type="button" class="btn btn-outline-dark btn-sm position-relative me-2 mb-2" disabled>
+            <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>{{ challenge.area }}</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>{{ challenge.get_level_display }}</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>{{ challenge.get_language_display }}</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>
                 {{ _("Tries") }}
                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                 {{ challenge.total_tries }}
                 </span>
             </button>
-            <button type="button" class="btn btn-outline-dark btn-sm position-relative me-2 mb-2" disabled>
+            <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>
                 {{ _("Solved") }}
                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                 {{ challenge.times_solved }}

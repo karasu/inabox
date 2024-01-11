@@ -468,18 +468,20 @@ class SearchView(generic.base.TemplateView):
             context['search_term'] = search_term
 
             context['quests'] = []
-            for quest in Quest.objects.filter(title__contains=search_term):
+            quests = Quest.objects.filter(title__contains=search_term) | Quest.objects.filter(creator__username__contains=search_term)
+            for quest in quests:
                 context['quests'].append(quest)
 
             num_quests = len(context['quests'])
             if  num_quests > 0:
                 if num_quests > 1:
-                    context['quests_found'] = _("Found {} quests").format(num_quests)
+                    context['quests_found'] = _("{} quests found").format(num_quests)
                 else:
-                    context['quests_found'] = _("Found 1 quest")
+                    context['quests_found'] = _("One quest found")
 
             context['challenges'] = []
-            for challenge in Challenge.objects.filter(title__contains=search_term):
+            challenges = Challenge.objects.filter(title__contains=search_term) | Challenge.objects.filter(creator__username__contains=search_term)
+            for challenge in challenges:
                 context['challenges'].append(challenge)
 
             num_challenges = len(context['challenges'])
@@ -490,7 +492,6 @@ class SearchView(generic.base.TemplateView):
                     context['challenges_found'] = _("Found 1 challenge")
 
             return self.render_to_response(context=context)
-            #return HttpResponseRedirect(reverse("news:news"))
         else:
             logging.error(form.errors)
             return render(

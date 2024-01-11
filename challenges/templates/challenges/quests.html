@@ -4,7 +4,7 @@
 {% block content %}
 {% load i18n %}
 <div class="row">
-  <div class="col-lg-9">
+  <div class="col-lg-10">
     {% if quest_list %}
     {% for quest in quest_list %}
     <div class="card mb-3">
@@ -12,7 +12,7 @@
         <div class="row pt-2">
           <div class="col-sm-6">
             <h5 class="card-title">
-              <a href="{% url 'challenges:quest' pk=quest.id %}" class="btn btn-outline-primary">
+              <a href="{% url 'challenges:quest' pk=quest.id %}" class="btn btn-primary">
                 {{ quest.title }} {{ _("by") }}
                 {% if quest.creator.first_name %}
                   {{ quest.creator.first_name }} {{ quest.creator.last_name }}
@@ -51,13 +51,14 @@
     {% endif %}
   </div>
   
-  <div class="col-lg-3">
+  <!-- Filter form -->
+  <div class="col-lg-2">
     <div class="card">
       <div class="card-header">
         {{ _("Filter settings") }}
       </div>
       <div class="card-body">
-        <form method="get" action="{% url 'challenges:challenges' %}">
+        <form method="get" action="{% url 'challenges:quests' %}">
           {% csrf_token %}
           <select name="creator" class="form-control dropdown-toggle mb-2" href="#" id="creator" role="button" data-bs-toggle="dropdown" aira-expanded="false">
             <option value="all">{{ _("All creators") }}</option>

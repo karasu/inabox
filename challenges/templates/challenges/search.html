@@ -3,14 +3,15 @@
 {% block title %}{{ _("Search results for") }} "{{ search_term }}" {% endblock %}
 {% block content %}
 {% if quests %}
-  <h2>{{ quests_found }}</h2>
+<div class="d-grid gap-2">
+  <div class="my-3 py-2 bg-dark"><h2>{{ _("I've found these quests:") }}</h2>
   {% for quest in quests %}
-  <div class="card mb-3">
+  <div class="card mt-3">
   <div class="card-header">
     <div class="row pt-2">
       <div class="col-sm-6">
         <h5 class="card-title">
-          <a href="{% url 'challenges:quest' pk=quest.id %}" class="btn btn-outline-primary">
+          <a href="{% url 'challenges:quest' pk=quest.id %}" class="btn btn-primary">
             {{ quest.title }} {{ _("by") }}
             {% if quest.creator.first_name %}
               {{ quest.creator.first_name }} {{ quest.creator.last_name }}
@@ -44,12 +45,13 @@
   </div>
 </div>
 {% endfor %}
+</div>
 {% endif %}
 
 {% if challenges %}
-<h2>{{ quests_found }}</h2>
+<div class="my-3 py-2 bg-dark"><h2>{{ _("I've found these challenges:") }}</h2>
 {% for challenge in challenges %}
-<div class="card mb-3">
+<div class="card mt-3">
   <div class="card-header">
     <div class="row pt-2">
       <div class="col-sm-6">
@@ -89,12 +91,14 @@
     <p class="card-text pt-2">{{ challenge.summary }}</p>
   </div>
 </div>
+
 {% endfor %}
+</div>
 
 {% endif %}
 
-{% if quests < 1 and challenges < 1 %}
-<p class="alert">{{ _("Sorry, no results available.") }}</p>
+{% if quests|length < 1 and challenges|length < 1 %}
+<p class="alert alert-warning">{{ _("Sorry, no results available.") }}</p>
 {% endif %}
 
 {% endblock %}
