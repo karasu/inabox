@@ -1,12 +1,11 @@
 {% load static %}
 {% load i18n %}
 
-<nav class="navbar navbar-expand-lg sticky-top">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
   <div class="container-fluid">
     <img src="{% static 'challenges/images/multicolor-cargo-containers.jpg' %}"
       width="32" height="32" alt="In a box" class="d-inline-block align-text-top">
-    <a class="navbar-brand ms-2" href="{% url 'news:news' %}">
-      In a box</a>
+    <a class="navbar-brand ms-2" href="{% url 'news:news' %}">In a box</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
       data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
       aria-expanded="false" aria-label="Toggle navigation">
@@ -26,7 +25,6 @@
           <a class="nav-item nav-link" href="{% url 'admin:index' %}">Admin</a>
         {% endif %}
       </div>
-
 
       <!-- search form -->
       <form class="d-flex" role="search" action="{% url 'challenges:search' %}" method="get">
