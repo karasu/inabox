@@ -32,6 +32,12 @@ LEVELS = [
     ("E", _("Expert")),
 ]
 
+# Used in profile model
+ROLES = [
+    ("T", _("Teacher")),
+    ("S", _("Student")),
+]
+
 # file will be uploaded to MEDIA_ROOT/users/<username>/<filename>
 def user_directory_path(instance, filename):
     return "users/{0}/{1}".format(
@@ -80,10 +86,6 @@ freds_role = usr.profile.role
 '''
 
 class Profile(models.Model):
-    ROLES = [
-        ("T", _("Teacher")),
-        ("S", _("Student")),
-    ]
     user = models.OneToOneField(User, on_delete=models.CASCADE)    
     class_group = models.ForeignKey(
         ClassGroup, on_delete=models.CASCADE)

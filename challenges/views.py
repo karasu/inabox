@@ -37,7 +37,7 @@ from .utils import (
 from .worker import Worker, recycle_worker, clients
 
 from .models import Challenge, Area, Profile, ProposedSolution, Quest, QuestChallenge
-from .models import LEVELS
+from .models import LEVELS, ROLES
 from .forms import ChallengeSSHForm, NewChallengeForm, UploadSolutionForm, SearchForm
 
 # Celery task to check if a proposed solution is valid or not
@@ -505,13 +505,13 @@ class SearchView(generic.base.TemplateView):
 class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
     template_name = "challenges/profile.html"
 
-    def get_queryset(self):
-        new_qs = User.objects.filter(id=self.request.user.id)
-        return new_qs
+    #def get_queryset(self):
+    #    new_qs = User.objects.filter(id=self.request.user.id)
+    #    return new_qs
 
     def get_context_data(self, **kwargs):
         context = super(ProfileView, self).get_context_data(**kwargs)
-        #context['levels'] = LEVELS
+        context['roles'] = ROLES
         context['user_data'] = User.objects.get(id=self.request.user.id)
         context['profile_data'] = Profile.objects.get(user=self.request.user)
         return context 
