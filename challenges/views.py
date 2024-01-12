@@ -467,8 +467,10 @@ class SearchView(generic.base.TemplateView):
             context = {}
             context['search_term'] = search_term
 
+            # Search in quests title and creator
             context['quests'] = []
-            quests = Quest.objects.filter(title__contains=search_term) | Quest.objects.filter(creator__username__contains=search_term)
+            quests = Quest.objects.filter(title__icontains=search_term) | \
+                Quest.objects.filter(creator__username__icontains=search_term)
             for quest in quests:
                 context['quests'].append(quest)
 
@@ -479,8 +481,10 @@ class SearchView(generic.base.TemplateView):
                 else:
                     context['quests_found'] = _("One quest found")
 
+            # Search in challenges title and creator
             context['challenges'] = []
-            challenges = Challenge.objects.filter(title__contains=search_term) | Challenge.objects.filter(creator__username__contains=search_term)
+            challenges = Challenge.objects.filter(title__icontains=search_term) | \
+                Challenge.objects.filter(creator__username__icontains=search_term)
             for challenge in challenges:
                 context['challenges'].append(challenge)
 
@@ -505,13 +509,18 @@ class SearchView(generic.base.TemplateView):
 class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
     template_name = "challenges/profile.html"
 
-    #def get_queryset(self):
-    #    new_qs = User.objects.filter(id=self.request.user.id)
-    #    return new_qs
-
     def get_context_data(self, **kwargs):
         context = super(ProfileView, self).get_context_data(**kwargs)
         context['roles'] = ROLES
-        context['user_data'] = User.objects.get(id=self.request.user.id)
-        context['profile_data'] = Profile.objects.get(user=self.request.user)
+        user_obj = User.objects.get(id=self.request.user.id)
+        profile_obj = Profile.objects.get(user=self.request.user)
+
+        context["user_data"] = {}
+        for field in user_obj._meta.fields:
+            context["user_data"] = {
+                "label": field.verbose_name,
+                "value": field.
+
+        print(context['user_data']._meta.fields)
+        print(context['profile_data']._meta.fields)
         return context 

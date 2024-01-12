@@ -11,9 +11,45 @@
 
 {% if user.is_authenticated and user_data and profile_data %}
 
-{{ _("Last login:") }}{{ user_data.last_login }}
 
-{% else %}
+
+{{ user_data }}
+
+
+
+
+<h2>Until here.</h2>
+
+<form class="form-horizontal" action="#" role="form">
+<div class="form-group mb-3 row">
+    <label for="user_id" class="control-label col-sm-2">{{ _("User id:") }}</label>
+    <div class="col-sm-10">
+    <input type="text" class="form-control" id="user_id" value="{{ user_data.id }}" disabled>
+    </div>
+</div>
+</form>
+    
+{{ _("Last login:") }} {{ user_data.last_login }}
+{{ _("Username:") }} {{ user_data.username }}
+{{ _("First name:") }} {{ user_data.first_name }}
+{{ _("Last name:") }} {{ user_data.last_name }}
+{{ _("E-mail:") }} {{ user_data.email }}
+{{ _("Is staff:") }} {{ user_data.is_staff }}
+{{ _("Is active:") }} {{ user_data.is_active }}
+{{ _("Is superuser:") }} {{ user_data.is_superuser }}
+{{ _("Date joined:") }} {{ user_data.date_joined }}
+
+
+
+{{ _("") }} {{ profile_data.class_group }}
+{{ _("") }} {{ profile_data.role }}
+{{ _("") }} {{ profile_data.teacher }}
+{{ _("") }} {{ profile_data.avatar }}
+{{ _("") }} {{ profile_data.private_key }}
+{{ _("") }} {{ profile_data.language }}
+                            
+                        {% else %}
 <h2>Error</h2>
 {% endif %}
 {% endblock %}
+
