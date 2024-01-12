@@ -36,7 +36,7 @@ from .utils import (
 
 from .worker import Worker, recycle_worker, clients
 
-from .models import Challenge, Area, Profile, ProposedSolution, Quest, QuestChallenge
+from .models import Challenge, Area, Profile, ProposedSolution, Quest, QuestChallenge, ClassGroup
 from .models import LEVELS, ROLES
 from .forms import ChallengeSSHForm, NewChallengeForm, UploadSolutionForm, SearchForm
 
@@ -512,45 +512,48 @@ class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
     def get_context_data(self, **kwargs):
         context = super(ProfileView, self).get_context_data(**kwargs)
         context['roles'] = ROLES
-        user_obj = User.objects.get(id=self.request.user.id)
-        profile_obj = Profile.objects.get(user=self.request.user)
 
-        exclude = ["id", "password", 
-                   "groups", "user_permissions", "user", "private_key"]
-        '''
-profile
-teacher
-challenge
-dockercontainer
-proposedsolution
-quest
-logentry
-        '''
-        context["user_data"] = []
-        for field in user_obj._meta.get_fields():
-            if field.name not in exclude:
-                
-                try:
-                    value = field.value_from_object(user_obj)
-                    if len(str(value)) > 0:
-                        context["user_data"].append({
-                            "name": field.name,
-                            "label": field.verbose_name.capitalize(),
-                            "value": value})
-                except AttributeError:
-                    print(field.name)
+        objs = {
+            "user": User.objects.get(id=self.request.user.id),
+            "profile": Profile.objects.get(user=self.request.user)
+        }
 
-        context["profile_data"] = []
-        for field in profile_obj._meta.get_fields():
-            if field.name not in exclude:
-                
+        excludes = {
+            "user": ["id", "password", "groups", "user_permissions", "profile"],
+            "profile": ["id", "user", "private_key", "challenge", "dockercontainer",
+                         "proposedsolution", "quest", "logentry"]}
+
+        # ROLES
+
+        for k in objs.keys():
+            obj = objs[k]
+            context[k + "_data"] = []
+            for field in obj._meta.get_fields():
                 try:
-                    value = field.value_from_object(profile_obj)
-                    context["profile_data"].append({
-                        "name": field.name,
-                        "label": field.verbose_name.capitalize(),
-                        "value": value})
+                    name = field.name
+                    if name not in excludes[k]:
+                        label = field.verbose_name.capitalize()
+                        value = field.value_from_object(obj)
+
+                        if name == "teacher":
+                            value = User.objects.get(id=value)
+
+                        if name == "role":
+                            for (id, desc) in ROLES:
+                                if id == value:
+                                    value = desc
+                        
+                        if name == "class_group":
+                            value = ClassGroup.objects.get(id=value)
+                        
+                        if name == "avatar":
+                            # TODO
+                            pass
+
+                        context[k + "_data"].append(
+                            {"name": name, "label": label, "value": value})
                 except AttributeError:
-                    print(field.name)
-            
+                    print("AttributeError {} in {}".format(field.name, k + "_data"))
+                    
+        print(context.keys())
         return context 

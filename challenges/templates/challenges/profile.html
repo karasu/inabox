@@ -15,9 +15,9 @@
 <form class="form-horizontal col-sm-6" action="#" role="form">
 {% for e in user_data %}
 <div class="form-group mb-3 row">
-    <label for="user_id" class="control-label col-sm-3">{{ e.label }}</label>
+    <label for="{{ e.name }}" class="control-label col-sm-3">{{ e.label }}</label>
     <div class="col-sm-9">
-    <input type="text" class="form-control" id="{{ e.label }}" value="{{ e.value }}" disabled>
+    <input type="text" class="form-control" id="{{ e.name }}" value="{{ e.value }}" disabled>
     </div>
 </div>
 {% endfor %}
@@ -25,38 +25,16 @@
 
 <form class="form-horizontal col-sm-6" action="#" role="form">
 {% for e in profile_data %}
-<div class="form-group mb-3 row">
-    <label for="user_id" class="control-label col-sm-3">{{ e.label }}</label>
+<div class="form-group mb-3 ms-sm-4 row">
+    <label for="{{ e.name }}" class="control-label col-sm-3">{{ e.label }}</label>
     <div class="col-sm-9">
-    <input type="text" class="form-control" id="{{ e.label }}" value="{{ e.value }}" disabled>
+    <input type="text" class="form-control" id="{{ e.name }}" value="{{ e.value }}" disabled>
     </div>
 </div>
 {% endfor %}
 </form>
 </div>
-
-<h2>Until here.</h2>
-    
-{{ _("Last login:") }} {{ user_data.last_login }}
-{{ _("Username:") }} {{ user_data.username }}
-{{ _("First name:") }} {{ user_data.first_name }}
-{{ _("Last name:") }} {{ user_data.last_name }}
-{{ _("E-mail:") }} {{ user_data.email }}
-{{ _("Is staff:") }} {{ user_data.is_staff }}
-{{ _("Is active:") }} {{ user_data.is_active }}
-{{ _("Is superuser:") }} {{ user_data.is_superuser }}
-{{ _("Date joined:") }} {{ user_data.date_joined }}
-
-
-
-{{ _("") }} {{ profile_data.class_group }}
-{{ _("") }} {{ profile_data.role }}
-{{ _("") }} {{ profile_data.teacher }}
-{{ _("") }} {{ profile_data.avatar }}
-{{ _("") }} {{ profile_data.private_key }}
-{{ _("") }} {{ profile_data.language }}
-                            
-                        {% else %}
+{% else %}
 <h2>Error</h2>
 {% endif %}
 {% endblock %}
