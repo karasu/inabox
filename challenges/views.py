@@ -515,12 +515,42 @@ class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
         user_obj = User.objects.get(id=self.request.user.id)
         profile_obj = Profile.objects.get(user=self.request.user)
 
-        context["user_data"] = {}
-        for field in user_obj._meta.fields:
-            context["user_data"] = {
-                "label": field.verbose_name,
-                "value": field.
+        exclude = ["id", "password", 
+                   "groups", "user_permissions", "user", "private_key"]
+        '''
+profile
+teacher
+challenge
+dockercontainer
+proposedsolution
+quest
+logentry
+        '''
+        context["user_data"] = []
+        for field in user_obj._meta.get_fields():
+            if field.name not in exclude:
+                
+                try:
+                    value = field.value_from_object(user_obj)
+                    if len(str(value)) > 0:
+                        context["user_data"].append({
+                            "name": field.name,
+                            "label": field.verbose_name.capitalize(),
+                            "value": value})
+                except AttributeError:
+                    print(field.name)
 
-        print(context['user_data']._meta.fields)
-        print(context['profile_data']._meta.fields)
+        context["profile_data"] = []
+        for field in profile_obj._meta.get_fields():
+            if field.name not in exclude:
+                
+                try:
+                    value = field.value_from_object(profile_obj)
+                    context["profile_data"].append({
+                        "name": field.name,
+                        "label": field.verbose_name.capitalize(),
+                        "value": value})
+                except AttributeError:
+                    print(field.name)
+            
         return context 
