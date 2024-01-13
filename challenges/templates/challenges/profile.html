@@ -4,26 +4,24 @@
 {% endblock %}
 {% block content %}
 
-{% if user.is_authenticated and user_data and profile_data %}
+{% if user.is_authenticated %}
 
-<div class="row mb-sm-3">
-    <div class="col-sm-3">
         {% load static %}
         <div class="mb-3">
         <img class="img-thumbnail"
             src="{% static avatar %}" alt="avatar" width="128">
         </div>
-            </div>
-    <div class="col-sm-9">
-        <h1>
+
+        <h1 class="mb-5">
         {% if user.first_name and user.last_name %}
-        {{ user.first_name }} {{ user.last_name }}'s profile
+        {{ user.first_name }} {{ user.last_name }}
         {% else %}
-        {{ user.username }}'s profile
+        {{ user.username }}
         {% endif %}
         </h1>
-    </div>
-</div>
+
+{% if user_data and profile_data %}
+<h2>{{ _("Profile") }}</h2><hr />
 <div class="row">
 <form class="form-horizontal col-sm-6" action="#" role="form">
 {% for e in user_data %}
@@ -47,8 +45,7 @@
 {% endfor %}
 </form>
 </div>
-{% else %}
-<h2>Error</h2>
+{% endif %}
 {% endif %}
 {% endblock %}
 

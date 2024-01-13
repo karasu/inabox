@@ -38,18 +38,6 @@ ROLES = [
     ("S", _("Student")),
 ]
 
-# file will be uploaded to MEDIA_ROOT/users/<username>/<filename>
-def user_directory_path(instance, filename):
-    return "users/{0}/{1}".format(
-        instance.user.username, filename)
-
-class ClassGroup(models.Model):
-    name = models.CharField(max_length=64)
-    description = models.CharField(max_length=256)
-
-    def __str__(self):
-        return self.name    
-
 def to_str(bstr, encoding='utf-8'):
     if isinstance(bstr, bytes):
         return bstr.decode(encoding)
@@ -59,6 +47,7 @@ def to_bytes(ustr, encoding='utf-8'):
     if isinstance(ustr, UnicodeType):
         return ustr.encode(encoding)
     return ustr
+
 
 class RSAUtil():
     @staticmethod
@@ -71,19 +60,29 @@ class RSAUtil():
         return rsa_key.publickey().exportKey()
 
 
-'''
-Django user has this fields:
-    username
-    password
-    email
-    first_name
-    last_name
-'''
+# file will be uploaded to MEDIA_ROOT/users/<username>/<filename>
+def user_directory_path(instance, filename):
+    return "users/{0}/{1}".format(
+        instance.user.username, filename)
 
-'''
-usr = User.objects.get(username="fsmith")
-freds_role = usr.profile.role
-'''
+class ClassGroup(models.Model):
+    name = models.CharField(max_length=64)
+    description = models.CharField(max_length=256)
+
+    def __str__(self):
+        return self.name    
+
+class Team(models.Model):
+    name = models.CharField(max_length=128)
+
+    def __str__(self):
+        return self.name
+
+class Organization(models.Model):
+    name = models.CharField(max_length=128)
+
+    def __str__(self):
+        return self.name
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)    
@@ -100,6 +99,11 @@ class Profile(models.Model):
         default=RSAUtil.create_rsa_private_key())
     language = models.CharField(
         choices=settings.LANGUAGES, max_length=2, default="ca")
+    punts = models.IntegerField(default=0)
+    team = models.ForeignKey(
+        Team, null=True, on_delete=models.CASCADE)
+    organization = models.ForeignKey(
+        Organization, null=True, on_delete=models.CASCADE)
 
     def __str__(self):
         return "{}'s profile".format(self.user.username)

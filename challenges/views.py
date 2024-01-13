@@ -37,7 +37,8 @@ from .utils import (
 
 from .worker import Worker, recycle_worker, clients
 
-from .models import Challenge, Area, Profile, ProposedSolution, Quest, QuestChallenge, ClassGroup
+from .models import Challenge, Area, Profile, ProposedSolution, Quest, QuestChallenge
+from .models import ClassGroup, Team, Organization
 from .models import LEVELS, ROLES
 from .forms import ChallengeSSHForm, NewChallengeForm, UploadSolutionForm, SearchForm
 
@@ -561,10 +562,14 @@ class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
                             lang_info = get_language_info(value)
                             value = lang_info["name_translated"]
                         
-                        #if name == "avatar" and not value:
-                        #    # no avatar set
-                        #    value = static('challenges/images/avatars/256x256/008.jpg')
+                        if name == "avatar" and not value:
+                            value = context["avatar"]
+                        
+                        if name == "team":
+                            value = Team.objects.get(id=value)
 
+                        if name == "organization":
+                            value = Organization.objects.get(id=value)
 
                         context[k + "_data"].append(
                             {"name": name, "label": label, "value": value})

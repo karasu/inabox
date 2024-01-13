@@ -12,6 +12,8 @@ from .models import Area
 from .models import ClassGroup
 from .models import Profile
 from .models import ProposedSolution
+from .models import Team
+from .models import Organization
 
 admin.site.register(Challenge)
 admin.site.register(Area)
@@ -19,6 +21,8 @@ admin.site.register(DockerImage)
 admin.site.register(DockerContainer)
 admin.site.register(ClassGroup)
 admin.site.register(ProposedSolution)
+admin.site.register(Team)
+admin.site.register(Organization)
 
 # Define an inline admin descriptor for Profile model
 # which acts a bit like a singleton
