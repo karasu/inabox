@@ -4,9 +4,8 @@ from django.urls import reverse
 from django.views import generic
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.mixins import LoginRequiredMixin
-
 from django.contrib.auth.models import User
-from django.utils.translation import get_language
+from django.utils.translation import get_language, get_language_info
 
 import paramiko
 import socket
@@ -17,6 +16,8 @@ import logging
 import struct
 import traceback
 import asyncio
+
+import random
 
 from .sshclient import SSHClient
 from .args import InvalidValueError, Args
@@ -519,11 +520,21 @@ class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
         }
 
         excludes = {
-            "user": ["id", "password", "groups", "user_permissions", "profile"],
-            "profile": ["id", "user", "private_key", "challenge", "dockercontainer",
-                         "proposedsolution", "quest", "logentry"]}
+            "user": [
+                "id", "password", "groups", "user_permissions", "profile"],
+            "profile": [
+                "id", "user", "private_key", "challenge", "dockercontainer",
+                "proposedsolution", "quest", "logentry"]}
 
-        # ROLES
+
+        value = Profile._meta.get_field("avatar").value_from_object(objs["profile"])
+        if not value:
+            # User has no avatar, let's choose one randomly
+            random.seed()
+            num = str(random.randint(1, 100)).zfill(3)
+            context["avatar"] = 'challenges/images/avatars/256x256/{}.jpg'.format(num)
+        else:
+            context["avatar"] = value
 
         for k in objs.keys():
             obj = objs[k]
@@ -546,14 +557,18 @@ class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
                         if name == "class_group":
                             value = ClassGroup.objects.get(id=value)
                         
-                        if name == "avatar":
-                            # TODO
-                            pass
+                        if name == "language":
+                            lang_info = get_language_info(value)
+                            value = lang_info["name_translated"]
+                        
+                        #if name == "avatar" and not value:
+                        #    # no avatar set
+                        #    value = static('challenges/images/avatars/256x256/008.jpg')
+
 
                         context[k + "_data"].append(
                             {"name": name, "label": label, "value": value})
-                except AttributeError:
-                    print("AttributeError {} in {}".format(field.name, k + "_data"))
-                    
-        print(context.keys())
+                except AttributeError as err:
+                    print(err)
+
         return context 
