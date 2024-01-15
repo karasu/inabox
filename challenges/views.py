@@ -52,7 +52,7 @@ class NewChallengeView(LoginRequiredMixin, generic.base.TemplateView):
         context["new_challenge_form"] = NewChallengeForm(user_id=self.request.user.id)
         return context
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         """ Deal with post data here """
         if request.method == "POST":
             form = NewChallengeForm(request.POST, request.FILES)
@@ -69,7 +69,7 @@ class NewChallengeView(LoginRequiredMixin, generic.base.TemplateView):
                         "errors": form.errors,
                     })
         else:
-            return HttpResponseForbidden()            
+            return HttpResponseForbidden()
 
 
 class QuestsListView(generic.ListView):
@@ -420,14 +420,6 @@ class ChallengeDetailView(generic.DetailView):
             context['task_id'] = task_id
 
             return self.render_to_response(context=context)
-            '''
-            return render(
-                request,
-                template_name="challenges/challenge.html",
-                context=context)
-            '''
-            #context = super(ChallengeDetailView, self).get_context_data(**kwargs)
-            #return self.render_to_response(context=context)
         else:
             logging.error(form.errors)
             return render(
