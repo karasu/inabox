@@ -1,5 +1,17 @@
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseForbidden,  HttpResponseBadRequest
-from django.shortcuts import get_object_or_404, render
+""" Challenges app views go here """
+
+import socket
+import os
+import logging
+import traceback
+import asyncio
+import random
+
+from concurrent.futures import ThreadPoolExecutor
+
+from django.http import HttpResponseRedirect, HttpResponseForbidden,  HttpResponseBadRequest
+from django.http import JsonResponse
+from django.shortcuts import render
 from django.urls import reverse
 from django.views import generic
 from django.utils.translation import gettext_lazy as _
@@ -8,32 +20,9 @@ from django.contrib.auth.models import User
 from django.utils.translation import get_language, get_language_info
 
 import paramiko
-import socket
-
-import os
-import json
-import logging
-import struct
-import traceback
-import asyncio
-
-import random
 
 from .sshclient import SSHClient
 from .args import InvalidValueError, Args
-
-try:
-    from types import UnicodeType
-except ImportError:
-    UnicodeType = str
-
-from concurrent.futures import ThreadPoolExecutor
-
-from .utils import (
-    is_valid_ip_address, is_valid_port, is_valid_hostname, to_bytes, to_str,
-    to_int, to_ip_address, UnicodeType, is_ip_hostname, is_same_primary_domain,
-    is_valid_encoding
-)
 
 from .worker import Worker, recycle_worker, clients
 
@@ -45,11 +34,6 @@ from .forms import ChallengeSSHForm, NewChallengeForm, UploadSolutionForm, Searc
 # Celery task to check if a proposed solution is valid or not
 from .tasks import validate_solution_task
 
-try:
-    from json.decoder import JSONDecodeError
-except ImportError:
-    JSONDecodeError = ValueError
-
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Maximum live connections (ssh sessions) per client
@@ -59,14 +43,16 @@ MAXCONN=20
 RECYLE_WORKER_DELAY=3
 
 class NewChallengeView(LoginRequiredMixin, generic.base.TemplateView):
+    """ New challenge view """
     template_name="challenges/new_challenge.html"
- 
+
     def get_context_data(self, **kwargs):
         context = super(NewChallengeView, self).get_context_data(**kwargs)
         context["new_challenge_form"] = NewChallengeForm(user_id=self.request.user.id)
         return context
-    
+
     def post(self, request, *args, **kwargs):
+        """ Deal with post data here """
         if request.method == "POST":
             form = NewChallengeForm(request.POST, request.FILES)
             if form.is_valid():
@@ -86,6 +72,7 @@ class NewChallengeView(LoginRequiredMixin, generic.base.TemplateView):
 
 
 class QuestsListView(generic.ListView):
+    """ List all quests """
     template_name = "challenges/quests.html"
     model = Quest
     paginate_by = 10
@@ -97,7 +84,7 @@ class QuestsListView(generic.ListView):
             creator = self.request.GET.get('creator', 'all')
             level = self.request.GET.get('level', 'all')
             order = self.request.GET.get('order', 'newest')
-        
+
             # Filter challenges list
             if creator != 'all':
                 creator_id = User.objects.get(username=creator)
@@ -115,7 +102,7 @@ class QuestsListView(generic.ListView):
 
     def get_context_data(self, **kwargs):
         context = super(QuestsListView, self).get_context_data(**kwargs)
-        
+
         context['creators'] = User.objects.values_list('username', flat=True)
         context['levels'] = LEVELS
 
@@ -127,6 +114,7 @@ class QuestsListView(generic.ListView):
 
 
 class QuestDetailView(generic.DetailView):
+    """ Show quest information """
     model = Quest
     template_name = "challenges/quest.html"
     # challenge_list
@@ -140,18 +128,19 @@ class QuestDetailView(generic.DetailView):
 
 
 class ChallengesListView(generic.ListView):
+    """ Lists all challenges """
     template_name = "challenges/challenges.html"
     model = Challenge
     paginate_by = 10
     #query_set = Challenge.objects.order_by("-pub_date")
 
     def get_user_language(self):
+        """ Returns user preferred language """
         if self.request.user.is_authenticated:
             user_id = self.request.user.id
             profile = Profile.objects.get(user=user_id)
             return profile.language
-        else:
-            return get_language()
+        return get_language()
 
     def get_queryset(self):
         # new_qs = Challenge.objects.all()
@@ -163,7 +152,7 @@ class ChallengesListView(generic.ListView):
             lang = self.request.GET.get('lang', 'all')
             level = self.request.GET.get('level', 'all')
             order = self.request.GET.get('order', 'newest')
-        
+
             # Filter challenges list
 
             if area != 'all':
@@ -173,7 +162,7 @@ class ChallengesListView(generic.ListView):
             if creator != 'all':
                 creator_id = User.objects.get(username=creator)
                 new_qs = new_qs.filter(creator=creator_id)
-            
+
             if lang != 'all':
                 new_qs = new_qs.filter(language=lang)
 
@@ -189,7 +178,7 @@ class ChallengesListView(generic.ListView):
 
     def get_context_data(self, **kwargs):
         context = super(ChallengesListView, self).get_context_data(**kwargs)
-        
+
         context['creators'] = User.objects.values_list('username', flat=True)
         context['areas'] = Area.objects.values_list('name', flat=True)
         context['levels'] = LEVELS
@@ -212,7 +201,7 @@ class ChallengeDetailView(generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super(ChallengeDetailView, self).get_context_data(**kwargs)
 
-        if (self.request.user.is_authenticated):
+        if self.request.user.is_authenticated:
             # Add forms to our context so we can put them in the template
             di = context['challenge'].docker_image
             data = {
@@ -249,11 +238,13 @@ class ChallengeDetailView(generic.DetailView):
         return context
 
     def load_host_keys(self, path):
+        """ Get host keys """
         if os.path.exists(path) and os.path.isfile(path):
             return paramiko.hostkeys.HostKeys(filename=path)
         return paramiko.hostkeys.HostKeys()
 
     def get_host_keys_settings(self):
+        """ Get host keys configuration """
         host_keys_filename = os.path.join(base_dir, 'known_hosts')
         host_keys = self.load_host_keys(host_keys_filename)
 
@@ -268,6 +259,7 @@ class ChallengeDetailView(generic.DetailView):
         return settings
 
     def get_ssh_client(self):
+        """ Create an ssh client """
         ssh = SSHClient()
         self.host_keys_settings = self.get_host_keys_settings()
         ssh._system_host_keys = self.host_keys_settings['system_host_keys']
@@ -278,6 +270,7 @@ class ChallengeDetailView(generic.DetailView):
         return ssh
 
     def ssh_connect(self, args):
+        """ Connect to the container """
         ssh = self.ssh_client
         dst_addr = args[:2]
         logging.info('Connecting to {}:{}'.format(*dst_addr))
@@ -289,13 +282,13 @@ class ChallengeDetailView(generic.DetailView):
             raise ValueError(_('Unable to connect to {}:{}').format(*dst_addr))
         except paramiko.BadAuthenticationType:
             raise ValueError(_('Bad authentication type.'))
-        except paramiko.AuthenticationException as err:
+        except paramiko.AuthenticationException:
             raise ValueError(_('Authentication failed.'))
         except paramiko.BadHostKeyException:
             raise ValueError(_('Bad host key.'))
-        
+
         # term = self.get_argument('term', u'') or u'xterm'
-        term = u'xterm'
+        term = 'xterm'
         chan = ssh.invoke_shell(term=term)
         chan.setblocking(0)
 
@@ -311,6 +304,7 @@ class ChallengeDetailView(generic.DetailView):
         return worker
 
     def get_client_ip_and_port(self, request):
+        """ Reads info from header """
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
         if x_forwarded_for:
             # running behind a proxy
@@ -320,9 +314,9 @@ class ChallengeDetailView(generic.DetailView):
             ip = request.META.get('REMOTE_ADDR')
             port = request.META.get('REMOTE_PORT')
         return (ip, port)
-    
+
     def challenge_ssh_form(self, request, *args, **kwargs):
-        # create a form instance and populate it with data from the request:
+        """ Create a form instance and populate it with data from the request: """
         form = ChallengeSSHForm(request.POST)
 
         if form.is_valid():
@@ -333,7 +327,10 @@ class ChallengeDetailView(generic.DetailView):
             self.ssh_client = self.get_ssh_client()
             #self.debug = self.settings.get('debug', False)
             #self.font = self.settings.get('font', '')
-            self.result = dict(workerid=None, status=None, encoding=None)
+            self.result = {
+                'workerid': None,
+                'status': None,
+                'encoding':None}
 
             src_ip, src_port = self.get_client_ip_and_port(request)
             #print(ip, port)
@@ -363,7 +360,7 @@ class ChallengeDetailView(generic.DetailView):
                 workers[worker.id] = worker
                 self.loop.call_later(
                     RECYLE_WORKER_DELAY, recycle_worker, worker)
-                
+
                 self.result.update(
                     workerid=worker.id, status='', encoding=worker.encoding)
 
@@ -378,10 +375,10 @@ class ChallengeDetailView(generic.DetailView):
                     "errors": form.errors,
                     }
                 )
-    
+
     def upload_solution_form(self, request, *args, **kwargs):
-        # We need to check if user has already tried and update the ProposedSolution
-        # if not just save this as the first one
+        """ We need to check if user has already tried and update the ProposedSolution
+        if not just save this as the first one """
         user = request.POST.get('user')
         challenge = request.POST.get('challenge') 
         proposed_solution = ProposedSolution.objects.get(
@@ -405,13 +402,13 @@ class ChallengeDetailView(generic.DetailView):
             challenge = Challenge.objects.get(id=challenge)
             challenge.total_tries = challenge.total_tries + 1
             challenge.save()
-            
+
             # Tell Celery to test the uploaded solution so we don't
             # have to wait for it
             proposed_solution = ProposedSolution.objects.get(
                 user=user,
                 challenge=challenge)
-            
+
             res = validate_solution_task.delay(proposed_solution.id)
             # Get task id
             #task_id = validate_solution_task.task_id
@@ -420,7 +417,7 @@ class ChallengeDetailView(generic.DetailView):
             #context = super(ChallengeDetailView, self).get_context_data(**kwargs)
             context = self.get_context_data(**kwargs)
             context['task_id'] = task_id
-            
+
             return self.render_to_response(context=context)
             '''
             return render(
@@ -442,6 +439,7 @@ class ChallengeDetailView(generic.DetailView):
                 )
 
     def post(self, request, *args, **kwargs):
+        """ Deal with post data """
         # assign the object to the view
         self.object = self.get_object()
 
@@ -451,13 +449,14 @@ class ChallengeDetailView(generic.DetailView):
 
         if request.POST.get("form_name") == "UploadSolutionForm":
             return self.upload_solution_form(request, *args, **kwargs)
-  
+
         if request.POST.get("form_name") == "ChallengeSSHForm":
             return self.challenge_ssh_form(request, *args, **kwargs)
 
         return HttpResponseBadRequest()
 
 class SearchView(generic.base.TemplateView):
+    """ search view """
     template_name = "challenges/search.html"
 
     def get(self, request, *args, **kwargs):
@@ -509,6 +508,7 @@ class SearchView(generic.base.TemplateView):
                 })
 
 class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
+    """ Show user's profile """
     template_name = "challenges/profile.html"
 
     def get_context_data(self, **kwargs):
@@ -580,6 +580,7 @@ class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
 
 
 class PlayersListView(generic.ListView):
+    """ Show a list of all players (users) """
     template_name = "challenges/players.html"
     model = User
     paginate_by = 10
@@ -593,6 +594,7 @@ class PlayersListView(generic.ListView):
         return context
 
 class PlayerDetailView(generic.DetailView):
+    """ Show player's detail info (nothing personal) """
     model = User
     template_name = "challenges/player.html"
 
@@ -612,19 +614,23 @@ class PlayerDetailView(generic.DetailView):
         return context
 
 class OrganizationsListView(generic.ListView):
+    """ List of organizations """
     template_name = "challenges/organizations.html"
     model = Organization
     paginate_by = 10
 
 class OrganizationDetailView(generic.DetailView):
+    """ Organization details """
     template_name = "challenges/organization.html"
     model = Organization
 
 class TeamsListView(generic.ListView):
+    """ List of teams """
     template_name = "challenges/teams.html"
     model = Team
     paginate_by = 10
 
 class TeamDetailView(generic.DetailView):
+    """ Team details """
     template_name = "challenges/team.html"
     model = Team

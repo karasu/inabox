@@ -1,5 +1,4 @@
-import hashlib
-import time
+""" Models module """
 
 from django.utils.timezone import now
 
@@ -39,67 +38,82 @@ ROLES = [
 ]
 
 def to_str(bstr, encoding='utf-8'):
+    """ Converts bytes to string """
     if isinstance(bstr, bytes):
         return bstr.decode(encoding)
     return bstr
 
 def to_bytes(ustr, encoding='utf-8'):
+    """ Converts string to bytes """
     if isinstance(ustr, UnicodeType):
         return ustr.encode(encoding)
     return ustr
 
 
 class RSAUtil():
+    """ RSA helper class """
+
     @staticmethod
     def create_rsa_private_key():
+        """ Get the RSA private key """
         return to_str(RSA.generate(2048).exportKey())
 
     @staticmethod
     def get_rsa_public_key(private_key):
+        """ Get the RSA public key """
         rsa_key = RSA.importKey(to_bytes(private_key))
         return rsa_key.publickey().exportKey()
 
 
-# file will be uploaded to MEDIA_ROOT/users/<username>/<filename>
 def user_directory_path(instance, filename):
+    """ file will be uploaded to MEDIA_ROOT/users/<username>/<filename> """
     return "users/{0}/{1}".format(
         instance.user.username, filename)
 
 class ClassGroup(models.Model):
+    """ Store class here """
     name = models.CharField(max_length=64)
     description = models.CharField(max_length=256)
 
     def __str__(self):
-        return self.name    
+        return str(self.name)
 
 
 def teams_directory_path(instance, filename):
+    """ returns teams directory """
     return "teams/{0}/{1}".format(
         instance.name, filename)
 
 class Team(models.Model):
+    """ Store player team """
     name = models.CharField(max_length=128, unique=True)
     image = models.ImageField(
-        upload_to=teams_directory_path, blank=True, null=True)
+        upload_to=teams_directory_path,
+        blank=True, null=True)
 
     def __str__(self):
-        return self.name
+        return str(self.name)
 
 
 def organizations_directory_path(instance, filename):
+    """ returns organizations directory """
     return "organizations/{0}/{1}".format(
         instance.name, filename)
 
 class Organization(models.Model):
+    """ Store the organization to which the player belongs to """
     name = models.CharField(max_length=128, unique=True)
     image = models.ImageField(
-        upload_to=organizations_directory_path, blank=True, null=True)
+        upload_to=organizations_directory_path,
+        blank=True, null=True)
 
     def __str__(self):
-        return self.name
+        return str(self.name)
+
 
 class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)    
+    """ Store users' profile """
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     class_group = models.ForeignKey(
         ClassGroup, on_delete=models.CASCADE)
     role = models.CharField(
@@ -120,7 +134,9 @@ class Profile(models.Model):
         Organization, null=True, on_delete=models.CASCADE)
 
     def calculate_solved_challenges(self):
-        return ProposedSolution.objects.filter(user=self.user, is_solved=True).count()
+        """ calc how many solved challenges the user has done """
+        return ProposedSolution.objects.filter(
+            user=self.user, is_solved=True).count()
     solved = property(calculate_solved_challenges)
 
     def __str__(self):
@@ -129,18 +145,26 @@ class Profile(models.Model):
 
 # file will be uploaded to MEDIA_ROOT/dockerimages/<dockerimagename>/<filename>
 def dockerimage_directory_path(instance, filename):
+    """ get dockerimage directory """
     return "dockerimages/{0}/{1}".format(
         instance.name, filename)
 
 class DockerImage(models.Model):
-    # This name is what will be shown to the user (it can be different from the real image name)
-    name = models.CharField(max_length=64, unique=True)
+    """ Store a docker image information """
+    # This name is what will be shown to the user
+    # (it can be different from the real image name)
+    name = models.CharField(
+        max_length=64, unique=True)
     # data to connect to the docker container
-    container_ssh_port = models.IntegerField(default=30000, unique=True)
-    container_username = models.CharField(max_length=64, default="inabox")
-    container_password = models.CharField(max_length=64, default="aW5hYm94")
+    container_ssh_port = models.IntegerField(
+        default=30000, unique=True)
+    container_username = models.CharField(
+        max_length=64, default="inabox")
+    container_password = models.CharField(
+        max_length=64, default="aW5hYm94")
     container_privatekey = models.TextField()
-    container_passphrase = models.CharField(max_length=256)
+    container_passphrase = models.CharField(
+        max_length=256)
 
     # How many containers can be running at the same time
     # from this image
@@ -154,27 +178,31 @@ class DockerImage(models.Model):
     # docker image name in Docker
     docker_name = models.CharField(max_length=64)
     # optional docker parameters
-    optional_docker_ports = models.CharField(max_length=256, blank=True, default='')
-    optional_docker_volumes = models.TextField(blank=True, default='')
-    
+    optional_docker_ports = models.CharField(
+        max_length=256, blank=True, default='')
+    optional_docker_volumes = models.TextField(
+        blank=True, default='')
+
     def __str__(self):
-        return self.name
+        return str(self.name)
 
 
 class Area(models.Model):
+    """ Store challenge's area """
     name = models.CharField(max_length=256)
     description = models.TextField()
 
     def __str__(self):
-        return self.name
+        return str(self.name)
 
 
-# file will be uploaded to MEDIA_ROOT/challenges/<challengetitle>/<filename>
 def challenge_directory_path(instance, filename):
+    """ file will be uploaded to MEDIA_ROOT/challenges/<challengetitle>/<filename> """
     return "challenges/{0}/{1}".format(
         instance.title, filename)
 
 class Challenge(models.Model):
+    """ Store challenge """
     title = models.CharField(max_length=256, unique=True)
     creator = models.ForeignKey(
         User, on_delete=models.CASCADE)
@@ -198,10 +226,11 @@ class Challenge(models.Model):
         choices=settings.LANGUAGES, max_length=2, default="ca")
 
     def __str__(self):
-        return self.title
+        return str(self.title)
 
 
 class DockerContainer(models.Model):
+    """ Store docker container's info """
     container_id = models.CharField(
         max_length=128, default="0")
     challenge = models.ForeignKey(
@@ -210,19 +239,18 @@ class DockerContainer(models.Model):
         User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.container_id
+        return str(self.container_id)
 
 
-# file will be uploaded to MEDIA_ROOT/solutions/<username>/<challengetitle>
 def user_solutions_path(instance, filename):
+    """ file will be uploaded to MEDIA_ROOT/solutions/<username>/<challengetitle> """
     return "solutions/{0}/{1}/{2}".format(
         instance.user.username,
         instance.challenge.title,
         filename)
 
-
-# Stores each user's solution to each challenge
 class ProposedSolution(models.Model):
+    """ Stores each user's solution to each challenge """
     challenge = models.ForeignKey(
         Challenge, on_delete=models.CASCADE)
     user = models.ForeignKey(
@@ -239,8 +267,8 @@ class ProposedSolution(models.Model):
         return "{} tried by {}".format(self.challenge, self.user)
 
 
-# Quests are challenge collections that have some connection between them
 class Quest(models.Model):
+    """ Quests are challenge collections that have some connection between them """
     title = models.CharField(max_length=256, unique=True)
     summary = models.TextField()
     creator = models.ForeignKey(
@@ -251,17 +279,18 @@ class Quest(models.Model):
     solved = models.IntegerField(default=0)
     level = models.CharField(
         max_length=1, choices=LEVELS, default='N')
-    
+
     def __str__(self):
-        return self.title
+        return str(self.title)
 
 
-# So we can store the list of challenges that are part of a Quest
 class QuestChallenge(models.Model):
+    """ # Store the list of challenges that are part of a Quest """
     quest = models.ForeignKey(
         Quest, on_delete=models.CASCADE)
     challenge = models.ForeignKey(
         Challenge, on_delete=models.CASCADE)
 
     def __str__(self):
-        return "{} - {}".format(self.quest, self.challenge)
+        return "{} - {}".format(
+            self.quest, self.challenge)
