@@ -3,9 +3,11 @@ import logging
 
 import paramiko
 
-from .args import InvalidValueError
-
 from .utils import to_bytes
+
+
+class InvalidValueError(Exception):
+    pass
 
 
 class PrivateKey(object):

@@ -1,14 +1,12 @@
 import base64
 import logging
 
-from .privatekey import PrivateKey
+from .privatekey import InvalidValueError, PrivateKey
 
 from .utils import (
     is_valid_ip_address, is_valid_port, is_valid_hostname, to_int
 )
 
-class InvalidValueError(Exception):
-    pass
 
 DEFAULT_PORT=22
 
