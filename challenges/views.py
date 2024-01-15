@@ -617,7 +617,8 @@ class OrganizationsListView(generic.ListView):
     paginate_by = 10
 
 class OrganizationDetailView(generic.DetailView):
-    pass
+    template_name = "challenges/organization.html"
+    model = Organization
 
 class TeamsListView(generic.ListView):
     template_name = "challenges/teams.html"
@@ -625,4 +626,5 @@ class TeamsListView(generic.ListView):
     paginate_by = 10
 
 class TeamDetailView(generic.DetailView):
-    pass
+    template_name = "challenges/team.html"
+    model = Team
