@@ -584,22 +584,20 @@ class PlayersListView(generic.ListView):
     model = User
     paginate_by = 10
 
-    '''
-    def get_context_data(self, **kwargs):
-        context = super(PlayersListView, self).get_context_data(**kwargs)
-        # Get num of challenges solved for each user
-        users = User.objects.all()
-        context["solved"] = {}
-        for user in users:
-            value = 0
-            proposed_solutions = ProposedSolution.objects.filter(user=user)
-            for ps in proposed_solutions:
-                if ps.is_solved:
-                    value = value + 1
-            context["solved"][user.id] = value
-        return context
-    '''
-
 class PlayerDetailView(generic.DetailView):
     model = User
     template_name = "challenges/player.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(PlayerDetailView, self).get_context_data(**kwargs)
+        avatar = context["user"].profile.avatar
+        
+        if not avatar:
+            # User has no avatar, let's choose one randomly
+            random.seed()
+            num = str(random.randint(1, 100)).zfill(3)
+            context["avatar"] = 'challenges/images/avatars/256x256/{}.jpg'.format(num)
+        else:
+            context["avatar"] = avatar
+
+        return context

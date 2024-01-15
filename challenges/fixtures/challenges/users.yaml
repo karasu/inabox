@@ -1,7 +1,11 @@
 - model: challenges.Team
   pk: 1
   fields:
-    name: A Team
+    name: Lone wolf
+- model: challenges.Team
+  pk: 2
+  fields:
+    name: The A Team
 - model: challenges.Organization
   pk: 1
   fields:

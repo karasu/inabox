@@ -5,43 +5,37 @@
 {% load i18n %}
 <div class="row">
   <div class="col-lg-10">
-    <div class="card mb-3">
-      <div class="card-header">
-        <h5 class="card-title">
-          {{ _("Players") }} 
-        </h5>
-      </div>
-      {% if user_list %}
-      <table class="table">
-        <thead>
-          <tr>
-            <th scope="col">#</th>
-            <th scope="col">{{ _("Avatar") }}</th>
-            <th scope="col">{{ _("Username") }}</th>
-            <th scope="col">{{ _("Name") }}</th>
-            <th scope="col">{{ _("Team") }}</th>
-            <th scope="col">{{ _("Organization") }}</th>
-            <th scope="col">{{ _("Points") }}</th>
-            <th scope="col">{{ _("Solved") }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for player in user_list %}
-          <tr>
-            <th scope="row">{{ player.id }}</th>
-            <td><img src="{{ player.profile.avatar }}">{{ player.profile.avatar }}</td>
-            <td>{{ player.username}}</td>
-            <td>{{ player.first_name }} {{ player.last_name }}</td>
-            <td>{{ player.profile.team }}</td>
-            <td>{{ player.profile.organization }}</td>
-            <td>{{ player.profile.points }}</td>
-            <td>{{ player.profile.solved }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+    {% if user_list %}
+    <table class="table table-striped table-hover">
+      <thead class="table-secondary">
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">{{ _("Avatar") }}</th>
+          <th scope="col">{{ _("Username") }}</th>
+          <th scope="col">{{ _("Name") }}</th>
+          <th scope="col">{{ _("Team") }}</th>
+          <th scope="col">{{ _("Organization") }}</th>
+          <th scope="col" class="text-center">{{ _("Points") }}</th>
+          <th scope="col" class="text-center">{{ _("Solved") }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for player in user_list %}
+        <tr>
+          <th scope="row">{{ player.id }}</th>
+          <td><img src="{{ player.profile.avatar }}">{{ player.profile.avatar }}</td>
+          <td><a href="{% url 'challenges:player' pk=player.id %}">{{ player.username}}</a></td>
+          <td>{{ player.first_name }} {{ player.last_name }}</td>
+          <td><a href="#">{{ player.profile.team }}</a></td>
+          <td><a href="#">{{ player.profile.organization }}</a></td>
+          <td class="text-center">{{ player.profile.points }}</td>
+          <td class="text-center">{{ player.profile.solved }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
+
   {% else %}
   <p>{{ _("No players available!") }}</p>
   {% endif %}

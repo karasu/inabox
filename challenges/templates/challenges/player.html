@@ -1,90 +1,29 @@
 {% extends 'news/base.html' %}
 {% load django_bootstrap5 %}
-{% block title %}{{ _("Quest") }}{% endblock %}
+{% block title %}{{ _("Player") }}{% endblock %}
 {% block content %}
 {% load i18n %}
+{% load static %}
+<div class="mb-3">
+<img class="img-thumbnail"
+    src="{% static avatar %}" alt="avatar" width="128">
+</div>
 
-<div class="card mb-3">
-    <div class="card-header">
-      <div class="row pt-2">
-        <div class="col-6">
-          <h5 class="card-title">
-            <a href="{% url 'challenges:quest' pk=quest.id %}" class="btn btn-outline-primary">
-              {{ quest.title }} {{ _("by") }}
-              {% if quest.creator.first_name %}
-                {{ quest.creator.first_name }} {{ quest.creator.last_name }}
-              {% else %}
-                {{ quest.creator.username }}
-              {% endif %}
-            </a> 
-          </h5>
-        </div>
-        <div class="col-6">
-          <span class="float-end">        
-            <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>{{ quest.get_level_display }}</button>
-            <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>
-              {{ _("Tries") }}
-              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-              {{ quest.total_tries }}
-              </span>
-            </button>
-            <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>
-              {{ _("Solved") }}
-              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-              {{ quest.solved }}
-              </span>
-            </button>
-          </span>
-        </div>
-      </div>
-    </div>
-    <div class="card-body">
-      <p class="card-text pt-2">{{ quest.summary }}</p>
-    </div>
-  </div>
+<h1 class="mb-5">
+{% if user.first_name and user.last_name %}
+{{ user.first_name }} {{ user.last_name }}
+{% else %}
+{{ user.username }}
+{% endif %}
+</h1>
 
-  {% if challenge_list %}
-    <ul class="list-group">
-      {% for challenge in challenge_list %}
-      <li class="list-group-item mb-2">
-      <div class="row">
-        <div class="col-6">
-            <a href="{% url 'challenges:challenge' pk=challenge.id %}" class="btn btn-outline-primary">
-            {{ challenge.title }} {{ _("by") }}
-            {% if challenge.creator.first_name %}
-                {{ challenge.creator.first_name }} {{ challenge.creator.last_name }}
-            {% else %}
-                {{ challenge.creator.username }}
-            {% endif %}
-            </a> 
-        </div>
-        <div class="col-6">
-            <span class="float-end">        
-            <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>{{ challenge.area }}</button>
-            <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>{{ challenge.get_level_display }}</button>
-            <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>{{ challenge.get_language_display }}</button>
-            <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>
-                {{ _("Tries") }}
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                {{ challenge.total_tries }}
-                </span>
-            </button>
-            <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>
-                {{ _("Solved") }}
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                {{ challenge.solved }}
-                </span>
-            </button>
-            </span>
-        </div>
-      </div>
-    </li>
-    {% endfor %}
-    </ul>
-    {% else %}
-    <div class="alert alert-warning" role="alert">
-        {{ _("No challenges available in this quest.") }}</p>{% endif %}
-    </div>
-  </div>
-  
+<!--
+
+  organization
+  team
+  solved
+  points
+  rank
+-->
+
 {% endblock %}

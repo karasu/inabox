@@ -101,12 +101,12 @@ class Profile(models.Model):
         choices=settings.LANGUAGES, max_length=2, default="ca")
     points = models.IntegerField(default=0)
     team = models.ForeignKey(
-        Team, null=True, on_delete=models.CASCADE)
+        Team, default=1, on_delete=models.CASCADE)
     organization = models.ForeignKey(
         Organization, null=True, on_delete=models.CASCADE)
 
     def calculate_solved_challenges(self):
-        return ProposedSolution.objects.filter(user=user, is_solved=True).count()
+        return ProposedSolution.objects.filter(user=self.user, is_solved=True).count()
     solved = property(calculate_solved_challenges)
 
     def __str__(self):
