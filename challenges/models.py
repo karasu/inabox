@@ -99,15 +99,20 @@ class Profile(models.Model):
         default=RSAUtil.create_rsa_private_key())
     language = models.CharField(
         choices=settings.LANGUAGES, max_length=2, default="ca")
-    punts = models.IntegerField(default=0)
+    points = models.IntegerField(default=0)
     team = models.ForeignKey(
         Team, null=True, on_delete=models.CASCADE)
     organization = models.ForeignKey(
         Organization, null=True, on_delete=models.CASCADE)
 
+    def calculate_solved_challenges(self):
+        return ProposedSolution.objects.filter(user=self, is_solved=True).count()
+    solved = property(calculate_solved_challenges)
+
     def __str__(self):
         return "{}'s profile".format(self.user.username)
-    
+
+
 # file will be uploaded to MEDIA_ROOT/dockerimages/<dockerimagename>/<filename>
 def dockerimage_directory_path(instance, filename):
     return "dockerimages/{0}/{1}".format(
@@ -169,12 +174,12 @@ class Challenge(models.Model):
         verbose_name="Script", upload_to=challenge_directory_path)
     approved = models.BooleanField(default=False)
     total_tries = models.IntegerField(default=0)
-    times_solved = models.IntegerField(default=0)
+    solved = models.IntegerField(default=0)
     area = models.ForeignKey(
         Area, on_delete=models.CASCADE, verbose_name="Area")
     level = models.CharField(
         max_length=1, choices=LEVELS, default="N")
-    points = models.IntegerField(default=1)
+    points = models.IntegerField(default=0)
     language = models.CharField(
         choices=settings.LANGUAGES, max_length=2, default="ca")
 
@@ -229,7 +234,7 @@ class Quest(models.Model):
     pub_date = models.DateTimeField(
         _("Date"), default=now)
     total_tries = models.IntegerField(default=0)
-    times_solved = models.IntegerField(default=0)
+    solved = models.IntegerField(default=0)
     level = models.CharField(
         max_length=1, choices=LEVELS, default='N')
     

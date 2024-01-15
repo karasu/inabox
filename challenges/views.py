@@ -577,3 +577,29 @@ class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
                     print(err)
 
         return context 
+
+
+class PlayersListView(generic.ListView):
+    template_name = "challenges/players.html"
+    model = User
+    paginate_by = 10
+
+    '''
+    def get_context_data(self, **kwargs):
+        context = super(PlayersListView, self).get_context_data(**kwargs)
+        # Get num of challenges solved for each user
+        users = User.objects.all()
+        context["solved"] = {}
+        for user in users:
+            value = 0
+            proposed_solutions = ProposedSolution.objects.filter(user=user)
+            for ps in proposed_solutions:
+                if ps.is_solved:
+                    value = value + 1
+            context["solved"][user.id] = value
+        return context
+    '''
+
+class PlayerDetailView(generic.DetailView):
+    model = User
+    template_name = "challenges/player.html"

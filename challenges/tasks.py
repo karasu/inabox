@@ -139,7 +139,7 @@ def validate_solution_task(self, proposed_solution_id):
             logging.warning("{} has been solved by {}!".format(
                 challenge.title, proposed_solution.user.username))
 
-            challenge.times_solved = challenge.times_solved + 1
+            challenge.solved = challenge.solved + 1
             challenge.save()
         #else:
         #    # Proposed solution does not work

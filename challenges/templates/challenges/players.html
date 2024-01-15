@@ -1,55 +1,50 @@
 {% extends 'news/base.html' %}
 {% load django_bootstrap5 %}
-{% block title %}{{ _("Quests") }}{% endblock %}
+{% block title %}{{ _("Players") }}{% endblock %}
 {% block content %}
 {% load i18n %}
 <div class="row">
   <div class="col-lg-10">
-    {% if quest_list %}
-    {% for quest in quest_list %}
     <div class="card mb-3">
       <div class="card-header">
-        <div class="row pt-2">
-          <div class="col-sm-6">
-            <h5 class="card-title">
-              <a href="{% url 'challenges:quest' pk=quest.id %}" class="btn btn-primary">
-                {{ quest.title }} {{ _("by") }}
-                {% if quest.creator.first_name %}
-                  {{ quest.creator.first_name }} {{ quest.creator.last_name }}
-                {% else %}
-                  {{ quest.creator.username }}
-                {% endif %}
-              </a> 
-            </h5>
-          </div>
-          <div class="col-sm-6">
-            <span class="float-end">        
-              <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>{{ quest.get_level_display }}</button>
-              <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>
-                {{ _("Tries") }}
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                {{ quest.total_tries }}
-                </span>
-              </button>
-              <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>
-                {{ _("Solved") }}
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                {{ quest.solved }}
-                </span>
-              </button>
-            </span>
-          </div>
-        </div>
+        <h5 class="card-title">
+          {{ _("Players") }} 
+        </h5>
       </div>
-      <div class="card-body">
-        <p class="card-text pt-2">{{ quest.summary }}</p>
-      </div>
+      {% if user_list %}
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">{{ _("Avatar") }}</th>
+            <th scope="col">{{ _("Username") }}</th>
+            <th scope="col">{{ _("Name") }}</th>
+            <th scope="col">{{ _("Team") }}</th>
+            <th scope="col">{{ _("Organization") }}</th>
+            <th scope="col">{{ _("Points") }}</th>
+            <th scope="col">{{ _("Solved") }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for player in user_list %}
+          <tr>
+            <th scope="row">{{ player.id }}</th>
+            <td><img src="{{ player.profile.avatar }}">{{ player.profile.avatar }}</td>
+            <td>{{ player.username}}</td>
+            <td>{{ player.first_name }} {{ player.last_name }}</td>
+            <td>{{ player.profile.organization }}</td>
+            <td></td>
+            <td>{{ player.points }}</td>
+            <td>{{ solved }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-    {% endfor %}
-    {% else %}
-    <p>{{ _("No quests available. Check your filter settings.") }}</p>
-    {% endif %}
   </div>
+  {% else %}
+  <p>{{ _("No players available!") }}</p>
+  {% endif %}
   
   <!-- Filter form -->
   <div class="col-lg-2">
