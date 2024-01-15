@@ -20,7 +20,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 
 #from .worker import Worker, recycle_worker 
 from .worker import clients
-from .args import InvalidValueError
+from .privatekey import InvalidValueError
 
 # These constants were originally based on constants from the
 # epoll module.

@@ -22,7 +22,8 @@ from django.utils.translation import get_language, get_language_info
 import paramiko
 
 from .sshclient import SSHClient
-from .args import InvalidValueError, Args
+from .args import Args
+from .privatekey import InvalidValueError
 
 from .worker import Worker, recycle_worker, clients
 
