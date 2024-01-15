@@ -106,7 +106,7 @@ class Profile(models.Model):
         Organization, null=True, on_delete=models.CASCADE)
 
     def calculate_solved_challenges(self):
-        return ProposedSolution.objects.filter(user=self, is_solved=True).count()
+        return ProposedSolution.objects.filter(user=user, is_solved=True).count()
     solved = property(calculate_solved_challenges)
 
     def __str__(self):

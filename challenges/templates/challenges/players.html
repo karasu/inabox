@@ -32,10 +32,10 @@
             <td><img src="{{ player.profile.avatar }}">{{ player.profile.avatar }}</td>
             <td>{{ player.username}}</td>
             <td>{{ player.first_name }} {{ player.last_name }}</td>
+            <td>{{ player.profile.team }}</td>
             <td>{{ player.profile.organization }}</td>
-            <td></td>
-            <td>{{ player.points }}</td>
-            <td>{{ solved }}</td>
+            <td>{{ player.profile.points }}</td>
+            <td>{{ player.profile.solved }}</td>
           </tr>
           {% endfor %}
         </tbody>
