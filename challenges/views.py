@@ -584,14 +584,23 @@ class PlayersListView(generic.ListView):
     model = User
     paginate_by = 10
 
+    def get_context_data(self, **kwargs):
+        context = super(PlayersListView, self).get_context_data(**kwargs)
+        random.seed()
+        for n in len(context["user_list"]):
+            num = str(random.randint(1, 100)).zfill(3)
+            context["avatar"] = 'challenges/images/avatars/256x256/{}.jpg'.format(num)
+        return context
+
 class PlayerDetailView(generic.DetailView):
     model = User
     template_name = "challenges/player.html"
 
     def get_context_data(self, **kwargs):
         context = super(PlayerDetailView, self).get_context_data(**kwargs)
+        context["player"] = context["user"]
+
         avatar = context["user"].profile.avatar
-        
         if not avatar:
             # User has no avatar, let's choose one randomly
             random.seed()
@@ -601,3 +610,19 @@ class PlayerDetailView(generic.DetailView):
             context["avatar"] = avatar
 
         return context
+
+class OrganizationsListView(generic.ListView):
+    template_name = "challenges/organizations.html"
+    model = Organization
+    paginate_by = 10
+
+class OrganizationDetailView(generic.DetailView):
+    pass
+
+class TeamsListView(generic.ListView):
+    template_name = "challenges/teams.html"
+    model = Team
+    paginate_by = 10
+
+class TeamDetailView(generic.DetailView):
+    pass

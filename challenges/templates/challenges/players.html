@@ -3,6 +3,7 @@
 {% block title %}{{ _("Players") }}{% endblock %}
 {% block content %}
 {% load i18n %}
+{% load static %}
 <div class="row">
   <div class="col-lg-10">
     {% if user_list %}
@@ -23,7 +24,8 @@
         {% for player in user_list %}
         <tr>
           <th scope="row">{{ player.id }}</th>
-          <td><img src="{{ player.profile.avatar }}">{{ player.profile.avatar }}</td>
+          <td><img class="img-thumbnail" src="{% static avatar.player.id %}"
+             alt="avatar" width="128"></td>
           <td><a href="{% url 'challenges:player' pk=player.id %}">{{ player.username}}</a></td>
           <td>{{ player.first_name }} {{ player.last_name }}</td>
           <td><a href="#">{{ player.profile.team }}</a></td>

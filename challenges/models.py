@@ -72,14 +72,28 @@ class ClassGroup(models.Model):
     def __str__(self):
         return self.name    
 
+
+def teams_directory_path(instance, filename):
+    return "teams/{0}/{1}".format(
+        instance.name, filename)
+
 class Team(models.Model):
-    name = models.CharField(max_length=128)
+    name = models.CharField(max_length=128, unique=True)
+    image = models.ImageField(
+        upload_to=teams_directory_path, blank=True, null=True)
 
     def __str__(self):
         return self.name
 
+
+def organizations_directory_path(instance, filename):
+    return "organizations/{0}/{1}".format(
+        instance.name, filename)
+
 class Organization(models.Model):
-    name = models.CharField(max_length=128)
+    name = models.CharField(max_length=128, unique=True)
+    image = models.ImageField(
+        upload_to=organizations_directory_path, blank=True, null=True)
 
     def __str__(self):
         return self.name
