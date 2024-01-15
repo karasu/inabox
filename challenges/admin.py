@@ -24,17 +24,18 @@ admin.site.register(ProposedSolution)
 admin.site.register(Team)
 admin.site.register(Organization)
 
-# Define an inline admin descriptor for Profile model
-# which acts a bit like a singleton
+
 class ProfileInline(admin.StackedInline):
+    """ Define an inline admin descriptor for Profile model
+    which acts a bit like a singleton """
     model = Profile
     can_delete = False
     verbose_name_plural = "profiles"
     fk_name = "user"
 
 
-# Define a new User admin
 class UserAdmin(BaseUserAdmin):
+    """ Define a new User admin """
     inlines = [ProfileInline]
 
 

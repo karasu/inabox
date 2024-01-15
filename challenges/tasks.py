@@ -1,25 +1,24 @@
-# Celery
-# Create your tasks here
+""" Celery. Create your tasks here """
+
+import logging
+import tarfile
+import os
+import stat
 
 from django.utils.translation import gettext_lazy as _
-
-from .models import ProposedSolution, Challenge
 
 from celery import shared_task
 from celery_progress.backend import ProgressRecorder
 
 import docker
-import logging
-import tarfile
-import os
-import stat
-import tempfile
+
+from .models import ProposedSolution, Challenge
 
 @shared_task(bind=True)
 def validate_solution_task(self, proposed_solution_id):
     # Create the progress recorder instance
 	# which we'll use to update the web page
-	
+
     progress_recorder = ProgressRecorder(self)
 
     # Get proposed solution and challenge
@@ -38,10 +37,10 @@ def validate_solution_task(self, proposed_solution_id):
     except docker.errors.APIError as err:
         logging.error(err)
         return False, str(err)
-    
+
     # Check docker image
     try:
-        docker_image = docker_client.images.get(docker_image_name)
+        docker_client.images.get(docker_image_name)
     except docker.errors.ImageNotFound:
         err = str("Docker image {} not found".format(docker_image_name))
         logging.error(err)
@@ -132,7 +131,7 @@ def validate_solution_task(self, proposed_solution_id):
 
         proposed_solution.is_tested = True
         proposed_solution.last_test_result = output.decode("utf-8")
-        
+
         if exit_code == 0:
             # Seems that proposed solution works!
             proposed_solution.is_solved = True
@@ -144,7 +143,7 @@ def validate_solution_task(self, proposed_solution_id):
         #else:
         #    # Proposed solution does not work
         #    proposed_solution.is_solved = False
-        
+
         proposed_solution.save()
 
     progress_recorder.set_progress(4, 4, description="Deleting test container...")
@@ -156,5 +155,5 @@ def validate_solution_task(self, proposed_solution_id):
     except docker.errors.APIError as err:
         logging.error(err)
         return False, str(err)
-    
+
     return True, _("Task complete")

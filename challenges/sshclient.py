@@ -36,7 +36,7 @@ class SSHClient(paramiko.SSHClient):
                 )
                 two_factor = allowed_types & two_factor_types
                 if not two_factor:
-                    return
+                    return None
             except paramiko.SSHException as e:
                 saved_exception = e
 
@@ -48,7 +48,7 @@ class SSHClient(paramiko.SSHClient):
             logging.info('Trying password authentication')
             try:
                 self._transport.auth_password(username, password)
-                return
+                return None
             except paramiko.SSHException as e:
                 saved_exception = e
                 allowed_types = set(getattr(e, 'allowed_types', []))
@@ -60,4 +60,3 @@ class SSHClient(paramiko.SSHClient):
 
         assert saved_exception is not None
         raise saved_exception
-

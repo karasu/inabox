@@ -1,22 +1,25 @@
 import json
 import logging
-import os
 import struct
 import weakref
-import socket
-import threading
 import asyncio
 import paramiko
+
+try:
+    from json.decoder import JSONDecodeError
+except ImportError:
+    JSONDecodeError = ValueError
 
 try:
     from types import UnicodeType
 except ImportError:
     UnicodeType = str
 
-from asgiref.sync import async_to_sync
+#from asgiref.sync import async_to_sync
 from channels.generic.websocket import AsyncWebsocketConsumer
 
-from .worker import Worker, recycle_worker, clients
+#from .worker import Worker, recycle_worker 
+from .worker import clients
 from .args import InvalidValueError
 
 # These constants were originally based on constants from the
@@ -53,7 +56,7 @@ class SshConsumer(AsyncWebsocketConsumer):
         except (KeyError, InvalidValueError) as err:
             await self.close(reason=str(err))
         else:
-            logging.debug("worker_id:", worker_id)
+            # logging.debug("worker_id)
 
             worker = workers.get(worker_id)
             if worker:
@@ -65,7 +68,7 @@ class SshConsumer(AsyncWebsocketConsumer):
 
                 # store consumer reference
                 self._weakref = weakref.ref(self)
-                
+
                 # store worker reference
                 self.worker_ref = weakref.ref(worker)
 
@@ -82,10 +85,9 @@ class SshConsumer(AsyncWebsocketConsumer):
                 logging.warning('Websocket authentication failed.')
                 await self.close()
 
-    async def disconnect(self, close_code):
+    async def disconnect(self, code):
         # Called when the socket closes
         print("SOCKET CLOSED!")
-        
 
     # Receive message from WebSocket
     async def receive(self, text_data):
@@ -114,7 +116,7 @@ class SshConsumer(AsyncWebsocketConsumer):
             msg = json.loads(text_data)
         except JSONDecodeError:
             return
-        
+
         if not isinstance(msg, dict):
             return
 
