@@ -14,3 +14,5 @@ python3-pycryptodome \
 python3-redis \
 python3-yaml \
 docker-compose
+
+#django-admin-interface
