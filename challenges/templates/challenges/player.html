@@ -39,6 +39,15 @@
     </div>
 
     <div class="form-group mb-3 row">
+      <label for="points" class="control-label col-sm-2 mt-2">{{ _("Points") }}</label>
+      <div class="col-sm-4">
+        <input type="text" class="form-control" id="points"
+        value="{{ player.profile.points }}" disabled>
+      </div>
+      <div class="col-sm-6"></div>
+    </div>
+
+    <div class="form-group mb-3 row">
       <label for="solved" class="control-label col-sm-2 mt-2">{{ _("Solved") }}</label>
       <div class="col-sm-4">
         <input type="text" class="form-control" id="solved"
