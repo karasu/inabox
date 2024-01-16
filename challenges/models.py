@@ -131,7 +131,7 @@ class Profile(models.Model):
     team = models.ForeignKey(
         Team, default=1, on_delete=models.CASCADE)
     organization = models.ForeignKey(
-        Organization, null=True, on_delete=models.CASCADE)
+        Organization, default=1, on_delete=models.CASCADE)
 
     def calculate_solved_challenges(self):
         """ calc how many solved challenges the user has done """

@@ -18,6 +18,7 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.utils.translation import get_language, get_language_info
+from django.template.defaulttags import register
 
 import paramiko
 
@@ -34,6 +35,11 @@ from .forms import ChallengeSSHForm, NewChallengeForm, UploadSolutionForm, Searc
 
 # Celery task to check if a proposed solution is valid or not
 from .tasks import validate_solution_task
+
+@register.filter
+def get_item(dictionary, key):
+    """ Filter to get dict item in a loop """
+    return dictionary.get(key)
 
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -316,7 +322,7 @@ class ChallengeDetailView(generic.DetailView):
             port = request.META.get('REMOTE_PORT')
         return (ip, port)
 
-    def challenge_ssh_form(self, request, *args, **kwargs):
+    def challenge_ssh_form(self, request, *args):
         """ Create a form instance and populate it with data from the request: """
         form = ChallengeSSHForm(request.POST)
 
@@ -377,11 +383,11 @@ class ChallengeDetailView(generic.DetailView):
                     }
                 )
 
-    def upload_solution_form(self, request, *args, **kwargs):
+    def upload_solution_form(self, request):
         """ We need to check if user has already tried and update the ProposedSolution
         if not just save this as the first one """
         user = request.POST.get('user')
-        challenge = request.POST.get('challenge') 
+        challenge = request.POST.get('challenge')
         proposed_solution = ProposedSolution.objects.get(
             user=user,
             challenge=challenge)
@@ -530,46 +536,46 @@ class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
         else:
             context["avatar"] = value
 
-        for k in objs.keys():
-            obj = objs[k]
+        for k, obj in objs.items():
             context[k + "_data"] = []
             for field in obj._meta.get_fields():
-                try:
-                    name = field.name
-                    if name not in excludes[k]:
+                if field.name not in excludes[k]:
+                    try:
                         label = field.verbose_name.capitalize()
                         value = field.value_from_object(obj)
 
-                        if name == "teacher":
+                        if field.name == "teacher":
                             value = User.objects.get(id=value)
 
-                        if name == "role":
-                            for (id, desc) in ROLES:
-                                if id == value:
+                        if field.name == "role":
+                            for (myid, desc) in ROLES:
+                                if myid == value:
                                     value = desc
-                        
-                        if name == "class_group":
+
+                        if field.name == "class_group":
                             value = ClassGroup.objects.get(id=value)
-                        
-                        if name == "language":
+
+                        if field.name == "language":
                             lang_info = get_language_info(value)
                             value = lang_info["name_translated"]
-                        
-                        if name == "avatar" and not value:
+
+                        if field.name == "avatar" and not value:
                             value = context["avatar"]
-                        
-                        if name == "team":
+
+                        if field.name == "team":
                             value = Team.objects.get(id=value)
 
-                        if name == "organization":
+                        if field.name == "organization":
                             value = Organization.objects.get(id=value)
 
                         context[k + "_data"].append(
-                            {"name": name, "label": label, "value": value})
-                except AttributeError as err:
-                    print(err)
+                            {"name": field.name,
+                            "label": label,
+                            "value": value})
+                    except AttributeError as err:
+                        print(err)
 
-        return context 
+        return context
 
 
 class PlayersListView(generic.ListView):
@@ -581,9 +587,10 @@ class PlayersListView(generic.ListView):
     def get_context_data(self, **kwargs):
         context = super(PlayersListView, self).get_context_data(**kwargs)
         random.seed()
-        for n in len(context["user_list"]):
+        context["avatar"] = {}
+        for player in context["user_list"]:
             num = str(random.randint(1, 100)).zfill(3)
-            context["avatar"] = 'challenges/images/avatars/256x256/{}.jpg'.format(num)
+            context["avatar"][player.id] = 'challenges/images/avatars/256x256/{}.jpg'.format(num)
         return context
 
 class PlayerDetailView(generic.DetailView):
@@ -617,6 +624,12 @@ class OrganizationDetailView(generic.DetailView):
     template_name = "challenges/organization.html"
     model = Organization
 
+    def get_context_data(self, **kwargs):
+        context = super(OrganizationDetailView, self).get_context_data(**kwargs)
+        context["members"] = User.objects.filter(
+            profile__organization__id=context['organization'].id)
+        return context
+
 class TeamsListView(generic.ListView):
     """ List of teams """
     template_name = "challenges/teams.html"
@@ -627,3 +640,9 @@ class TeamDetailView(generic.DetailView):
     """ Team details """
     template_name = "challenges/team.html"
     model = Team
+
+    def get_context_data(self, **kwargs):
+        context = super(TeamDetailView, self).get_context_data(**kwargs)
+        context["members"] = User.objects.filter(
+            profile__team__id=context['team'].id)
+        return context
