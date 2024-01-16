@@ -99,10 +99,20 @@
             <option value="newest"{% if sorder == order %} selected{% endif %}>{{ _("Newest first") }}</option>
             <option value="oldest"{% if sorder == order %} selected{% endif %}>{{ _("Oldest first") }}</option>
           </select>
-          <button type="submit" class="btn btn-success float-end" value="{{ _('Filter') }}">{{ _("Filter") }}</button>
+          <button type="submit" class="btn btn-success" value="{{ _('Filter') }}">{{ _("Filter") }}</button>
         </form>
       </div>
     </div>
+    {% if user.is_authenticated %}
+    <div class="card mt-sm-4">
+      <div class="card-header">
+        {{ _("Administration") }}
+      </div>
+      <div class="card-body text-center">
+        <a class="btn btn-secondary" href="{% url 'challenges:new_challenge' %}">{{ _("New challenge") }}</a>
+      </div>
+    </div>
+    {% endif %}
   </div>
 </div>
 {% endblock %}

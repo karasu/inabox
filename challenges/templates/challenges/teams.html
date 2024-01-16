@@ -4,27 +4,47 @@
 {% block content %}
 {% load i18n %}
 {% load static %}
-{% if team_list %}
-<table class="table table-striped table-hover">
-  <thead class="table-secondary">
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col">{{ _("Image") }}</th>
-      <th scope="col">{{ _("Team") }}</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for team in team_list %}
-    <tr class="align-middle">
-      <th scope="row">{{ team.id }}</th>
-      <td><img class="img-thumbnail" src="{% static team.image %}"
-        alt="avatar" width="128"></td>
-      <td><a href="{% url 'challenges:team' pk=team.id %}">{{ team.name }}</a></td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
-{% else %}
-<p>{{ _("No teams available!") }}</p>
-{% endif %}
+<div class="row">
+  <div class="col-lg-10">
+    {% if team_list %}
+    <table class="table table-striped table-hover">
+      <thead class="table-secondary">
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">{{ _("Image") }}</th>
+          <th scope="col">{{ _("Team") }}</th>
+          <th scope="col">{{ _("Description") }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for team in team_list %}
+        <tr class="align-middle">
+          <th scope="row">{{ team.id }}</th>
+          <td><img class="img-thumbnail" src="{% static team.image.url %}"
+            alt="avatar" width="64"></td>
+          <td><a href="{% url 'challenges:team' pk=team.id %}">{{ team.name }}</a></td>
+          <td>{{ team.description|truncatechars:64 }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="alert alert-danger" role="alert">{{ _("No teams in database!") }}</div>
+    {% endif %}
+  </div>
+
+  <div class="col-lg-2">
+    {% if user.is_staff %}
+    <div class="card">
+      <div class="card-header">
+        {{ _("Administration") }}
+      </div>
+      <div class="card-body text-center">
+        <a class="btn btn-secondary"
+          href="{% url 'admin:challenges_team_add' %}">{{ _("New team") }}</a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
 {% endblock %}

@@ -89,7 +89,8 @@ class Team(models.Model):
     name = models.CharField(max_length=128, unique=True)
     image = models.ImageField(
         upload_to=teams_directory_path,
-        blank=True, null=True)
+        default="challenges/images/avatars/256x256/028.jpg")
+    description = models.TextField()
 
     def __str__(self):
         return str(self.name)
@@ -105,7 +106,8 @@ class Organization(models.Model):
     name = models.CharField(max_length=128, unique=True)
     image = models.ImageField(
         upload_to=organizations_directory_path,
-        blank=True, null=True)
+        default="challenges/images/avatars/256x256/029.jpg")
+    description = models.TextField()
 
     def __str__(self):
         return str(self.name)
@@ -122,7 +124,8 @@ class Profile(models.Model):
         User, on_delete=models.CASCADE, related_name="teacher",
         verbose_name=_("Teacher"))
     avatar = models.ImageField(
-        upload_to=user_directory_path, blank=True, null=True)
+        upload_to=user_directory_path,
+        default="challenges/images/avatars/256x256/027.jpg")
     private_key = models.TextField(
         default=RSAUtil.create_rsa_private_key())
     language = models.CharField(

@@ -5,10 +5,10 @@
 {% load i18n %}
 {% load static %}
 <div class="row">
-  <div class="col-sm-2">
+  <div class="col-sm-4">
     <div class="mb-3">
       <img class="img-thumbnail"
-      src="{% static avatar %}" alt="avatar" width="128">
+      src="{% static player.profile.avatar.url %}" alt="avatar" width="256">
     </div>
     <h1 class="mb-5">
     {% if player.first_name and player.last_name %}
@@ -19,7 +19,7 @@
     </h1>
   </div>
 
-  <div class="col-sm-10">
+  <div class="col-sm-8">
     <div class="form-group mb-3 row">
       <label for="organization" class="control-label col-sm-2 mt-2">{{ _("Organization") }}</label>
       <div class="col-sm-4">
@@ -59,8 +59,6 @@
   </div>
 </div>
 <!--
-  solved
-  points
   rank
 -->
 

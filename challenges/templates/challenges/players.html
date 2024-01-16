@@ -4,78 +4,39 @@
 {% block content %}
 {% load i18n %}
 {% load static %}
-<div class="row">
-  <div class="col-lg-10">
-    {% if user_list %}
-    <table class="table table-striped table-hover">
-      <thead class="table-secondary">
-        <tr>
-          <th scope="col">#</th>
-          <th scope="col">{{ _("Avatar") }}</th>
-          <th scope="col">{{ _("Username") }}</th>
-          <th scope="col">{{ _("Name") }}</th>
-          <th scope="col">{{ _("Team") }}</th>
-          <th scope="col">{{ _("Organization") }}</th>
-          <th scope="col" class="text-center">{{ _("Points") }}</th>
-          <th scope="col" class="text-center">{{ _("Solved") }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for player in user_list %}
-        <tr class="align-middle">
-          <th scope="row">{{ player.id }}</th>
-          <td><img class="img-thumbnail" src="{% static avatar|get_item:player.id %}"
-             alt="avatar" width="64"></td>
-          <td><a href="{% url 'challenges:player' pk=player.id %}">{{ player.username}}</a></td>
-          <td>{{ player.first_name }} {{ player.last_name }}</td>
-          <td><a href="{% url 'challenges:team' pk=player.profile.team.id %}">
-            {{ player.profile.team }}</a></td>
-          <td><a href="{% url 'challenges:organization' pk=player.profile.organization.id %}">
-            {{ player.profile.organization }}</a></td>
-          <td class="text-center">{{ player.profile.points }}</td>
-          <td class="text-center">{{ player.profile.solved }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-
-  {% else %}
-  <p>{{ _("No players available!") }}</p>
-  {% endif %}
-  
-  <!-- Filter form -->
-  <div class="col-lg-2">
-    <div class="card">
-      <div class="card-header">
-        {{ _("Filter settings") }}
-      </div>
-      <div class="card-body">
-        <form method="get" action="{% url 'challenges:quests' %}">
-          {% csrf_token %}
-          <select name="creator" class="form-control dropdown-toggle mb-2" href="#" id="creator" role="button" data-bs-toggle="dropdown" aira-expanded="false">
-            <option value="all">{{ _("All creators") }}</option>
-            <option disabled>──────────</option>
-            {% for creator in creators %}
-            <option value="{{ creator }}" {% if screator == creator %} selected{% endif %}>{{ creator }}</option>
-            {% endfor %}
-          </select>
-          <select name="level" class="form-control dropdown-toggle mb-2" href="#" id="level" role="button" data-bs-toggle="dropdown" aira-expanded="false">
-            <option value="all">{{ _("All levels") }}</option>
-            <option disabled>──────────</option>
-            {% for level in levels %}
-            <option value="{{ level.0 }}"{% if slevel == level.0 %} selected{% endif %}>{{ level.1 }}</option>
-            {% endfor %}
-          </select>
-          <select name="order" class="form-control dropdown-toggle mb-2" href="#" id="order" role="button" data-bs-toggle="dropdown"
-            aira-expanded="false">
-            <option value="newest"{% if sorder == order %} selected{% endif %}>{{ _("Newest first") }}</option>
-            <option value="oldest"{% if sorder == order %} selected{% endif %}>{{ _("Oldest first") }}</option>
-          </select>
-          <button type="submit" class="btn btn-outline-success float-end" value="{{ _("Filter") }}">{{ _("Filter") }}</button>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
+{% if user_list %}
+<table class="table table-striped table-hover">
+  <thead class="table-secondary">
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">{{ _("Avatar") }}</th>
+      <th scope="col">{{ _("Username") }}</th>
+      <th scope="col">{{ _("Name") }}</th>
+      <th scope="col">{{ _("Team") }}</th>
+      <th scope="col">{{ _("Organization") }}</th>
+      <th scope="col" class="text-center">{{ _("Points") }}</th>
+      <th scope="col" class="text-center">{{ _("Solved") }}</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for player in user_list %}
+    <tr class="align-middle">
+      <th scope="row">{{ player.id }}</th>
+      <td><img class="img-thumbnail" src="{% static player.profile.avatar.url %}"
+      alt="avatar" width="64"></td>
+      <td><a href="{% url 'challenges:player' pk=player.id %}">{{ player.username}}</a></td>
+      <td>{{ player.first_name }} {{ player.last_name }}</td>
+      <td><a href="{% url 'challenges:team' pk=player.profile.team.id %}">
+      {{ player.profile.team }}</a></td>
+      <td><a href="{% url 'challenges:organization' pk=player.profile.organization.id %}">
+      {{ player.profile.organization }}</a></td>
+      <td class="text-center">{{ player.profile.points }}</td>
+      <td class="text-center">{{ player.profile.solved }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="alert alert-danger" role="alert">{{ _("No players in database!") }}</div>
+{% endif %}
 {% endblock %}

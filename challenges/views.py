@@ -526,16 +526,6 @@ class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
                 "id", "user", "private_key", "challenge", "dockercontainer",
                 "proposedsolution", "quest", "logentry"]}
 
-
-        value = Profile._meta.get_field("avatar").value_from_object(objs["profile"])
-        if not value:
-            # User has no avatar, let's choose one randomly
-            random.seed()
-            num = str(random.randint(1, 100)).zfill(3)
-            context["avatar"] = 'challenges/images/avatars/256x256/{}.jpg'.format(num)
-        else:
-            context["avatar"] = value
-
         for k, obj in objs.items():
             context[k + "_data"] = []
             for field in obj._meta.get_fields():
@@ -559,9 +549,6 @@ class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
                             lang_info = get_language_info(value)
                             value = lang_info["name_translated"]
 
-                        if field.name == "avatar" and not value:
-                            value = context["avatar"]
-
                         if field.name == "team":
                             value = Team.objects.get(id=value)
 
@@ -584,14 +571,6 @@ class PlayersListView(generic.ListView):
     model = User
     paginate_by = 10
 
-    def get_context_data(self, **kwargs):
-        context = super(PlayersListView, self).get_context_data(**kwargs)
-        random.seed()
-        context["avatar"] = {}
-        for player in context["user_list"]:
-            num = str(random.randint(1, 100)).zfill(3)
-            context["avatar"][player.id] = 'challenges/images/avatars/256x256/{}.jpg'.format(num)
-        return context
 
 class PlayerDetailView(generic.DetailView):
     """ Show player's detail info (nothing personal) """
@@ -601,16 +580,6 @@ class PlayerDetailView(generic.DetailView):
     def get_context_data(self, **kwargs):
         context = super(PlayerDetailView, self).get_context_data(**kwargs)
         context["player"] = context["user"]
-
-        avatar = context["user"].profile.avatar
-        if not avatar:
-            # User has no avatar, let's choose one randomly
-            random.seed()
-            num = str(random.randint(1, 100)).zfill(3)
-            context["avatar"] = 'challenges/images/avatars/256x256/{}.jpg'.format(num)
-        else:
-            context["avatar"] = avatar
-
         return context
 
 class OrganizationsListView(generic.ListView):

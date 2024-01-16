@@ -2,14 +2,17 @@
   pk: 1
   fields:
     name: Lone wolf
+    description: This team will contain all users that have no team.
 - model: challenges.Team
   pk: 2
   fields:
-    name: The A Team
+    name: The A-Team
+    description: Ara, buscats per la policia i el Govern nord-americà, els fugitius es veuen obligats a convertir-se en mercenaris per poder sobreviure econòmicament. 
 - model: challenges.Organization
   pk: 1
   fields:
     name: Institut Sabadell
+    description: Institut Sabadell, de Sabadell
 - model: challenges.Profile
   pk: 1
   fields:
