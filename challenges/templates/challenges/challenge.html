@@ -44,13 +44,14 @@
   <div class="card-body">
     <p class="card-text pt-3">{{ challenge.summary }}</p>
     <p class="card-text">{{ challenge.full_description }}</p>
-    {{ _("Challenge created by") }} {% if challenge.creator.first_name %}
+    {{ _("Challenge created by") }}
+    {% if challenge.creator.first_name %}
     {{ challenge.creator.first_name }} {{ challenge.creator.last_name }}
     {% else %}
     {{ challenge.creator.username }}
     {% endif %}
 
-    {% if proposed.tries > 0 %}
+    {% if user.is_authenticated and proposed.tries > 0 %}
     <div class="my-2">
       {{ _("Your stats:") }}
       <button type="button"
@@ -58,14 +59,15 @@
         {{ proposed.tries }} {{ _("tries") }}</button>
       {% if proposed.is_solved %}    
       <button type="button" class="btn btn-outline-success btn-sm position-relative me-2 mb-2" disabled>
-        {{ _("solved") }}</button>
+        {{ _("already solved") }}</button>
       {% else %}
       <button type="button" class="btn btn-outline-danger btn-sm position-relative me-2 mb-2" disabled>
-        {{ _("not solved") }}</button>
+        {{ _("not solved, yet") }}</button>
       {% endif %}
     </div>
     {% endif %}
     <div id="waiter" style="display: none"> Connecting ... </div>
+    
     {% if user.is_authenticated %}
     <form class="mt-2" id="connect" action="{% url 'challenges:challenge' challenge.id %}"
       method="post" enctype="multipart/form-data">
@@ -79,6 +81,7 @@
     <div class="mt-2">
       <div id="terminal"></div>
     </div>
+    
     {% else %}
     <div class="my-2" style="color: red;">
       {{ _("You need to be logged in to try this challenge. Please log in!")}}</div>
@@ -120,8 +123,8 @@
       <input type="hidden" name="form_name" value="UploadSolutionForm">
       {% for e in upload_solution_form.visible_fields %}
       <div class="form-group mb-3">
-      {{ e.label_tag }}
-      {{ e }}
+        {{ e.label_tag }}
+        {{ e }}
       </div>
       {% endfor %}
       <button id="upload-solution" type="submit" class="btn btn-success">

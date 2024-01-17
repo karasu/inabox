@@ -53,7 +53,7 @@ class NewChallengeView(LoginRequiredMixin, generic.base.TemplateView):
     template_name="challenges/new_challenge.html"
 
     def get_context_data(self, **kwargs):
-        context = super(NewChallengeView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["new_challenge_form"] = NewChallengeForm(user_id=self.request.user.id)
         return context
 
@@ -107,7 +107,7 @@ class QuestsListView(generic.ListView):
         return new_qs
 
     def get_context_data(self, **kwargs):
-        context = super(QuestsListView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         context['creators'] = User.objects.values_list('username', flat=True)
         context['levels'] = LEVELS
@@ -126,7 +126,7 @@ class QuestDetailView(generic.DetailView):
     # challenge_list
 
     def get_context_data(self, **kwargs):
-        context = super(QuestDetailView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['challenge_list'] = []
         for quest_challenge in QuestChallenge.objects.filter(quest=context['quest']):
             context['challenge_list'].append(quest_challenge.challenge)
@@ -183,7 +183,7 @@ class ChallengesListView(generic.ListView):
         return new_qs
 
     def get_context_data(self, **kwargs):
-        context = super(ChallengesListView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         context['creators'] = User.objects.values_list('username', flat=True)
         context['areas'] = Area.objects.values_list('name', flat=True)
@@ -199,13 +199,14 @@ class ChallengesListView(generic.ListView):
 
 
 class ChallengeDetailView(generic.DetailView):
+    """ Show challenge class view """
     model = Challenge
     template_name = "challenges/challenge.html"
     executor = ThreadPoolExecutor(max_workers=os.cpu_count()*5)
     loop = None
 
     def get_context_data(self, **kwargs):
-        context = super(ChallengeDetailView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         if self.request.user.is_authenticated:
             # Add forms to our context so we can put them in the template
@@ -373,16 +374,17 @@ class ChallengeDetailView(generic.DetailView):
                     workerid=worker.id, status='', encoding=worker.encoding)
 
             return JsonResponse(self.result)
-        else:
-            logging.error(form.errors)
-            return render(
-                request,
-                template_name="challenges/form_error.html",
-                context={
-                    "title": _("Error form data trying to connect! Check the error(s) below:"),
-                    "errors": form.errors,
-                    }
-                )
+
+        # form is not valid
+        logging.error(form.errors)
+        return render(
+            request,
+            template_name="challenges/form_error.html",
+            context={
+                "title": _("Error form data trying to connect! Check the error(s) below:"),
+                "errors": form.errors,
+                }
+            )
 
     def upload_solution_form(self, request):
         """ We need to check if user has already tried and update the ProposedSolution
@@ -422,21 +424,22 @@ class ChallengeDetailView(generic.DetailView):
             #task_id = validate_solution_task.task_id
             task_id = res.id
             print(res.id, res.status)
-            #context = super(ChallengeDetailView, self).get_context_data(**kwargs)
+            #context = super().get_context_data(**kwargs)
             context = self.get_context_data(**kwargs)
             context['task_id'] = task_id
 
             return self.render_to_response(context=context)
-        else:
-            logging.error(form.errors)
-            return render(
-                request,
-                template_name="challenges/form_error.html",
-                context={
-                    "title": _("Error uploading a new solution! Check the error(s) below:"),
-                    "errors": form.errors,
-                    }
-                )
+
+        # Form is not valid
+        logging.error(form.errors)
+        return render(
+            request,
+            template_name="challenges/form_error.html",
+            context={
+                "title": _("Error uploading a new solution! Check the error(s) below:"),
+                "errors": form.errors,
+                }
+            )
 
     def post(self, request, *args, **kwargs):
         """ Deal with post data """
@@ -512,7 +515,7 @@ class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
     template_name = "challenges/profile.html"
 
     def get_context_data(self, **kwargs):
-        context = super(ProfileView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['roles'] = ROLES
 
         objs = {
@@ -579,7 +582,7 @@ class PlayerDetailView(generic.DetailView):
     template_name = "challenges/player.html"
 
     def get_context_data(self, **kwargs):
-        context = super(PlayerDetailView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["player"] = context["user"]
         return context
 
@@ -595,7 +598,7 @@ class OrganizationDetailView(generic.DetailView):
     model = Organization
 
     def get_context_data(self, **kwargs):
-        context = super(OrganizationDetailView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["members"] = User.objects.filter(
             profile__organization__id=context['organization'].id)
         return context
@@ -612,7 +615,7 @@ class TeamDetailView(generic.DetailView):
     model = Team
 
     def get_context_data(self, **kwargs):
-        context = super(TeamDetailView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["members"] = User.objects.filter(
             profile__team__id=context['team'].id)
         return context
