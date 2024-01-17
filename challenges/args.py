@@ -1,3 +1,4 @@
+""" Store ssh configuration here """
 import base64
 import logging
 
@@ -11,6 +12,7 @@ from .utils import (
 DEFAULT_PORT=22
 
 class Args():
+    """ Get ssh arguments """
 
     def __init__(self, request):
         self.request = request
@@ -36,12 +38,14 @@ class Args():
         '''
 
     def get_hostname(self):
+        """ return hostname """
         value = self.get_value('hostname')
         if not (is_valid_hostname(value) or is_valid_ip_address(value)):
             raise InvalidValueError('Invalid hostname: {}'.format(value))
         return value
 
     def get_port(self):
+        """ return connection port """
         value = self.post.get('port', u'')
         if not value:
             return DEFAULT_PORT
@@ -52,6 +56,7 @@ class Args():
         return port
 
     def lookup_hostname(self, hostname, port):
+        """ TODO: remove tornado code """
         key = hostname if port == 22 else '[{}]:{}'.format(hostname, port)
 
         if self.ssh_client._system_host_keys.lookup(key) is None:
@@ -63,12 +68,14 @@ class Args():
                     )
 
     def get_value(self, name):
+        """ Get value from GET """
         value = self.post.get(name)
         if not value:
             raise InvalidValueError('Missing value {}'.format(name))
         return value
 
     def get_client_ip_and_port(self):
+        """ Get ip and port from header """
         x_forwarded_for = self.request.META.get('HTTP_X_FORWARDED_FOR')
         if x_forwarded_for:
             # running behind a proxy
@@ -80,6 +87,7 @@ class Args():
         return (ip, port)
 
     def decode64str(self, s):
+        """ decode b64 encoded string """
         # Encode the str into bytes.
         bencoded = s.encode("utf-8")
         # decode b64
@@ -88,18 +96,19 @@ class Args():
         return bdecoded.decode("utf-8")
 
     def get_args(self):
+        """ Get all ssh parameters """
         hostname = self.get_hostname()
         port = self.get_port()
         username = self.get_value('username')
-        password = self.decode64str(self.post.get('password', u''))
+        password = self.decode64str(self.post.get('password', ''))
 
         if password != "inabox":
             raise ValueError(password)
 
         privatekey, filename = self.get_privatekey()
-        passphrase = self.post.get('passphrase', u'')
+        passphrase = self.post.get('passphrase', '')
 
-        totp = self.post.get('totp', u'')
+        totp = self.post.get('totp', '')
 
         #if isinstance(self.policy, paramiko.RejectPolicy):
         #    self.lookup_hostname(hostname, port)
@@ -108,7 +117,7 @@ class Args():
             pkey = PrivateKey(privatekey, passphrase, filename).get_pkey_obj()
         else:
             pkey = None
-
+        
         # self.ssh_client.totp = totp
         args = (hostname, port, username, password, pkey)
         logging.debug(args)

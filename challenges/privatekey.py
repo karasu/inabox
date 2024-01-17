@@ -7,11 +7,12 @@ from .utils import to_bytes
 
 
 class InvalidValueError(Exception):
+    """ Exception class used in ssh code """
     pass
 
 
-class PrivateKey(object):
-
+class PrivateKey():
+    """ Store ssh private key """
     max_length = 16384  # rough number
 
     tag_to_name = {

@@ -19,9 +19,12 @@
       </div>
       <div class="col-sm-6">
         <span class="float-end">
-          <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>{{ challenge.area }}</button>
-          <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>{{ challenge.get_level_display }}</button>
-          <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>{{ challenge.get_language_display }}</button>
+          <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>
+            {{ challenge.area }}</button>
+          <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>
+            {{ challenge.get_level_display }}</button>
+          <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>
+            {{ challenge.get_language_display }}</button>
           <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>
             {{ _("Total tries") }}
             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
@@ -50,50 +53,57 @@
     {% if proposed.tries > 0 %}
     <div class="my-2">
       {{ _("Your stats:") }}
-      <button type="button" class="btn btn-outline-secondary btn-sm position-relative mx-2 mb-2" disabled>{{ proposed.tries }} {{ _("tries") }}</button>
+      <button type="button"
+        class="btn btn-outline-secondary btn-sm position-relative mx-2 mb-2" disabled>
+        {{ proposed.tries }} {{ _("tries") }}</button>
       {% if proposed.is_solved %}    
-      <button type="button" class="btn btn-outline-success btn-sm position-relative me-2 mb-2" disabled>{{ _("solved") }}</button>
+      <button type="button" class="btn btn-outline-success btn-sm position-relative me-2 mb-2" disabled>
+        {{ _("solved") }}</button>
       {% else %}
-      <button type="button" class="btn btn-outline-danger btn-sm position-relative me-2 mb-2" disabled>{{ _("not solved") }}</button>
+      <button type="button" class="btn btn-outline-danger btn-sm position-relative me-2 mb-2" disabled>
+        {{ _("not solved") }}</button>
       {% endif %}
     </div>
     {% endif %}
     <div id="waiter" style="display: none"> Connecting ... </div>
     {% if user.is_authenticated %}
-    <form class="mt-2" id="connect" action="{% url 'challenges:challenge' challenge.id %}" method="post" enctype="multipart/form-data">
+    <form class="mt-2" id="connect" action="{% url 'challenges:challenge' challenge.id %}"
+      method="post" enctype="multipart/form-data">
       <input type="hidden" name="form_name" value="ChallengeSSHForm">
       {% csrf_token %}
-      {{ challenge_ssh_form }}
+      {{ ssh_data }}
       <button id="term-btn" type="submit" class="btn btn-primary">{{ _("Let's try to solve it!") }}</button>
-      <a class="btn btn-warning" href="{% url 'challenges:challenges' %}" >{{ _("Go back") }}</a>
+      <a class="btn btn-secondary" href="{% url 'challenges:challenges' %}" >{{ _("Go back") }}</a>
     </form>
     <div id="status" style="color: red;"></div>
     <div class="mt-2">
       <div id="terminal"></div>
     </div>
     {% else %}
-    <div class="my-2" style="color: red;">{{ _("You need to be logged in to try this challenge. Please log in!")}}</div>
+    <div class="my-2" style="color: red;">
+      {{ _("You need to be logged in to try this challenge. Please log in!")}}</div>
     <div>
-    <a class="btn btn-warning" href="{% url 'challenges:challenges' %}" >{{ _("Go back") }}</a>
+    <a class="btn btn-secondary" href="{% url 'challenges:challenges' %}" >{{ _("Go back") }}</a>
     </div>
     {% endif %}
   </div>
 </div>
-{% if user.is_authenticated %}
+
+  {% if user.is_authenticated %}
   <!-- Progress bar used when checking user's proposed solution -->
-	<div class="card" style="height: 120px;">
-		<div class="text-center" style="font-size: 14px">
+  <div style="height: 120px;">
+    <div style="font-size: 14px">
       <div id="progress-bar-message">
       </div>
     </div>
     <div class='progress-wrapper' style="padding-top: 10px;">
-      <div id='progress-bar' class='progress-bar progress-bar-striped' role='progressbar' style="height:30px; width: 0%; border-radius: 5px">&nbsp;</div>
+      <div id='progress-bar' class='progress-bar progress-bar-striped'
+        role='progressbar' style="height:30px; width: 0%; border-radius: 5px">&nbsp;</div>
     </div>
     <div id="celery-result">
     </div>
-	</div>
+  </div>
   {% endif %}
-
 </div>
 
 {% if user.is_authenticated %}
@@ -104,7 +114,8 @@
       <h5 class="card-title">{{ _("Your solution") }}</h5>
     </div>
     <div class="card-body">
-      <form id="solution" action="{% url 'challenges:challenge' challenge.id %}" method="post" role="form" enctype="multipart/form-data">
+      <form id="solution" action="{% url 'challenges:challenge' challenge.id %}"
+        method="post" role="form" enctype="multipart/form-data">
       {% csrf_token %}
       <input type="hidden" name="form_name" value="UploadSolutionForm">
       {% for e in upload_solution_form.visible_fields %}
@@ -113,14 +124,14 @@
       {{ e }}
       </div>
       {% endfor %}
-      <button id="upload-solution" type="submit" class="btn btn-primary">{{ _("Let's check your solution!") }}</button>
+      <button id="upload-solution" type="submit" class="btn btn-success">
+        {{ _("Let's check your solution!") }}</button>
       </form>
     </div>
   </div>
 </div>
 {% endif %}
 </div>
-
 {% endblock %}
 
 {% block javascript %}

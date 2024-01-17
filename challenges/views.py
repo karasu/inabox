@@ -5,7 +5,6 @@ import os
 import logging
 import traceback
 import asyncio
-import random
 
 from concurrent.futures import ThreadPoolExecutor
 
@@ -222,7 +221,7 @@ class ChallengeDetailView(generic.DetailView):
                 "term": "xterm-256color",
                 "challenge_id": context['challenge'].id,
             }
-            context['challenge_ssh_form'] = ChallengeSSHForm(data)
+            context['ssh_data'] = ChallengeSSHForm(data)
 
             context['upload_solution_form'] = UploadSolutionForm(
                 user_id = self.request.user.id,
@@ -258,11 +257,11 @@ class ChallengeDetailView(generic.DetailView):
         filename = os.path.expanduser('~/.ssh/known_hosts')
         system_host_keys = self.load_host_keys(filename)
 
-        settings = dict(
-            host_keys=host_keys,
-            system_host_keys=system_host_keys,
-            host_keys_filename=host_keys_filename
-        )
+        settings = {
+            "host_keys": host_keys,
+            "system_host_keys": system_host_keys,
+            "host_keys_filename": host_keys_filename
+        }
         return settings
 
     def get_ssh_client(self):
@@ -322,7 +321,7 @@ class ChallengeDetailView(generic.DetailView):
             port = request.META.get('REMOTE_PORT')
         return (ip, port)
 
-    def challenge_ssh_form(self, request, *args):
+    def challenge_ssh_form(self, request):
         """ Create a form instance and populate it with data from the request: """
         form = ChallengeSSHForm(request.POST)
 
@@ -337,7 +336,8 @@ class ChallengeDetailView(generic.DetailView):
             self.result = {
                 'workerid': None,
                 'status': None,
-                'encoding':None}
+                'encoding':None
+            }
 
             src_ip, src_port = self.get_client_ip_and_port(request)
             #print(ip, port)
@@ -345,14 +345,15 @@ class ChallengeDetailView(generic.DetailView):
             if workers and len(workers) >= MAXCONN:
                 return HttpResponseForbidden(_('Too many live connections.'))
 
+            # TODO: check origin
             #self.check_origin()
+
             try:
-                form_args = Args(request)
-                args = form_args.get_args()
+                _args = Args(request).get_args()
             except InvalidValueError as exc:
                 return HttpResponseBadRequest(str(exc))
 
-            future = self.executor.submit(self.ssh_connect, args)
+            future = self.executor.submit(self.ssh_connect, _args)
 
             try:
                  #worker = yield future
@@ -447,10 +448,10 @@ class ChallengeDetailView(generic.DetailView):
             return HttpResponseForbidden()
 
         if request.POST.get("form_name") == "UploadSolutionForm":
-            return self.upload_solution_form(request, *args, **kwargs)
+            return self.upload_solution_form(request)
 
         if request.POST.get("form_name") == "ChallengeSSHForm":
-            return self.challenge_ssh_form(request, *args, **kwargs)
+            return self.challenge_ssh_form(request)
 
         return HttpResponseBadRequest()
 
