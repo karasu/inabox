@@ -450,8 +450,8 @@ class ChallengeDetailView(generic.DetailView):
             request,
             template_name="challenges/form_error.html",
             context={
-                "title": _("Error uploading a new solution! Check the error(s) below:"),
-                "errors": form.errors,
+                "title": _("Error saving changes. Check the error(s) below:"),
+                "errors": "Not implemented",
                 }
             )
 
