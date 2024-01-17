@@ -4,6 +4,8 @@
 {% block content %}
 {% load i18n %}
 {% load static %}
+<div class="row">
+  <div class="col-lg-10">
 {% if user_list %}
 <table class="table table-striped table-hover">
   <thead class="table-secondary">
@@ -39,4 +41,20 @@
 {% else %}
 <div class="alert alert-danger" role="alert">{{ _("No players in database!") }}</div>
 {% endif %}
+</div>
+
+<div class="col-lg-2">
+  {% if user.is_staff %}
+  <div class="card">
+    <div class="card-header">
+      {{ _("Administration") }}
+    </div>
+    <div class="card-body text-center">
+      <a class="btn btn-secondary"
+        href="{% url 'admin:auth_user_add' %}">{{ _("New player") }}</a>
+    </div>
+  </div>
+  {% endif %}
+</div>
+</div>
 {% endblock %}

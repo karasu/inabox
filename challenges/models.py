@@ -125,7 +125,7 @@ class Profile(models.Model):
         verbose_name=_("Teacher"))
     avatar = models.ImageField(
         upload_to=user_directory_path,
-        default="challenges/images/avatars/256x256/027.jpg")
+        default="challenges/images/avatars/256x256/021.jpg")
     private_key = models.TextField(
         default=RSAUtil.create_rsa_private_key())
     language = models.CharField(

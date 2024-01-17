@@ -117,7 +117,7 @@ class Args():
             pkey = PrivateKey(privatekey, passphrase, filename).get_pkey_obj()
         else:
             pkey = None
-        
+
         # self.ssh_client.totp = totp
         args = (hostname, port, username, password, pkey)
         logging.debug(args)

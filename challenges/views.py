@@ -559,8 +559,13 @@ class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
                         if field.name == "organization":
                             value = Organization.objects.get(id=value)
 
-                        context[k + "_data"].append(
-                            {"name": field.name,
+                        if value is True:
+                            value = _("Yes")
+                        elif value is False:
+                            value = _("No")
+
+                        context[k + "_data"].append({
+                            "name": field.name,
                             "label": label,
                             "value": value})
                     except AttributeError as err:
