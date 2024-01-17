@@ -1,5 +1,7 @@
 #!/bin/sh
 
+echo "" > known_hosts
+
 PWD=`pwd`
 kitty --detach --title switchboard --directory $PWD ./run_switchboard
 kitty --detach --title django --directory $PWD ./run_django

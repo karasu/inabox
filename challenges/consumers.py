@@ -1,3 +1,5 @@
+""" Channels consumers """
+
 import json
 import logging
 import struct
@@ -22,18 +24,16 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from .worker import clients
 from .privatekey import InvalidValueError
 
-# These constants were originally based on constants from the
-# epoll module.
-IOLoop_NONE = 0
-IOLoop_READ = 0x001
-IOLoop_WRITE = 0x004
-IOLoop_ERROR = 0x018
-
-
 # WsockHandler
 class SshConsumer(AsyncWebsocketConsumer):
+    """ Consumer ssh websocket """
     worker_ref = None
     groups = ["all_terminals"]
+
+    def __init__(self):
+        super().__init__()
+        self.src_addr = None
+        self._weakref = None
 
     async def connect(self):
         self.src_addr = self.scope['client']
@@ -53,8 +53,8 @@ class SshConsumer(AsyncWebsocketConsumer):
             for pair in query.split(','):
                 if pair.startswith('workerid='):
                     worker_id = pair.split('=')[1]
-        except (KeyError, InvalidValueError) as err:
-            await self.close(reason=str(err))
+        except (KeyError, InvalidValueError):
+            await self.close()
         else:
             # logging.debug("worker_id)
 
@@ -90,7 +90,7 @@ class SshConsumer(AsyncWebsocketConsumer):
         print("SOCKET CLOSED!")
 
     # Receive message from WebSocket
-    async def receive(self, text_data):
+    async def receive(self, text_data=None, bytes_data=None):
         logging.debug('{!r} from {}:{}'.format(text_data, *self.src_addr))
 
         print('{!r} from {}:{}'.format(text_data, *self.src_addr))
@@ -99,10 +99,7 @@ class SshConsumer(AsyncWebsocketConsumer):
         if not worker:
             # The worker has likely been closed. Do not process.
             logging.debug(
-                "received message to closed worker from {}:{}".format(
-                    *self.src_addr
-                )
-            )
+                "received message to closed worker from {}:{}".format(*self.src_addr))
             logging.debug('No worker found')
             self.close()
             return
@@ -133,5 +130,6 @@ class SshConsumer(AsyncWebsocketConsumer):
             worker.write(self._weakref)
 
     async def send_message(self, event):
+        """ Send data to terminal """
         if event["data"]:
             await self.send(bytes_data=event["data"])

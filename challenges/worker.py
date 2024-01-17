@@ -1,3 +1,5 @@
+""" ssh connection worker """
+
 import logging
 import asyncio
 try:
@@ -10,20 +12,19 @@ from uuid import uuid4
 from channels.layers import get_channel_layer
 channel_layer = get_channel_layer()
 
-from asgiref.sync import async_to_sync
-
 # These constants were originally based on constants from the
 # epoll module.
-IOLoop_NONE = 0
-IOLoop_READ = 0x001
-IOLoop_WRITE = 0x004
-IOLoop_ERROR = 0x018
+IOLOOP_NONE = 0
+IOLOOP_READ = 0x001
+IOLOOP_WRITE = 0x004
+IOLOOP_ERROR = 0x018
 
 BUF_SIZE = 32 * 1024
 clients = {}  # {ip: {id: worker}}
 
 
 def clear_worker(worker, clients):
+    """ removes worker """
     ip = worker.src_addr[0]
     workers = clients.get(ip)
     assert worker.id in workers
@@ -36,6 +37,7 @@ def clear_worker(worker, clients):
 
 
 def recycle_worker(worker):
+    """ reuses a worker """
     if worker.handler:
         return
     logging.warning('Recycling worker {}'.format(worker.id))
@@ -43,6 +45,7 @@ def recycle_worker(worker):
 
 
 class Worker(object):
+    """ Worker for ssh connections """
     def __init__(self, loop, ssh, chan, dst_addr):
         self.loop = loop
         self.ssh = ssh
@@ -53,30 +56,35 @@ class Worker(object):
         self.id = self.gen_id()
         self.data_to_dst = []
         self.handler = None
-        self.mode = IOLoop_READ
+        self.mode = IOLOOP_READ
         self.closed = False
 
     @classmethod
     def gen_id(cls):
+        """ creates a uid """
         return secrets.token_urlsafe(nbytes=32) if secrets else uuid4().hex
 
     def set_handler(self, handler):
+        """ sets handler """
         if not self.handler:
             self.handler = handler
 
     def update_handler(self, mode):
+        """ updates handler """
         if self.mode != mode:
             self.loop.update_handler(self.fd, mode)
             self.mode = mode
-        if mode == IOLoop_WRITE:
-            self.loop.call_later(0.1, self, self.fd, IOLoop_WRITE)
-    
+        if mode == IOLOOP_WRITE:
+            self.loop.call_later(0.1, self, self.fd, IOLOOP_WRITE)
+
     def remove_handler(self):
+        """ remove handler """
         if self.loop:
             self.loop.remove_reader(self.fd)
             self.loop.remove_writer(self.fd)
 
     def read(self, consumer):
+        """ read data and send it to the consumer """
         logging.debug('worker {} on read'.format(self.id))
         try:
             data = self.chan.recv(BUF_SIZE)
@@ -102,6 +110,7 @@ class Worker(object):
                 self.close(reason='websocket closed')
 
     def write(self, consumer):
+        """ write data """
         logging.debug('worker {} on write'.format(self.id))
 
         if not self.data_to_dst:
@@ -117,31 +126,33 @@ class Worker(object):
             if self.chan.closed or errno_from_exception(e) in _ERRNO_CONNRESET:
                 self.close(reason='chan error on writing')
             else:
-                self.update_handler(IOLoop_WRITE)
+                self.update_handler(IOLOOP_WRITE)
         else:
             self.data_to_dst = []
             data = data[sent:]
             if data:
                 self.data_to_dst.append(data)
-                self.update_handler(IOLoop_WRITE)
+                self.update_handler(IOLOOP_WRITE)
             else:
-                self.update_handler(IOLoop_READ)
+                self.update_handler(IOLOOP_READ)
 
     def close(self, reason=None):
+        """ close worker """
         if self.closed:
             return
         self.closed = True
 
         logging.info(
-            'Closing worker {} with reason: {}'.format(self.id, reason)
-        )
+            'Closing worker {} with reason: {}'.format(self.id, reason))
+
         if self.handler:
             # TODO: Fix this! remove_handler
             # self.loop.remove_handler(self.fd)
             self.handler.close()
         self.chan.close()
         self.ssh.close()
-        logging.info('Connection to {}:{} lost'.format(*self.dst_addr))
+        logging.info(
+            'Connection to {}:{} lost'.format(*self.dst_addr))
 
         clear_worker(self, clients)
         logging.debug(clients)
