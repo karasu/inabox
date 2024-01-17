@@ -36,6 +36,7 @@ jQuery(function($){
   var status = $('#status'),
       //button = $('.btn-primary'),
       button = $('#term-btn'),
+      save_container_card = $('#save-container-card'),
       form_container = $('.form-container'),
       waiter = $('#waiter'),
       term_type = $('#term'),
@@ -343,7 +344,8 @@ jQuery(function($){
   function ajax_complete_callback(resp) {
     //button.prop('disabled', false);
     button.prop('disabled', true);
-    
+    save_container_card.prop('hidden', false);
+
     if (resp.status !== 200) {
       log_status(resp.status + ': ' + resp.statusText, true);
       state = DISCONNECTED;
@@ -694,6 +696,7 @@ jQuery(function($){
     function ajax_post() {
       status.text('');
       button.prop('disabled', true);
+      save_container_card.prop('hidden', false);
 
       $.ajax({
           url: url,
@@ -748,6 +751,7 @@ jQuery(function($){
 
     status.text('');
     button.prop('disabled', true);
+    save_container_card.prop('hidden', false);
 
     $.ajax({
         url: url,

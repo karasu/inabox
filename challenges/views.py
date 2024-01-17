@@ -441,6 +441,21 @@ class ChallengeDetailView(generic.DetailView):
                 }
             )
 
+    def save_container(self, request):
+        """ save current container as a new image """
+        
+        user = request.POST.get('user')
+
+        return render(
+            request,
+            template_name="challenges/form_error.html",
+            context={
+                "title": _("Error uploading a new solution! Check the error(s) below:"),
+                "errors": form.errors,
+                }
+            )
+
+    
     def post(self, request, *args, **kwargs):
         """ Deal with post data """
         # assign the object to the view
@@ -455,6 +470,9 @@ class ChallengeDetailView(generic.DetailView):
 
         if request.POST.get("form_name") == "ChallengeSSHForm":
             return self.challenge_ssh_form(request)
+        
+        if request.POST.get("form_name") == "save_container":
+            return self.save_container(request)
 
         return HttpResponseBadRequest()
 

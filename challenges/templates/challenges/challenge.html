@@ -77,11 +77,11 @@
       <button id="term-btn" type="submit" class="btn btn-primary">{{ _("Let's try to solve it!") }}</button>
       <a class="btn btn-secondary" href="{% url 'challenges:challenges' %}" >{{ _("Go back") }}</a>
     </form>
+    
     <div id="status" style="color: red;"></div>
     <div class="mt-2">
       <div id="terminal"></div>
     </div>
-    
     {% else %}
     <div class="my-2" style="color: red;">
       {{ _("You need to be logged in to try this challenge. Please log in!")}}</div>
@@ -112,6 +112,7 @@
 {% if user.is_authenticated %}
 <!-- Your solution form -->
 <div class="col-lg-3">
+  <!-- test proposed solution script form -->
   <div class="card">
     <div class="card-header">
       <h5 class="card-title">{{ _("Your solution") }}</h5>
@@ -130,6 +131,21 @@
       <button id="upload-solution" type="submit" class="btn btn-success">
         {{ _("Let's check your solution!") }}</button>
       </form>
+    </div>
+  </div>
+  <!-- save container form -->
+  <div class="card mt-sm-3" id="save-container-card" hidden>
+    <div class="card-header">
+      <h5 class="card-title">{{ _("This test image") }}</h5>
+    </div>
+    <div class="card-body">
+      <form class="mt-2" id="connect" action="{% url 'challenges:challenge' challenge.id %}"
+      method="post" enctype="multipart/form-data">
+      <input type="hidden" name="form_name" value="save_container">
+      {% csrf_token %}
+      {{ ssh_data }}
+      <button id="save-image-btn" type="submit" class="btn btn-primary">{{ _("Save changes") }}</button>
+    </form>
     </div>
   </div>
 </div>
