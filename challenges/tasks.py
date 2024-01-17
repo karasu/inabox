@@ -12,7 +12,7 @@ from celery_progress.backend import ProgressRecorder
 
 import docker
 
-from .models import ProposedSolution, Challenge
+from .models import Challenge, ProposedSolution
 
 @shared_task(bind=True)
 def validate_solution_task(self, proposed_solution_id):
@@ -24,7 +24,7 @@ def validate_solution_task(self, proposed_solution_id):
     # Get proposed solution and challenge
     proposed_solution = ProposedSolution.objects.get(id=proposed_solution_id)
     challenge = Challenge.objects.get(id=proposed_solution.challenge.id)
-
+    
     # Get challenge docker image name
     docker_image_name = challenge.docker_image.docker_name
 
@@ -51,8 +51,8 @@ def validate_solution_task(self, proposed_solution_id):
 
     progress_recorder.set_progress(2, 4, description="Creating container...")
 
-    # Run a docker container from the challenge image and maintain ir
-    # running with tail command
+    # Run a docker container from the challenge image and maintain it
+    # running using the tail command
     try:
         cmd = ["tail", "-f", "/dev/null"]
         container = docker_client.containers.run(
