@@ -67,8 +67,7 @@ class RSAUtil():
 
 def user_directory_path(instance, filename):
     """ file will be uploaded to MEDIA_ROOT/users/<username>/<filename> """
-    return "users/{0}/{1}".format(
-        instance.user.username, filename)
+    return f"users/{instance.user.username}/{filename}"
 
 class ClassGroup(models.Model):
     """ Store class here """
@@ -81,8 +80,7 @@ class ClassGroup(models.Model):
 
 def teams_directory_path(instance, filename):
     """ returns teams directory """
-    return "teams/{0}/{1}".format(
-        instance.name, filename)
+    return f"teams/{instance.name}/{filename}"
 
 class Team(models.Model):
     """ Store player team """
@@ -98,8 +96,7 @@ class Team(models.Model):
 
 def organizations_directory_path(instance, filename):
     """ returns organizations directory """
-    return "organizations/{0}/{1}".format(
-        instance.name, filename)
+    return f"organizations/{instance.name}/{filename}"
 
 class Organization(models.Model):
     """ Store the organization to which the player belongs to """
@@ -143,14 +140,13 @@ class Profile(models.Model):
     solved = property(calculate_solved_challenges)
 
     def __str__(self):
-        return "{}'s profile".format(self.user.username)
+        return f"{self.user.username}'s profile"
 
 
 # file will be uploaded to MEDIA_ROOT/dockerimages/<dockerimagename>/<filename>
 def dockerimage_directory_path(instance, filename):
     """ get dockerimage directory """
-    return "dockerimages/{0}/{1}".format(
-        instance.name, filename)
+    return f"dockerimages/{instance.name}/{filename}"
 
 class DockerImage(models.Model):
     """ Store a docker image information """
@@ -201,8 +197,7 @@ class Area(models.Model):
 
 def challenge_directory_path(instance, filename):
     """ file will be uploaded to MEDIA_ROOT/challenges/<challengetitle>/<filename> """
-    return "challenges/{0}/{1}".format(
-        instance.title, filename)
+    return f"challenges/{instance.title}/{filename}"
 
 class Challenge(models.Model):
     """ Store challenge """
@@ -247,10 +242,7 @@ class DockerContainer(models.Model):
 
 def user_solutions_path(instance, filename):
     """ file will be uploaded to MEDIA_ROOT/solutions/<username>/<challengetitle> """
-    return "solutions/{0}/{1}/{2}".format(
-        instance.user.username,
-        instance.challenge.title,
-        filename)
+    return f"solutions/{instance.user.username}/{instance.challenge.title}/{filename}"
 
 class ProposedSolution(models.Model):
     """ Stores each user's solution to each challenge """
@@ -267,7 +259,7 @@ class ProposedSolution(models.Model):
     last_test_result = models.TextField()
 
     def __str__(self):
-        return "{} tried by {}".format(self.challenge, self.user)
+        return f"{self.challenge} tried by {self.user}"
 
 
 class Quest(models.Model):
@@ -295,5 +287,4 @@ class QuestChallenge(models.Model):
         Challenge, on_delete=models.CASCADE)
 
     def __str__(self):
-        return "{} - {}".format(
-            self.quest, self.challenge)
+        return f"{self.quest} - {self.challenge}"

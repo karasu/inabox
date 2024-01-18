@@ -1,8 +1,16 @@
+""" SSH Client module """
 
 import logging
 import paramiko
 
 class SSHClient(paramiko.SSHClient):
+    """ Paramiko SSH Client class """
+
+    def __init__(self):
+        """ initialize class """
+        super().__init__()
+        self.totp = None
+        self.password = ""
 
     def handler(self, title, instructions, prompt_list):
         answers = []
@@ -13,7 +21,7 @@ class SSHClient(paramiko.SSHClient):
             elif prompt.startswith('verification'):
                 answers.append(self.totp)
             else:
-                raise ValueError('Unknown prompt: {}'.format(prompt_))
+                raise ValueError(f"Unknown prompt: {prompt_}")
         return answers
 
     def auth_interactive(self, username, handler):

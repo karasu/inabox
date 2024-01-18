@@ -2,6 +2,7 @@
 
 import logging
 import asyncio
+
 try:
     import secrets
 except ImportError:
@@ -20,10 +21,11 @@ IOLOOP_WRITE = 0x004
 IOLOOP_ERROR = 0x018
 
 BUF_SIZE = 32 * 1024
+
 clients = {}  # {ip: {id: worker}}
 
 
-def clear_worker(worker, clients):
+def clear_worker(worker):
     """ removes worker """
     ip = worker.src_addr[0]
     workers = clients.get(ip)
@@ -40,11 +42,11 @@ def recycle_worker(worker):
     """ reuses a worker """
     if worker.handler:
         return
-    logging.warning('Recycling worker {}'.format(worker.id))
+    logging.warning("Recycling worker %d", worker.id)
     worker.close(reason='worker recycled')
 
 
-class Worker(object):
+class Worker():
     """ Worker for ssh connections """
     def __init__(self, loop, ssh, chan, dst_addr):
         self.loop = loop
@@ -85,7 +87,7 @@ class Worker(object):
 
     def read(self, consumer):
         """ read data and send it to the consumer """
-        logging.debug('worker {} on read'.format(self.id))
+        logging.debug("worker %d on read", self.id)
         try:
             data = self.chan.recv(BUF_SIZE)
         except (OSError, IOError) as err:
@@ -106,12 +108,12 @@ class Worker(object):
                 loop.create_task(channel_layer.send(channel_name, {
                     "type": "send.message", 
                     "data": data}))
-            except:
+            except Exception:
                 self.close(reason='websocket closed')
 
     def write(self, consumer):
         """ write data """
-        logging.debug('worker {} on write'.format(self.id))
+        logging.debug("worker %d on write", self.id)
 
         if not self.data_to_dst:
             return
@@ -143,7 +145,7 @@ class Worker(object):
         self.closed = True
 
         logging.info(
-            'Closing worker {} with reason: {}'.format(self.id, reason))
+            "Closing worker %d with reason: %s", self.id, reason)
 
         if self.handler:
             # TODO: Fix this! remove_handler
@@ -152,7 +154,7 @@ class Worker(object):
         self.chan.close()
         self.ssh.close()
         logging.info(
-            'Connection to {}:{} lost'.format(*self.dst_addr))
+            "Connection to {}:{} lost".format(*self.dst_addr))
 
-        clear_worker(self, clients)
+        clear_worker(self)
         logging.debug(clients)

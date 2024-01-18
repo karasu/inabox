@@ -20,7 +20,7 @@ except ImportError:
 #from asgiref.sync import async_to_sync
 from channels.generic.websocket import AsyncWebsocketConsumer
 
-#from .worker import Worker, recycle_worker 
+#from .worker import Worker, recycle_worker
 from .worker import clients
 from .privatekey import InvalidValueError
 
@@ -32,6 +32,7 @@ class SshConsumer(AsyncWebsocketConsumer):
 
     def __init__(self):
         super().__init__()
+
         self.src_addr = None
         self._weakref = None
 

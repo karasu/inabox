@@ -21,27 +21,25 @@ class Args():
     def get_privatekey(self):
         # TODO
         return None, None
-        '''
-        name = 'privatekey'
-        lst = self.request.files.get(name)
-        if lst:
-            # multipart form
-            filename = lst[0]['filename']
-            data = lst[0]['body']
-            value = self.decode_argument(data, name=name).strip()
-        else:
-            # urlencoded form
-            value = self.get_argument(name, u'')
-            filename = ''
 
-        return value, filename
-        '''
+        #name = 'privatekey'
+        #lst = self.request.files.get(name)
+        #if lst:
+        #    # multipart form
+        #    filename = lst[0]['filename']
+        #    data = lst[0]['body']
+        #    value = self.decode_argument(data, name=name).strip()
+        #else:
+        #    # urlencoded form
+        #    value = self.get_argument(name, u'')
+        #    filename = ''
+        #return value, filename
 
     def get_hostname(self):
         """ return hostname """
         value = self.get_value('hostname')
         if not (is_valid_hostname(value) or is_valid_ip_address(value)):
-            raise InvalidValueError('Invalid hostname: {}'.format(value))
+            raise InvalidValueError(f'Invalid hostname: {value}')
         return value
 
     def get_port(self):
@@ -52,7 +50,7 @@ class Args():
 
         port = to_int(value)
         if port is None or not is_valid_port(port):
-            raise InvalidValueError('Invalid port: {}'.format(value))
+            raise InvalidValueError(f'Invalid port: {value}')
         return port
 
     def lookup_hostname(self, hostname, port):
@@ -71,7 +69,7 @@ class Args():
         """ Get value from GET """
         value = self.post.get(name)
         if not value:
-            raise InvalidValueError('Missing value {}'.format(name))
+            raise InvalidValueError(f'Missing value {name}')
         return value
 
     def get_client_ip_and_port(self):

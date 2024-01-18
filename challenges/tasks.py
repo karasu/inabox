@@ -16,15 +16,15 @@ from .models import Challenge, ProposedSolution
 
 @shared_task(bind=True)
 def validate_solution_task(self, proposed_solution_id):
-    # Create the progress recorder instance
-	# which we'll use to update the web page
+    """ Create the progress recorder instance
+	which we'll use to update the web page """
 
     progress_recorder = ProgressRecorder(self)
 
     # Get proposed solution and challenge
     proposed_solution = ProposedSolution.objects.get(id=proposed_solution_id)
     challenge = Challenge.objects.get(id=proposed_solution.challenge.id)
-    
+
     # Get challenge docker image name
     docker_image_name = challenge.docker_image.docker_name
 
@@ -42,9 +42,8 @@ def validate_solution_task(self, proposed_solution_id):
     try:
         docker_client.images.get(docker_image_name)
     except docker.errors.ImageNotFound:
-        err = str("Docker image {} not found".format(docker_image_name))
-        logging.error(err)
-        return False, str(err)
+        logging.error("Docker image %s not found", docker_image_name)
+        return False, f"Docker image {docker_image_name} not found"
     except docker.errors.APIError as err:
         logging.error(err)
         return False, str(err)
@@ -63,7 +62,7 @@ def validate_solution_task(self, proposed_solution_id):
         logging.error(err)
         return False, str(err)
 
-    # Create a tar file for each script (so we can put them inside our container)    
+    # Create a tar file for each script (so we can put them inside our container)
     scripts = [
         proposed_solution.script.path,
         challenge.check_solution_script.path]
@@ -84,9 +83,10 @@ def validate_solution_task(self, proposed_solution_id):
             with open(tar_path, 'rb') as fd:
                 res = container.put_archive(path='/', data=fd)
             if not res:
-                err = "put_archive failed. Cannot put {} contents inside the container".format(tar_path)
-                logging.error(err)
-                return False, str(err)
+                logging.error(
+                    "put_archive failed. Cannot put %s contents inside the container",
+                    tar_path)
+                return False, f"put_archive failed. Cannot put {tar_path} contents inside the container"
         except docker.errors.APIError as err:
             logging.error(err)
             return False, str(err)
@@ -121,7 +121,7 @@ def validate_solution_task(self, proposed_solution_id):
             user="inabox")
     except docker.errors.APIError as err:
         logging.error(err)
-        return False, str(err) 
+        return False, str(err)
 
     if output is None:
         err = _("Did not get any output from the check script")
@@ -135,8 +135,9 @@ def validate_solution_task(self, proposed_solution_id):
         if exit_code == 0:
             # Seems that proposed solution works!
             proposed_solution.is_solved = True
-            logging.warning("{} has been solved by {}!".format(
-                challenge.title, proposed_solution.user.username))
+            logging.warning(
+                "%s has been solved by %s!",
+                challenge.title, proposed_solution.user.username)
 
             challenge.solved = challenge.solved + 1
             challenge.save()

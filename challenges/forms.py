@@ -1,9 +1,12 @@
+""" Challenge app forms go here """
+
 from django import forms
 from django.contrib.auth.models import User
 
 from .models import Challenge, ProposedSolution
 
 class ChallengeSSHForm(forms.Form):
+    """ Form with ssh connection data """
     hostname = forms.CharField(widget=forms.HiddenInput())
     port = forms.IntegerField(widget=forms.HiddenInput())
     username = forms.CharField(widget=forms.HiddenInput())
@@ -16,7 +19,9 @@ class ChallengeSSHForm(forms.Form):
 
 
 class UploadSolutionForm(forms.ModelForm):
+    """ This form is used to upload a challenge solution """
     class Meta:
+        """ Django meta class for ModelForm """
         model = ProposedSolution
         fields = ["challenge", "user", "script"]
 
@@ -41,11 +46,14 @@ class UploadSolutionForm(forms.ModelForm):
 
 
 class SearchForm(forms.Form):
+    """ Form used to do a site search """
     search = forms.CharField()
 
 
 class NewChallengeForm(forms.ModelForm):
+    """ Add a new challenge form """
     class Meta:
+        """ Django meta class for ModelForm """
         model = Challenge
         fields = [
             "title", "summary", "full_description", "creator",
@@ -54,7 +62,7 @@ class NewChallengeForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         user_id = kwargs.pop('user_id', None)
-        super(NewChallengeForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Add form-control class to all form widgets
         for field in self.visible_fields():

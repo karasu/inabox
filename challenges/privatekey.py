@@ -1,3 +1,5 @@
+""" Manage private key for ssh connection """
+
 import io
 import logging
 
@@ -8,7 +10,6 @@ from .utils import to_bytes
 
 class InvalidValueError(Exception):
     """ Exception class used in ssh code """
-    pass
 
 
 class PrivateKey():
@@ -31,10 +32,12 @@ class PrivateKey():
         self.last_exception = None
 
     def check_length(self):
+        """ checks key length """
         if len(self.privatekey) > self.max_length:
             raise InvalidValueError('Invalid key length.')
 
     def parse_name(self, iostr, tag_to_name):
+        """ gets key name """
         name = None
         for line_ in iostr:
             line = line_.strip()
@@ -51,27 +54,28 @@ class PrivateKey():
 
     def get_specific_pkey(self, name, offset, password):
         self.iostr.seek(offset)
-        logging.debug('Reset offset to {}.'.format(offset))
+        logging.debug("Reset offset to %d", offset)
 
-        logging.debug('Try parsing it as {} type key'.format(name))
+        logging.debug("Try parsing it as %s type key", name)
         pkeycls = getattr(paramiko, name+'Key')
         pkey = None
 
         try:
             pkey = pkeycls.from_private_key(self.iostr, password=password)
-        except paramiko.PasswordRequiredException:
-            raise InvalidValueError('Need a passphrase to decrypt the key.')
-        except (paramiko.SSHException, ValueError) as exc:
-            self.last_exception = exc
-            logging.debug(str(exc))
+        except paramiko.PasswordRequiredException as e:
+            raise InvalidValueError('Need a passphrase to decrypt the key.') from e
+        except (paramiko.SSHException, ValueError) as e:
+            self.last_exception = e
+            logging.debug(str(e))
 
         return pkey
 
     def get_pkey_obj(self):
-        logging.info('Parsing private key {!r}'.format(self.filename))
+        """ Gets private key object """
+        logging.info("Parsing private key %s", self.filename)
         name, length = self.parse_name(self.iostr, self.tag_to_name)
         if not name:
-            raise InvalidValueError('Invalid key {}.'.format(self.filename))
+            raise InvalidValueError(f"Invalid key {self.filename}.")
 
         offset = self.iostr.tell() - length
         password = to_bytes(self.password) if self.password else None
@@ -87,8 +91,10 @@ class PrivateKey():
             return pkey
 
         logging.error(str(self.last_exception))
+
         msg = 'Invalid key'
+
         if self.password:
-            msg += ' or wrong passphrase "{}" for decrypting it.'.format(
-                    self.password)
+            msg = f"Invalid key or wrong passphrase '{self.password}' for decrypting it."
+
         raise InvalidValueError(msg)

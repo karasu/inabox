@@ -1,3 +1,5 @@
+""" Utils module for ssh connections """
+
 import ipaddress
 import re
 
@@ -17,18 +19,21 @@ allowed = re.compile(r'(?!-)[a-z0-9-]{1,63}(?<!-)$', re.IGNORECASE)
 
 
 def to_str(bstr, encoding='utf-8'):
+    """ Decodes bytes to str """
     if isinstance(bstr, bytes):
         return bstr.decode(encoding)
     return bstr
 
 
 def to_bytes(ustr, encoding='utf-8'):
+    """ Encodes str to bytes """
     if isinstance(ustr, UnicodeType):
         return ustr.encode(encoding)
     return ustr
 
 
 def to_int(string):
+    """ convert string to int """
     try:
         return int(string)
     except (TypeError, ValueError):
@@ -36,6 +41,7 @@ def to_int(string):
 
 
 def to_ip_address(ipstr):
+    """ convert string to an ip address """
     ip = to_str(ipstr)
     if ip.startswith('fe80::'):
         ip = ip.split('%')[0]
@@ -43,6 +49,7 @@ def to_ip_address(ipstr):
 
 
 def is_valid_ip_address(ipstr):
+    """ check if string is a valid ip address """
     try:
         to_ip_address(ipstr)
     except ValueError:
@@ -51,12 +58,14 @@ def is_valid_ip_address(ipstr):
 
 
 def is_valid_port(port):
+    """ is a valid port number? """
     return 0 < port < 65536
 
 
 def is_valid_encoding(encoding):
+    """ is encoding string a valid encoding? """
     try:
-        u'test'.encode(encoding)
+        'test'.encode(encoding)
     except LookupError:
         return False
     except ValueError:
@@ -75,6 +84,7 @@ def is_ip_hostname(hostname):
 
 
 def is_valid_hostname(hostname):
+    """ Is hostname string a valid hostname? """
     if hostname[-1] == '.':
         # strip exactly one dot from the right, if present
         hostname = hostname[:-1]
@@ -144,4 +154,4 @@ def parse_origin_from_url(url):
     else:
         netloc = parsed.netloc
 
-    return '{}://{}'.format(scheme, netloc)
+    return f'{scheme}://{netloc}'
