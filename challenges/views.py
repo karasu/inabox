@@ -386,7 +386,7 @@ class ChallengeDetailView(generic.DetailView):
                 }
             )
 
-    def upload_solution_form(self, request):
+    def upload_solution_form(self, request, *args, **kwargs):
         """ We need to check if user has already tried and update the ProposedSolution
         if not just save this as the first one """
         user = request.POST.get('user')
