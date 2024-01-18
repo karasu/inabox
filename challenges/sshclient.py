@@ -6,11 +6,14 @@ import paramiko
 class SSHClient(paramiko.SSHClient):
     """ Paramiko SSH Client class """
 
-    def __init__(self):
+    def __init__(self, host_keys_settings):
         """ initialize class """
         super().__init__()
         self.totp = None
         self.password = ""
+        self._system_host_keys = host_keys_settings['system_host_keys']
+        self._host_keys = host_keys_settings['host_keys']
+        self._host_keys_filename = host_keys_settings['host_keys_filename']
 
     def handler(self, title, instructions, prompt_list):
         answers = []

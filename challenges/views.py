@@ -267,11 +267,7 @@ class ChallengeDetailView(generic.DetailView):
 
     def get_ssh_client(self):
         """ Create an ssh client """
-        ssh = SSHClient()
-        self.host_keys_settings = self.get_host_keys_settings()
-        ssh._system_host_keys = self.host_keys_settings['system_host_keys']
-        ssh._host_keys = self.host_keys_settings['host_keys']
-        ssh._host_keys_filename = self.host_keys_settings['host_keys_filename']
+        ssh = SSHClient(self.get_host_keys_settings())
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         #ssh.set_missing_host_key_policy(self.policy)
         return ssh
@@ -280,19 +276,19 @@ class ChallengeDetailView(generic.DetailView):
         """ Connect to the container """
         ssh = self.ssh_client
         dst_addr = args[:2]
-        logging.info('Connecting to {}:{}'.format(*dst_addr))
+        logging.info("Connecting to %s:%d", dst_addr[0], dst_addr[1])
 
         try:
             #ssh.connect(*args, timeout=options.timeout)
             ssh.connect(*args, timeout=1)
-        except socket.error:
-            raise ValueError(_('Unable to connect to {}:{}').format(*dst_addr))
-        except paramiko.BadAuthenticationType:
-            raise ValueError(_('Bad authentication type.'))
-        except paramiko.AuthenticationException:
-            raise ValueError(_('Authentication failed.'))
-        except paramiko.BadHostKeyException:
-            raise ValueError(_('Bad host key.'))
+        except socket.error as e:
+            raise ValueError(f"Unable to connect to {dst_addr[0]}:{dst_addr[1]}") from e
+        except paramiko.BadAuthenticationType as e:
+            raise ValueError(_('Bad authentication type.')) from e
+        except paramiko.AuthenticationException as e:
+            raise ValueError(_('Authentication failed.')) from e
+        except paramiko.BadHostKeyException as e:
+            raise ValueError(_('Bad host key.')) from e
 
         # term = self.get_argument('term', u'') or u'xterm'
         term = 'xterm'
@@ -334,7 +330,7 @@ class ChallengeDetailView(generic.DetailView):
             self.ssh_client = self.get_ssh_client()
             #self.debug = self.settings.get('debug', False)
             #self.font = self.settings.get('font', '')
-            self.result = {
+            result = {
                 'workerid': None,
                 'status': None,
                 'encoding':None
@@ -361,7 +357,7 @@ class ChallengeDetailView(generic.DetailView):
                 worker = future.result()
             except (ValueError, paramiko.SSHException) as exc:
                 logging.error(traceback.format_exc())
-                self.result.update(status=str(exc))
+                result.update(status=str(exc))
             else:
                 if not workers:
                     clients[src_ip] = workers
@@ -370,10 +366,10 @@ class ChallengeDetailView(generic.DetailView):
                 self.loop.call_later(
                     RECYLE_WORKER_DELAY, recycle_worker, worker)
 
-                self.result.update(
+                result.update(
                     workerid=worker.id, status='', encoding=worker.encoding)
 
-            return JsonResponse(self.result)
+            return JsonResponse(result)
 
         # form is not valid
         logging.error(form.errors)
@@ -470,7 +466,7 @@ class ChallengeDetailView(generic.DetailView):
 
         if request.POST.get("form_name") == "ChallengeSSHForm":
             return self.challenge_ssh_form(request)
-        
+
         if request.POST.get("form_name") == "save_container":
             return self.save_container(request)
 
@@ -499,7 +495,7 @@ class SearchView(generic.base.TemplateView):
             num_quests = len(context['quests'])
             if  num_quests > 0:
                 if num_quests > 1:
-                    context['quests_found'] = _("{} quests found").format(num_quests)
+                    context['quests_found'] = _(f"{num_quests} quests found")
                 else:
                     context['quests_found'] = _("One quest found")
 
@@ -513,7 +509,7 @@ class SearchView(generic.base.TemplateView):
             num_challenges = len(context['challenges'])
             if  num_challenges > 0:
                 if num_challenges > 1:
-                    context['challenges_found'] = _("Found {} challenges").format(num_challenges)
+                    context['challenges_found'] = _(f"Found {num_challenges} challenges")
                 else:
                     context['challenges_found'] = _("Found 1 challenge")
 

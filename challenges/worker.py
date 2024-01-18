@@ -95,12 +95,13 @@ class Worker():
             if self.chan.closed or errno_from_exception(err) in _ERRNO_CONNRESET:
                 self.close(reason='chan error on reading')
         else:
-            logging.debug('{!r} from {}:{}'.format(data, *self.dst_addr))
+            logging.debug("%s from %s:%d", data, self.dst_addr[0], self.dst_addr[1])
             if not data:
                 self.close(reason='chan closed')
                 return
 
-            logging.debug('{!r} to {}:{}'.format(data, *self.handler.src_addr))
+            logging.debug("%s to %s:%d",
+                           data, self.handler.src_addr[0], self.handler.src_addr[1])
             try:
                 # send a bytes frame to the consumer
                 loop = asyncio.get_event_loop()
@@ -119,7 +120,7 @@ class Worker():
             return
 
         data = ''.join(self.data_to_dst)
-        logging.debug('{!r} to {}:{}'.format(data, *self.dst_addr))
+        logging.debug("%s to %s:%d", data, self.dst_addr[0], self.dst_addr[1])
 
         try:
             sent = self.chan.send(data)
@@ -154,7 +155,7 @@ class Worker():
         self.chan.close()
         self.ssh.close()
         logging.info(
-            "Connection to {}:{} lost".format(*self.dst_addr))
+            "Connection to %s:%d lost", self.dst_addr[0], self.dst_addr[1])
 
         clear_worker(self)
         logging.debug(clients)

@@ -38,9 +38,10 @@ class SshConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
         self.src_addr = self.scope['client']
-        logging.debug('Connected from {}:{}'.format(*self.src_addr))
-
         src_ip = self.src_addr[0]
+
+        logging.debug('Connected from %s', src_ip)
+
         workers = clients.get(src_ip, None)
 
         if not workers:
@@ -92,15 +93,14 @@ class SshConsumer(AsyncWebsocketConsumer):
 
     # Receive message from WebSocket
     async def receive(self, text_data=None, bytes_data=None):
-        logging.debug('{!r} from {}:{}'.format(text_data, *self.src_addr))
-
-        print('{!r} from {}:{}'.format(text_data, *self.src_addr))
+        logging.debug('%s from %s:%d', text_data, self.src_addr[0], self.src_addr[1])
 
         worker = self.worker_ref()
         if not worker:
             # The worker has likely been closed. Do not process.
             logging.debug(
-                "received message to closed worker from {}:{}".format(*self.src_addr))
+                "Received message to closed worker from %s:%d",
+                self.src_addr[0], self.src_addr[1])
             logging.debug('No worker found')
             self.close()
             return

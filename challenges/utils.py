@@ -8,11 +8,7 @@ try:
 except ImportError:
     UnicodeType = str
 
-try:
-    from urllib.parse import urlparse
-except ImportError:
-    from urlparse import urlparse
-
+from urllib.parse import urlparse
 
 numeric = re.compile(r'[0-9]+$')
 allowed = re.compile(r'(?!-)[a-z0-9-]{1,63}(?<!-)$', re.IGNORECASE)
@@ -37,7 +33,7 @@ def to_int(string):
     try:
         return int(string)
     except (TypeError, ValueError):
-        pass
+        return string
 
 
 def to_ip_address(ipstr):
