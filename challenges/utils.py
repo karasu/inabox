@@ -128,11 +128,13 @@ def is_same_primary_domain(domain1, domain2):
 
 
 def parse_origin_from_url(url):
+    """ parse url """
     url = url.strip()
     if not url:
-        return
+        return url
 
-    if not (url.startswith('http://') or url.startswith('https://') or
+    if not (url.startswith('http://') or
+            url.startswith('https://') or
             url.startswith('//')):
         url = '//' + url
 
