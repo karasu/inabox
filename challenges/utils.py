@@ -98,6 +98,7 @@ def is_valid_hostname(hostname):
 
 
 def is_same_primary_domain(domain1, domain2):
+    """ check if both domains have the same primary domain """
     i = -1
     dots = 0
     ldomain1 = len(domain1)
