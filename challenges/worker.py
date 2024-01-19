@@ -2,6 +2,7 @@
 
 import logging
 import asyncio
+import errno
 
 try:
     import secrets
@@ -27,13 +28,13 @@ clients = {}  # {ip: {id: worker}}
 
 def clear_worker(worker):
     """ removes worker """
-    ip = worker.src_addr[0]
-    workers = clients.get(ip)
+    ip_address = worker.src_addr[0]
+    workers = clients.get(ip_address)
     assert worker.id in workers
     workers.pop(worker.id)
 
     if not workers:
-        clients.pop(ip)
+        clients.pop(ip_address)
         if not clients:
             clients.clear()
 
@@ -54,7 +55,7 @@ class Worker():
         self.chan = chan
         self.src_addr = None
         self.dst_addr = dst_addr
-        self.fd = chan.fileno()
+        self.file_desc = chan.fileno()
         self.id = self.gen_id()
         self.data_to_dst = []
         self.handler = None
@@ -74,25 +75,25 @@ class Worker():
     def update_handler(self, mode):
         """ updates handler """
         if self.mode != mode:
-            self.loop.update_handler(self.fd, mode)
+            self.loop.update_handler(self.file_desc, mode)
             self.mode = mode
         if mode == IOLOOP_WRITE:
-            self.loop.call_later(0.1, self, self.fd, IOLOOP_WRITE)
+            self.loop.call_later(0.1, self, self.file_desc, IOLOOP_WRITE)
 
     def remove_handler(self):
         """ remove handler """
         if self.loop:
-            self.loop.remove_reader(self.fd)
-            self.loop.remove_writer(self.fd)
+            self.loop.remove_reader(self.file_desc)
+            self.loop.remove_writer(self.file_desc)
 
     def read(self, consumer):
         """ read data and send it to the consumer """
         logging.debug("worker %d on read", self.id)
         try:
             data = self.chan.recv(BUF_SIZE)
-        except (OSError, IOError) as err:
-            logging.error(err)
-            if self.chan.closed or errno_from_exception(err) in _ERRNO_CONNRESET:
+        except (OSError, IOError) as exc:
+            logging.error(exc)
+            if self.chan.closed or exc.errno == errno.ECONNRESET:
                 self.close(reason='chan error on reading')
         else:
             logging.debug("%s from %s:%d", data, self.dst_addr[0], self.dst_addr[1])
@@ -124,9 +125,9 @@ class Worker():
 
         try:
             sent = self.chan.send(data)
-        except (OSError, IOError) as e:
-            logging.error(e)
-            if self.chan.closed or errno_from_exception(e) in _ERRNO_CONNRESET:
+        except (OSError, IOError) as exc:
+            logging.error(exc)
+            if self.chan.closed or exc.errno == errno.ECONNRESET:
                 self.close(reason='chan error on writing')
             else:
                 self.update_handler(IOLOOP_WRITE)
@@ -150,7 +151,7 @@ class Worker():
 
         if self.handler:
             # TODO: Fix this! remove_handler
-            # self.loop.remove_handler(self.fd)
+            # self.loop.remove_handler(self.file_desc)
             self.handler.close()
         self.chan.close()
         self.ssh.close()
