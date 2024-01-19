@@ -2,7 +2,6 @@
 
 from django.views import generic
 from django.utils.translation import get_language
-from django.utils.translation import gettext_lazy as _
 
 from challenges.models import Profile
 from .models import NewsEntry
@@ -20,8 +19,8 @@ class NewsIndexView(generic.ListView):
             user_id = self.request.user.id
             profile = Profile.objects.get(user=user_id)
             return profile.language
-        else:
-            return get_language()
+
+        return get_language()
 
     #def get_queryset(self):
     #    """ Return the last five published news in the user's language """
