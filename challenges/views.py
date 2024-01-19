@@ -444,7 +444,7 @@ class ChallengeDetailView(generic.DetailView):
     def save_container(self, request):
         """ save current container as a new image """
 
-        # UNIMPLEMENTED
+        # TODO: Implement this!
 
         #user = request.POST.get('user')
 
