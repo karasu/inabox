@@ -15,13 +15,86 @@ import docker
 from .models import Challenge, ProposedSolution
 
 class ValidateSolution():
+    """ Validate user's solution to a challenge """
+    _STEPS = 5
+
     def __init__(self, proposed_solution_id):
+        """ Initalise class properties """
+        self._client = None
+
+        # store proposed solution id for reference
         self.proposed_solution_id = proposed_solution_id
 
-    def run(self):
         # Create the progress recorder instance
         # which we'll use to update the web page
-        progress_recorder = ProgressRecorder(self)
+        self._progress_recorder = ProgressRecorder(self)
+        self._step = 1
+
+        # docker container instance
+        self._container = None
+
+    def connect(self):
+        """ Connect to docker and check it is running """
+        self._client = docker.DockerClient(base_url='unix://var/run/docker.sock')
+        self._client.ping()
+
+    def run_container(self, docker_image_name):
+        """ Run a docker container from the challenge image and
+        maintain it running using the tail command """
+        cmd = ["tail", "-f", "/dev/null"]
+        self._container = self._client.containers.run(
+            image=docker_image_name,
+            command=cmd,
+            detach=True)
+
+    def progress(self, description):
+        """ Update progress bar """
+        self._progress_recorder.set_progress(
+            self._step, self._STEPS, description=description)
+
+        if self._step < self._STEPS:
+            self._step = self._step + 1
+
+    def copy_file(self, file_path):
+        """ Copies file inside the container. It uses tar to
+         be able to use docker put_archive function """
+
+        os.chmod(file_path, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
+
+        tar_path = file_path + '.tar'
+        with tarfile.open(tar_path, mode='w') as tar:
+            tar.add(file_path)
+
+        # Copy contents of tar file inside our container with put_archive
+        with open(tar_path, 'rb') as tar_fd:
+            res = self._container.put_archive(path='/', data=tar_fd)
+        if not res:
+            raise docker.errors.APIError(f"Cannot put {tar_path} inside the container")
+
+    def run_script(self, path):
+        """ run script inside the container """
+
+        # source file containing a ' in its name will mess it up
+        path = "'" + path.replace("'", "'\\''") + "'"
+
+        # run script
+        cmd = ["/bin/sh", "-c", path]
+        exit_code, output = self._container.exec_run(
+            cmd=cmd,
+            user="inabox")
+
+        if output:
+            output = output.decode("utf-8")
+
+        return exit_code, output
+
+    def delete_container(self):
+        """ Stop and delete the container (this takes a bit...) """
+        self._container.stop()
+        self._container.remove()
+
+    def run(self):
+        """ run task """
 
         # Get proposed solution and challenge
         proposed_solution = ProposedSolution.objects.get(
@@ -29,145 +102,70 @@ class ValidateSolution():
         challenge = Challenge.objects.get(
             id=proposed_solution.challenge.id)
 
-        # Get challenge docker image name
-        docker_image_name = challenge.docker_image.docker_name
-
-        progress_recorder.set_progress(1, 4, description="Checking docker image...")
-
-        # Connect to docker and check it is running
-        try:
-            docker_client = docker.DockerClient(base_url='unix://var/run/docker.sock')
-            docker_client.ping()
-        except docker.errors.APIError as err:
-            logging.error(err)
-            return False, str(err)
-
-        # Check docker image
-        try:
-            docker_client.images.get(docker_image_name)
-        except docker.errors.ImageNotFound:
-            logging.error("Docker image %s not found", docker_image_name)
-            return False, f"Docker image {docker_image_name} not found"
-        except docker.errors.APIError as err:
-            logging.error(err)
-            return False, str(err)
-
-        progress_recorder.set_progress(2, 4, description="Creating container...")
-
-        # Run a docker container from the challenge image and maintain it
-        # running using the tail command
-        try:
-            cmd = ["tail", "-f", "/dev/null"]
-            container = docker_client.containers.run(
-                image=docker_image_name,
-                command=cmd,
-                detach=True)
-        except docker.errors.APIError as err:
-            logging.error(err)
-            return False, str(err)
-
-        # Create a tar file for each script (so we can put them inside our container)
         scripts = [
             proposed_solution.script.path,
             challenge.check_solution_script.path]
 
-        for script in scripts:
-            try:
-                os.chmod(script, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
-            except FileNotFoundError as err:
-                logging.error(err)
-                return False, str(err)
 
-            tar_path = script + '.tar'
-            with tarfile.open(tar_path, mode='w') as tar:
-                tar.add(script)
+        # Get challenge docker image name
+        docker_image_name = challenge.docker_image.docker_name
 
-            # Copy contents of tar file inside our container with put_archive
-            try:
-                with open(tar_path, 'rb') as tar_fd:
-                    res = container.put_archive(path='/', data=tar_fd)
-                if not res:
-                    logging.error(
-                        "put_archive failed. Cannot put %s contents inside the container",
-                        tar_path)
-                    return (
-                        False,
-                        f"put_archive failed. Cannot put {tar_path} contents inside the container")
-            except docker.errors.APIError as err:
-                logging.error(err)
-                return False, str(err)
+        self.progress("Checking docker image...")
 
-        progress_recorder.set_progress(3, 4, description="Checking proposed solution...")
-
-        # Run the user's proposed solution script in the container
         try:
-            # source file containing a ' in its name will mess it up
-            script = proposed_solution.script.path
-            script = "'" + script.replace("'", "'\\''") + "'"
-            cmd = ["/bin/sh", "-c", script]
-            exit_code, output = container.exec_run(
-                cmd=cmd,
-                user="inabox")
-        except docker.errors.APIError as err:
-            logging.error(err)
-            return False, str(err)
+            # Connect to docker and check docker image
+            self.connect()
+            self._client.images.get(docker_image_name)
 
-        if output:
-            logging.warning(output.decode("utf-8"))
+            self.progress(_("Creating container..."))
+            self.run_container(docker_image_name)
 
-        # Now run the challenge solution check script to test if the proposed
-        # solution has worked or not
-        try:
-            # source file containing a ' in its name will mess it up
-            script = challenge.check_solution_script.path
-            script = "'" + script.replace("'", "'\\''") + "'"
-            cmd = ["/bin/sh", "-c", script]
-            exit_code, output = container.exec_run(
-                cmd=cmd,
-                user="inabox")
-        except docker.errors.APIError as err:
-            logging.error(err)
-            return False, str(err)
+            self.progress(_("Copying scripts inside the container..."))
+            for script in scripts:
+                self.copy_file(script)
 
-        if output is None:
-            err = _("Did not get any output from the check script")
-            return False, str(err)
+            self.progress(_("Running proposed solution..."))
+            exit_code, output = self.run_script(proposed_solution.script.path)
+            if output:
+                logging.warning(output)
 
-        logging.warning(output.decode("utf-8"))
+            self.progress(_("Checking proposed solution..."))
+            exit_code, output = self.run_script(challenge.check_solution_script.path)
 
-        proposed_solution.is_tested = True
-        proposed_solution.last_test_result = output.decode("utf-8")
+            if output is None:
+                raise docker.errors.APIError(_("Did not get any output from the check script"))
 
-        if exit_code == 0:
-            # Seems that proposed solution works!
-            proposed_solution.is_solved = True
-            logging.warning(
-                "%s has been solved by %s!",
-                challenge.title, proposed_solution.user.username)
+            logging.warning(output)
 
-            challenge.solved = challenge.solved + 1
-            challenge.save()
-        #else:
-        #    # Proposed solution does not work
-        #    proposed_solution.is_solved = False
+            proposed_solution.is_tested = True
+            proposed_solution.last_test_result = output.decode("utf-8")
 
-        proposed_solution.save()
+            if exit_code == 0:
+                # Seems that proposed solution works!
+                proposed_solution.is_solved = True
+                logging.warning(
+                    "%s has been solved by %s!",
+                    challenge.title, proposed_solution.user.username)
 
-        progress_recorder.set_progress(4, 4, description="Deleting test container...")
+                challenge.solved = challenge.solved + 1
+                challenge.save()
 
-        # Stop and delete the container (this takes a long time...)
-        try:
-            container.stop()
-            container.remove()
-        except docker.errors.APIError as err:
-            logging.error(err)
-            return False, str(err)
+            proposed_solution.save()
+
+            self.progress(_("Removing testing container..."))
+            self.delete_container()
+
+        except docker.errors.ImageNotFound:
+            logging.error("Docker image %s not found", docker_image_name)
+            return False, f"Docker image {docker_image_name} not found"
+        except (docker.errors.APIError, FileNotFoundError) as exc:
+            logging.error(exc)
+            return False, str(exc)
 
         return True, _("Task complete")
 
 @shared_task(bind=True)
-def validate_solution_task(self, proposed_solution_id):
+def validate_solution_task(proposed_solution_id):
     """ Check if proposed solution is right or wrong """
 
     return ValidateSolution(proposed_solution_id).run()
-
