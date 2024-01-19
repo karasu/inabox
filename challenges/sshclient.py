@@ -15,6 +15,14 @@ class SSHClient(paramiko.SSHClient):
         self._host_keys = host_keys_settings['host_keys']
         self._host_keys_filename = host_keys_settings['host_keys_filename']
 
+    def get_host_keys(self):
+        """ returns stored host keys """
+        return self._host_keys
+
+    def get_system_host_keys(self):
+        """ returns stored system host keys """
+        return self._system_host_keys
+
     def handler(self, title, instructions, prompt_list):
         answers = []
         for prompt_, _ in prompt_list:

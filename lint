@@ -1,0 +1,8 @@
+#!/bin/sh
+
+if [ "$1" == ""  ]; then
+    pylint $(git ls-files '*.py')
+else
+    pylint $1
+fi
+

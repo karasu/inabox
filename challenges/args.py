@@ -1,6 +1,9 @@
 """ Store ssh configuration here """
+
 import base64
 import logging
+
+from django.core.exceptions import PermissionDenied
 
 from .privatekey import InvalidValueError, PrivateKey
 
@@ -14,26 +17,27 @@ DEFAULT_PORT=22
 class Args():
     """ Get ssh arguments """
 
-    def __init__(self, request):
+    def __init__(self, request, host_keys, system_host_keys):
         self.request = request
         self.post = request.POST
+        self._host_keys = host_keys
+        self._system_host_keys = system_host_keys
 
     def get_privatekey(self):
-        # TODO
+        """ get private key from request """
         return None, None
-
-        #name = 'privatekey'
-        #lst = self.request.files.get(name)
-        #if lst:
-        #    # multipart form
-        #    filename = lst[0]['filename']
-        #    data = lst[0]['body']
-        #    value = self.decode_argument(data, name=name).strip()
-        #else:
-        #    # urlencoded form
-        #    value = self.get_argument(name, u'')
-        #    filename = ''
-        #return value, filename
+        # name = 'privatekey'
+        # lst = self.request.files.get(name)
+        # if lst:
+        #     # multipart form
+        #     filename = lst[0]['filename']
+        #     data = lst[0]['body']
+        #     value = self.decode_argument(data, name=name).strip()
+        # else:
+        #     # urlencoded form
+        #     value = self.get_argument(name, '')
+        #     filename = ''
+        # return value, filename
 
     def get_hostname(self):
         """ return hostname """
@@ -44,7 +48,7 @@ class Args():
 
     def get_port(self):
         """ return connection port """
-        value = self.post.get('port', u'')
+        value = self.post.get('port', '')
         if not value:
             return DEFAULT_PORT
 
@@ -54,16 +58,17 @@ class Args():
         return port
 
     def lookup_hostname(self, hostname, port):
-        """ TODO: remove tornado code """
-        key = hostname if port == 22 else '[{}]:{}'.format(hostname, port)
+        """ Try to find hostname in host keys """
 
-        if self.ssh_client._system_host_keys.lookup(key) is None:
-            if self.ssh_client._host_keys.lookup(key) is None:
-                # FIXME: forgot to port this
-                raise tornado.web.HTTPError(
-                        403, 'Connection to {}:{} is not allowed.'.format(
-                            hostname, port)
-                    )
+        if port == 22:
+            key = hostname
+        else:
+            key = f"[{hostname}]:{port}"
+
+        if self._host_keys.lookup(key) is None:
+            if self._system_host_keys.lookup(key) is None:
+                raise PermissionDenied()
+
 
     def get_value(self, name):
         """ Get value from GET """
@@ -77,17 +82,17 @@ class Args():
         x_forwarded_for = self.request.META.get('HTTP_X_FORWARDED_FOR')
         if x_forwarded_for:
             # running behind a proxy
-            ip = x_forwarded_for.split(',')[0]
+            ip_address = x_forwarded_for.split(',')[0]
             port = self.request.META.get('HTTP_X_FORWARDED_PORT')
         else:
-            ip = self.request.META.get('REMOTE_ADDR')
+            ip_address = self.request.META.get('REMOTE_ADDR')
             port = self.request.META.get('REMOTE_PORT')
-        return (ip, port)
+        return (ip_address, port)
 
-    def decode64str(self, s):
+    def decode64str(self, string):
         """ decode b64 encoded string """
         # Encode the str into bytes.
-        bencoded = s.encode("utf-8")
+        bencoded = string.encode("utf-8")
         # decode b64
         bdecoded = base64.b64decode(bencoded)
         # return decoded string

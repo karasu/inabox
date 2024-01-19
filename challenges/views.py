@@ -346,7 +346,10 @@ class ChallengeDetailView(generic.DetailView):
             #self.check_origin()
 
             try:
-                _args = Args(request).get_args()
+                _args = Args(
+                    request,
+                    self.ssh_client.get_host_keys(),
+                    self.ssh_client.get_system_host_keys()).get_args()
             except InvalidValueError as exc:
                 return HttpResponseBadRequest(str(exc))
 

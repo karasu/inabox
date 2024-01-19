@@ -28,7 +28,7 @@ class UploadSolutionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         user_id = kwargs.pop('user_id', None)
         challenge_id = kwargs.pop('challenge_id', None)
-        super(UploadSolutionForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # Add form-control class to all form widgets
         for field in self.visible_fields():
