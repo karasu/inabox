@@ -8,7 +8,7 @@ import asyncio
 
 from concurrent.futures import ThreadPoolExecutor
 
-from django.http import HttpResponseRedirect, HttpResponseForbidden,  HttpResponseBadRequest
+from django.http import HttpResponseRedirect,  HttpResponseBadRequest
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
@@ -18,6 +18,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.utils.translation import get_language, get_language_info
 from django.template.defaulttags import register
+from django.core.exceptions import PermissionDenied
 
 import paramiko
 
@@ -64,17 +65,17 @@ class NewChallengeView(LoginRequiredMixin, generic.base.TemplateView):
             if form.is_valid():
                 form.save()
                 return HttpResponseRedirect(reverse("challenges:challenges"))
-            else:
-                logging.error(form.errors)
-                return render(
-                    request,
-                    template_name="challenges/form_error.html",
-                    context={
-                        "title": _("Error inserting a new Challenge! Check the error(s) below:"),
-                        "errors": form.errors,
-                    })
-        else:
-            return HttpResponseForbidden()
+            # form not valid
+            logging.error(form.errors)
+            return render(
+                request,
+                template_name="challenges/form_error.html",
+                context={
+                    "title": _("Error inserting a new Challenge! Check the error(s) below:"),
+                    "errors": form.errors,
+                })
+
+        raise PermissionDenied()
 
 
 class QuestsListView(generic.ListView):
@@ -210,14 +211,14 @@ class ChallengeDetailView(generic.DetailView):
 
         if self.request.user.is_authenticated:
             # Add forms to our context so we can put them in the template
-            di = context['challenge'].docker_image
+            docker_image = context['challenge'].docker_image
             data = {
                 "hostname": "localhost",
-                "port": di.container_ssh_port,
-                "username": di.container_username,
-                "password": di.container_password,
-                "privatekey": di.container_privatekey,
-                "passphrase": di.container_passphrase,
+                "port": docker_image.container_ssh_port,
+                "username": docker_image.container_username,
+                "password": docker_image.container_password,
+                "privatekey": docker_image.container_privatekey,
+                "passphrase": docker_image.container_passphrase,
                 "totp": 0,
                 "term": "xterm-256color",
                 "challenge_id": context['challenge'].id,
@@ -281,14 +282,14 @@ class ChallengeDetailView(generic.DetailView):
         try:
             #ssh.connect(*args, timeout=options.timeout)
             ssh.connect(*args, timeout=1)
-        except socket.error as e:
-            raise ValueError(f"Unable to connect to {dst_addr[0]}:{dst_addr[1]}") from e
-        except paramiko.BadAuthenticationType as e:
-            raise ValueError(_('Bad authentication type.')) from e
-        except paramiko.AuthenticationException as e:
-            raise ValueError(_('Authentication failed.')) from e
-        except paramiko.BadHostKeyException as e:
-            raise ValueError(_('Bad host key.')) from e
+        except socket.error as exc:
+            raise ValueError(f"Unable to connect to {dst_addr[0]}:{dst_addr[1]}") from exc
+        except paramiko.BadAuthenticationType as exc:
+            raise ValueError(_('Bad authentication type.')) from exc
+        except paramiko.AuthenticationException as exc:
+            raise ValueError(_('Authentication failed.')) from exc
+        except paramiko.BadHostKeyException as exc:
+            raise ValueError(_('Bad host key.')) from exc
 
         # term = self.get_argument('term', u'') or u'xterm'
         term = 'xterm'
@@ -311,12 +312,12 @@ class ChallengeDetailView(generic.DetailView):
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
         if x_forwarded_for:
             # running behind a proxy
-            ip = x_forwarded_for.split(',')[0]
+            ip_address = x_forwarded_for.split(',')[0]
             port = request.META.get('HTTP_X_FORWARDED_PORT')
         else:
-            ip = request.META.get('REMOTE_ADDR')
+            ip_address = request.META.get('REMOTE_ADDR')
             port = request.META.get('REMOTE_PORT')
-        return (ip, port)
+        return (ip_address, port)
 
     def challenge_ssh_form(self, request):
         """ Create a form instance and populate it with data from the request: """
@@ -340,7 +341,7 @@ class ChallengeDetailView(generic.DetailView):
             #print(ip, port)
             workers = clients.get(src_ip, {})
             if workers and len(workers) >= MAXCONN:
-                return HttpResponseForbidden(_('Too many live connections.'))
+                raise PermissionDenied(_('Too many live connections.'))
 
             # TODO: check origin
             #self.check_origin()
@@ -442,8 +443,10 @@ class ChallengeDetailView(generic.DetailView):
 
     def save_container(self, request):
         """ save current container as a new image """
-        
-        user = request.POST.get('user')
+
+        # UNIMPLEMENTED
+
+        #user = request.POST.get('user')
 
         return render(
             request,
@@ -454,15 +457,15 @@ class ChallengeDetailView(generic.DetailView):
                 }
             )
 
-    
-    def post(self, request, *args, **kwargs):
+
+    def post(self, request):
         """ Deal with post data """
         # assign the object to the view
         self.object = self.get_object()
 
         # check that user is authenticated
         if not request.user.is_authenticated:
-            return HttpResponseForbidden()
+            raise PermissionDenied()
 
         if request.POST.get("form_name") == "UploadSolutionForm":
             return self.upload_solution_form(request)
@@ -517,15 +520,16 @@ class SearchView(generic.base.TemplateView):
                     context['challenges_found'] = _("Found 1 challenge")
 
             return self.render_to_response(context=context)
-        else:
-            logging.error(form.errors)
-            return render(
-                request,
-                template_name="challenges/form_error.html",
-                context={
-                    "title": _("Error in search form. Check the error(s) below:"),
-                    "errors": form.errors,
-                })
+
+        # Form is not valid
+        logging.error(form.errors)
+        return render(
+            request,
+            template_name="challenges/form_error.html",
+            context={
+                "title": _("Error in search form. Check the error(s) below:"),
+                "errors": form.errors,
+            })
 
 class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
     """ Show user's profile """
@@ -551,44 +555,51 @@ class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
             context[k + "_data"] = []
             for field in obj._meta.get_fields():
                 if field.name not in excludes[k]:
-                    try:
-                        label = field.verbose_name.capitalize()
-                        value = field.value_from_object(obj)
-
-                        if field.name == "teacher":
-                            value = User.objects.get(id=value)
-
-                        if field.name == "role":
-                            for (myid, desc) in ROLES:
-                                if myid == value:
-                                    value = desc
-
-                        if field.name == "class_group":
-                            value = ClassGroup.objects.get(id=value)
-
-                        if field.name == "language":
-                            lang_info = get_language_info(value)
-                            value = lang_info["name_translated"]
-
-                        if field.name == "team":
-                            value = Team.objects.get(id=value)
-
-                        if field.name == "organization":
-                            value = Organization.objects.get(id=value)
-
-                        if value is True:
-                            value = _("Yes")
-                        elif value is False:
-                            value = _("No")
-
-                        context[k + "_data"].append({
-                            "name": field.name,
-                            "label": label,
-                            "value": value})
-                    except AttributeError as err:
-                        print(err)
+                    context[k + "_data"].append(
+                        self.get_field_data(obj, field))
 
         return context
+
+    def get_field_data(self, obj, field):
+        """ gets field label and value """
+        try:
+            label = field.verbose_name.capitalize()
+            value = field.value_from_object(obj)
+
+            if field.name == "teacher":
+                value = User.objects.get(id=value)
+
+            if field.name == "role":
+                for (myid, desc) in ROLES:
+                    if myid == value:
+                        value = desc
+
+            if field.name == "class_group":
+                value = ClassGroup.objects.get(id=value)
+
+            if field.name == "language":
+                lang_info = get_language_info(value)
+                value = lang_info["name_translated"]
+
+            if field.name == "team":
+                value = Team.objects.get(id=value)
+
+            if field.name == "organization":
+                value = Organization.objects.get(id=value)
+
+            if value is True:
+                value = _("Yes")
+            elif value is False:
+                value = _("No")
+
+            return {
+                "name": field.name,
+                "label": label,
+                "value": value
+            }
+        except AttributeError as err:
+            print(err)
+            return {} 
 
 
 class PlayersListView(generic.ListView):
