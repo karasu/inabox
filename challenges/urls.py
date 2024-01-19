@@ -24,7 +24,7 @@ urlpatterns = [
     path("quests/<int:pk>/", views.QuestDetailView.as_view(),
         name="quest"),
 
-    # /challenges/players    
+    # /challenges/players
     path("players/", views.PlayersListView.as_view(),
         name="players"),
     # /challenges/players/5

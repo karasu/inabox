@@ -38,10 +38,10 @@ def to_int(string):
 
 def to_ip_address(ipstr):
     """ convert string to an ip address """
-    ip = to_str(ipstr)
-    if ip.startswith('fe80::'):
-        ip = ip.split('%')[0]
-    return ipaddress.ip_address(ip)
+    ip_address = to_str(ipstr)
+    if ip_address.startswith('fe80::'):
+        ip_address = ip_address.split('%')[0]
+    return ipaddress.ip_address(ip_address)
 
 
 def is_valid_ip_address(ipstr):
@@ -70,11 +70,12 @@ def is_valid_encoding(encoding):
 
 
 def is_ip_hostname(hostname):
-    it = iter(hostname)
-    if next(it) == '[':
+    """ check if hostname is an ip address """
+    iterator = iter(hostname)
+    if next(iterator) == '[':
         return True
-    for ch in it:
-        if ch != '.' and not ch.isdigit():
+    for character in iterator:
+        if character != '.' and not character.isdigit():
             return False
     return True
 
@@ -99,16 +100,16 @@ def is_valid_hostname(hostname):
 def is_same_primary_domain(domain1, domain2):
     i = -1
     dots = 0
-    l1 = len(domain1)
-    l2 = len(domain2)
-    m = min(l1, l2)
+    ldomain1 = len(domain1)
+    ldomain2 = len(domain2)
+    lmin = min(ldomain1, ldomain2)
 
-    while i >= -m:
-        c1 = domain1[i]
-        c2 = domain2[i]
+    while i >= -lmin:
+        char1 = domain1[i]
+        char2 = domain2[i]
 
-        if c1 == c2:
-            if c1 == '.':
+        if char1 == char2:
+            if char1 == '.':
                 dots += 1
                 if dots == 2:
                     return True
@@ -117,14 +118,14 @@ def is_same_primary_domain(domain1, domain2):
 
         i -= 1
 
-    if l1 == l2:
+    if ldomain1 == ldomain2:
         return True
 
     if dots == 0:
         return False
 
-    c = domain1[i] if l1 > m else domain2[i]
-    return c == '.'
+    character = domain1[i] if ldomain1 > lmin else domain2[i]
+    return character == '.'
 
 
 def parse_origin_from_url(url):

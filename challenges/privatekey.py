@@ -39,6 +39,7 @@ class PrivateKey():
     def parse_name(self, iostr, tag_to_name):
         """ gets key name """
         name = None
+        length = 0
         for line_ in iostr:
             line = line_.strip()
             if line and line.startswith('-----BEGIN ') and \
@@ -49,10 +50,12 @@ class PrivateKey():
                     if tag:
                         name = tag_to_name.get(tag)
                         if name:
+                            length = len(line_)
                             break
-        return name, len(line_)
+        return name, length
 
     def get_specific_pkey(self, name, offset, password):
+        """ gets specific private key """
         self.iostr.seek(offset)
         logging.debug("Reset offset to %d", offset)
 
@@ -62,11 +65,11 @@ class PrivateKey():
 
         try:
             pkey = pkeycls.from_private_key(self.iostr, password=password)
-        except paramiko.PasswordRequiredException as e:
-            raise InvalidValueError('Need a passphrase to decrypt the key.') from e
-        except (paramiko.SSHException, ValueError) as e:
-            self.last_exception = e
-            logging.debug(str(e))
+        except paramiko.PasswordRequiredException as exc:
+            raise InvalidValueError('Need a passphrase to decrypt the key.') from exc
+        except (paramiko.SSHException, ValueError) as exc:
+            self.last_exception = exc
+            logging.debug(str(exc))
 
         return pkey
 

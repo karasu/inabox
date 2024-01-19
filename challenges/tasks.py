@@ -80,13 +80,15 @@ def validate_solution_task(self, proposed_solution_id):
 
         # Copy contents of tar file inside our container with put_archive
         try:
-            with open(tar_path, 'rb') as fd:
-                res = container.put_archive(path='/', data=fd)
+            with open(tar_path, 'rb') as tar_fd:
+                res = container.put_archive(path='/', data=tar_fd)
             if not res:
                 logging.error(
                     "put_archive failed. Cannot put %s contents inside the container",
                     tar_path)
-                return False, f"put_archive failed. Cannot put {tar_path} contents inside the container"
+                return (
+                    False,
+                    f"put_archive failed. Cannot put {tar_path} contents inside the container")
         except docker.errors.APIError as err:
             logging.error(err)
             return False, str(err)
@@ -126,26 +128,26 @@ def validate_solution_task(self, proposed_solution_id):
     if output is None:
         err = _("Did not get any output from the check script")
         return False, str(err)
-    else:
-        logging.warning(output.decode("utf-8"))
 
-        proposed_solution.is_tested = True
-        proposed_solution.last_test_result = output.decode("utf-8")
+    logging.warning(output.decode("utf-8"))
 
-        if exit_code == 0:
-            # Seems that proposed solution works!
-            proposed_solution.is_solved = True
-            logging.warning(
-                "%s has been solved by %s!",
-                challenge.title, proposed_solution.user.username)
+    proposed_solution.is_tested = True
+    proposed_solution.last_test_result = output.decode("utf-8")
 
-            challenge.solved = challenge.solved + 1
-            challenge.save()
-        #else:
-        #    # Proposed solution does not work
-        #    proposed_solution.is_solved = False
+    if exit_code == 0:
+        # Seems that proposed solution works!
+        proposed_solution.is_solved = True
+        logging.warning(
+            "%s has been solved by %s!",
+            challenge.title, proposed_solution.user.username)
 
-        proposed_solution.save()
+        challenge.solved = challenge.solved + 1
+        challenge.save()
+    #else:
+    #    # Proposed solution does not work
+    #    proposed_solution.is_solved = False
+
+    proposed_solution.save()
 
     progress_recorder.set_progress(4, 4, description="Deleting test container...")
 

@@ -24,6 +24,7 @@ class SSHClient(paramiko.SSHClient):
         return self._system_host_keys
 
     def handler(self, title, instructions, prompt_list):
+        """ handles connection """
         answers = []
         for prompt_, _ in prompt_list:
             prompt = prompt_.strip().lower()
@@ -36,6 +37,7 @@ class SSHClient(paramiko.SSHClient):
         return answers
 
     def auth_interactive(self, username, handler):
+        """ verifies that totp has the verification code """
         if not self.totp:
             raise ValueError('Need a verification code for 2fa.')
         self._transport.auth_interactive(username, handler)
@@ -56,8 +58,8 @@ class SSHClient(paramiko.SSHClient):
                 two_factor = allowed_types & two_factor_types
                 if not two_factor:
                     return None
-            except paramiko.SSHException as e:
-                saved_exception = e
+            except paramiko.SSHException as exc:
+                saved_exception = exc
 
         if two_factor:
             logging.info('Trying publickey 2fa')
