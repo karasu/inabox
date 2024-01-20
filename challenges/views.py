@@ -461,7 +461,7 @@ class ChallengeDetailView(generic.DetailView):
             )
 
 
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         """ Deal with post data """
         # assign the object to the view
         self.object = self.get_object()
