@@ -11,6 +11,7 @@ from celery import shared_task
 from celery_progress.backend import ProgressRecorder
 
 import docker
+import pika
 
 from .models import Challenge, ProposedSolution
 
@@ -164,8 +165,61 @@ class ValidateSolution():
 
         return True, _("Task complete")
 
+
 @shared_task(bind=True)
 def validate_solution_task(proposed_solution_id):
     """ Check if proposed solution is right or wrong """
 
     return ValidateSolution(proposed_solution_id).run()
+
+
+class Switchbox():
+    """ Listen to switchbox messages through rabbitmq """
+
+    def __init__(self):
+        self.connection = None
+        self.channel = None
+
+    def connect(self):
+        """ Connect to rabbitmq """
+        self.connection =  pika.BlockingConnection(
+            pika.ConnectionParameters(
+                host='localhost',
+                port=5672,
+                virtual_host='/',
+                credentials=pika.PlainCredentials('guest', 'guest')
+            )
+        )
+
+        self.channel = self.connection.channel()
+
+        self.channel.queue_declare(queue="switchbox")
+
+        self.channel.basic_consume(
+            queue="switchbox",
+            auto_ack=True,
+            on_message_callback=self.on_message_received)
+
+    def start(self):
+        """ Start consuming """
+        self.channel.start_consuming()
+
+    def close(self):
+        """ closes the connection """
+        if self.connection is not None:
+            self.connection.close()
+
+    def on_message_received(self, channel, method, properties, body):
+        """ message callback """
+        print("=========")
+        print(f"{channel} {method} {properties} {body}")
+        print("=========")
+
+
+@shared_task(bind=True)
+def switchbox_task(wtf):
+    """ Listen to switchbox messages """
+    print(wtf)
+    switchbox = Switchbox()
+    switchbox.connect()
+    switchbox.start()
