@@ -77,9 +77,9 @@ class SshConsumer(AsyncWebsocketConsumer):
                 loop = asyncio.get_event_loop()
 
                 loop.add_reader(
-                    worker.fd, worker.read, self._weakref)
+                    worker.file_desc, worker.read, self._weakref)
                 loop.add_writer(
-                    worker.fd, worker.write, self._weakref)
+                    worker.file_desc, worker.write, self._weakref)
 
                 await self.accept()
             else:
