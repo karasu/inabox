@@ -1,0 +1,6 @@
+#!/bin/sh
+DJANGO_SETTINGS_MODULE=inabox.settings pylint --load-plugins=pylint_django $(git ls-files '*.py')
+
+
+
+
