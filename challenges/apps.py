@@ -12,4 +12,4 @@ class ChallengesConfig(AppConfig):
 
     def ready(self):
         """ startup code goes here """
-        res = switchbox_task.delay(self.name)
+        res = switchbox_task.delay()

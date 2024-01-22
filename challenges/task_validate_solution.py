@@ -7,9 +7,8 @@ import stat
 from django.utils.translation import gettext_lazy as _
 
 from celery import shared_task
-
-from celery_progress.backend import ProgressRecorder
 from celery.utils.log import get_task_logger
+from celery_progress.backend import ProgressRecorder
 
 import docker
 

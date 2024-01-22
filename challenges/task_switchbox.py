@@ -1,7 +1,6 @@
 """ Celery. Create your tasks here """
 
 import time
-from uuid import uuid4
 
 from contextlib import contextmanager
 import pika
@@ -39,7 +38,6 @@ class Switchbox():
             )
 
         return pika.BlockingConnection(parameters)
-
 
     def setup_channel(self):
         """ Setups channel and queue """
@@ -81,6 +79,7 @@ class Switchbox():
 
 @contextmanager
 def memcache_lock(lock_id, oid):
+    """ lock task so they run one after the other """
     timeout_at = time.monotonic() + LOCK_EXPIRE - 3
     # cache.add fails if the key already exists
     status = cache.add(lock_id, oid, LOCK_EXPIRE)
@@ -97,15 +96,17 @@ def memcache_lock(lock_id, oid):
             cache.delete(lock_id)
 
 @shared_task(bind=True)
-def switchbox_task(self, oid):
+def switchbox_task(self):
     """ Listen to switchbox messages """
-    #logger.debug("task: %s", task)
-    
-    switchbox = Switchbox()
-    lock_id = "this-is-a-test"
+    logger.debug("task: %s", self)
+
+    lock_id = f"{self.name}-lock"
+    logger.info(lock_id)
     with memcache_lock(lock_id, self.app.oid) as acquired:
         if acquired:
-            logger.debug("Running switchbox listening task")
-            switchbox.run()
-    logger.debug("Switchbox task already running")
+            logger.info("--- Running switchbox listening task ---")
+            switchbox = Switchbox()
+            return switchbox.run()
 
+    logger.info("Switchbox task already running")
+    return True
