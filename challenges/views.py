@@ -34,7 +34,11 @@ from .models import LEVELS, ROLES
 from .forms import ChallengeSSHForm, NewChallengeForm, UploadSolutionForm, SearchForm
 
 # Celery task to check if a proposed solution is valid or not
-from .task_validate_solution import validate_solution_task
+from .task_validate import validate_solution_task
+
+# Celery task to communicate with switchbox
+from .task_switchbox import switchbox_task
+
 
 @register.filter
 def get_item(dictionary, key):
@@ -195,6 +199,9 @@ class ChallengesListView(generic.ListView):
         context['slang'] = self.request.GET.get('lang', 'all')
         context['slevel'] = self.request.GET.get('level', 'all')
         context['sorder'] = self.request.GET.get('order', 'newest')
+
+        res = switchbox_task.delay()
+
 
         return context
 
