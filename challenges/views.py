@@ -196,7 +196,8 @@ class ChallengesListView(generic.ListView):
         context['slevel'] = self.request.GET.get('level', 'all')
         context['sorder'] = self.request.GET.get('order', 'newest')
 
-        #res = switchbox_task.delay()
+        
+        res = switchbox_task.delay()
 
 
         return context

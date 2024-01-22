@@ -174,52 +174,72 @@ def validate_solution_task(proposed_solution_id):
 
 
 class Switchbox():
-    """ Listen to switchbox messages through rabbitmq """
+    """ Listen to switchbox messages through rabbitmq (consumer) """
+
+    QUEUE = 'switchbox'
+    EXCHANGE = 'switchbox'
+    EXCHANGE_TYPE = 'direct'
 
     def __init__(self):
-        self.connection = None
-        self.channel = None
+        self._connection = None
+        self._channel = None
 
     def connect(self):
         """ Connect to rabbitmq """
-        self.connection =  pika.BlockingConnection(
-            pika.ConnectionParameters(
+        credentials = pika.PlainCredentials('guest', 'guest')
+
+        parameters = pika.ConnectionParameters(
                 host='localhost',
                 port=5672,
                 virtual_host='/',
-                credentials=pika.PlainCredentials('guest', 'guest')
+                heartbeat=5,
+                credentials=credentials
             )
-        )
 
-        self.channel = self.connection.channel()
+        return pika.BlockingConnection(parameters)
 
-        self.channel.queue_declare(queue="switchbox")
 
-        self.channel.basic_consume(
-            queue="switchbox",
+    def setup_channel(self):
+        """ Setups channel and queue """
+        channel = self._connection.channel()
+
+        channel.exchange_declare(
+            exchange=self.EXCHANGE,
+            exchange_type=self.EXCHANGE_TYPE,
+            passive=False,
+            durable=True,
+            auto_delete=False)
+
+        channel.queue_declare(queue=self.QUEUE)
+
+        channel.basic_consume(
+            queue=self.QUEUE,
             auto_ack=True,
-            on_message_callback=self.on_message_received)
+            on_message_callback=self.on_message)
 
-    def start(self):
-        """ Start consuming """
-        self.channel.start_consuming()
+        return channel
 
     def close(self):
         """ closes the connection """
-        if self.connection is not None:
-            self.connection.close()
+        if self._connection is not None:
+            self._connection.close()
 
-    def on_message_received(self, channel, method, properties, body):
+    def on_message(self, channel, method, properties, body):
         """ message callback """
-        print("=========")
-        print(f"{channel} {method} {properties} {body}")
-        print("=========")
+        print(f"channel: {channel}")
+        print(f"method: {method}")
+        print(f"properties: {properties}")
+        print(f"body {body}")
 
+    def run(self):
+        """ Setup connection and start consuming """
+        self._connection = self.connect()
+        self._channel = self.setup_channel()
+        self._channel.start_consuming()
 
 @shared_task(bind=True)
 def switchbox_task(wtf):
     """ Listen to switchbox messages """
-    print(wtf)
+    print(f"wtf: {wtf}")
     switchbox = Switchbox()
-    switchbox.connect()
-    switchbox.start()
+    switchbox.run()
