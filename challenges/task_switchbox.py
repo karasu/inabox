@@ -12,9 +12,10 @@ class Switchbox():
 
     QUEUE = "switchbox"
 
-    def __init__(self):
+    def __init__(self, uid):
         self._connection = None
         self._channel = None
+        self._uid = uid
 
     def connect(self):
         """ Connect to rabbitmq """
@@ -61,11 +62,13 @@ class Switchbox():
         self._connection = self.connect()
         self._channel = self.setup_channel()
         self._channel.start_consuming()
+        
 
 @shared_task(bind=True)
-def switchbox_task(self):
+def switchbox_task(self, user_id, challenge_id):
     """ Listen to switchbox messages """
     logger.debug("task: %s", self)
 
-    switchbox = Switchbox()
+    uid = (user_id, challenge_id)
+    switchbox = Switchbox(uid)
     return switchbox.run()

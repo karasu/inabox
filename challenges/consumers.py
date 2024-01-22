@@ -45,7 +45,7 @@ class SshConsumer(AsyncWebsocketConsumer):
         workers = clients.get(src_ip, None)
 
         if not workers:
-            logging.debug("Worker not found 1")
+            logging.debug("Worker not found")
             logging.warning('Websocket authentication failed.')
             await self.close()
             return
@@ -83,7 +83,7 @@ class SshConsumer(AsyncWebsocketConsumer):
 
                 await self.accept()
             else:
-                logging.debug("Worker not found 2")
+                logging.debug("Worker not found")
                 logging.warning('Websocket authentication failed.')
                 await self.close()
 

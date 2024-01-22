@@ -141,7 +141,7 @@
     <div class="card-body">
       <form class="mt-2" id="connect" action="{% url 'challenges:challenge' challenge.id %}"
       method="post" enctype="multipart/form-data">
-      <input type="hidden" name="form_name" value="save_container">
+      <input type="hidden" name="form_name" value="SaveContainerForm">
       {% csrf_token %}
       {{ ssh_data }}
       <button id="save-image-btn" type="submit" class="btn btn-primary">{{ _("Save changes") }}</button>

@@ -200,9 +200,6 @@ class ChallengesListView(generic.ListView):
         context['slevel'] = self.request.GET.get('level', 'all')
         context['sorder'] = self.request.GET.get('order', 'newest')
 
-        res = switchbox_task.delay()
-
-
         return context
 
 
@@ -249,6 +246,10 @@ class ChallengeDetailView(generic.DetailView):
                     tries=0)
             except ProposedSolution.MultipleObjectsReturned:
                 logging.error("Multiple entries in ProposedSolution table!")
+
+            res = switchbox_task.delay(
+                user_id = self.request.user.id,
+                challenge_id = context['challenge'].id)
 
         return context
 
@@ -480,7 +481,7 @@ class ChallengeDetailView(generic.DetailView):
         if request.POST.get("form_name") == "ChallengeSSHForm":
             return self.challenge_ssh_form(request)
 
-        if request.POST.get("form_name") == "save_container":
+        if request.POST.get("form_name") == "SaveContainerForm":
             return self.save_container(request)
 
         return HttpResponseBadRequest()
