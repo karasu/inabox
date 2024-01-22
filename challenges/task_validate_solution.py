@@ -1,6 +1,5 @@
 """ Celery. Create your tasks here """
 
-import logging
 import tarfile
 import os
 import stat
@@ -10,10 +9,14 @@ from django.utils.translation import gettext_lazy as _
 from celery import shared_task
 
 from celery_progress.backend import ProgressRecorder
+from celery.utils.log import get_task_logger
 
 import docker
 
 from .models import Challenge, ProposedSolution
+
+logger = get_task_logger(__name__)
+
 
 class ValidateSolution():
     """ Validate user's solution to a challenge """
@@ -128,7 +131,7 @@ class ValidateSolution():
             self.progress(_("Running proposed solution..."))
             exit_code, output = self.run_script(proposed_solution.script.path)
             if output:
-                logging.warning(output)
+                logger.warning(output)
 
             self.progress(_("Checking proposed solution..."))
             exit_code, output = self.run_script(challenge.check_solution_script.path)
@@ -136,7 +139,7 @@ class ValidateSolution():
             if output is None:
                 raise docker.errors.APIError(_("Did not get any output from the check script"))
 
-            logging.warning(output)
+            logger.warning(output)
 
             proposed_solution.is_tested = True
             proposed_solution.last_test_result = output.decode("utf-8")
@@ -144,7 +147,7 @@ class ValidateSolution():
             if exit_code == 0:
                 # Seems that proposed solution works!
                 proposed_solution.is_solved = True
-                logging.warning(
+                logger.warning(
                     "%s has been solved by %s!",
                     challenge.title, proposed_solution.user.username)
 
@@ -157,10 +160,10 @@ class ValidateSolution():
             self.delete_container()
 
         except docker.errors.ImageNotFound:
-            logging.error("Docker image %s not found", docker_image_name)
+            logger.error("Docker image %s not found", docker_image_name)
             return False, f"Docker image {docker_image_name} not found"
         except (docker.errors.APIError, FileNotFoundError) as exc:
-            logging.error(exc)
+            logger.error(exc)
             return False, str(exc)
 
         return True, _("Task complete")

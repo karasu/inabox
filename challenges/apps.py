@@ -9,8 +9,7 @@ class ChallengesConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'challenges'
     verbose_name = "Challenges"
-    res = None
 
     def ready(self):
         """ startup code goes here """
-        self.res = switchbox_task.delay()
+        res = switchbox_task.delay(self.name)
