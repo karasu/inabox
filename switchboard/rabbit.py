@@ -13,7 +13,9 @@ class Rabbit():
     def on_request(self, channel, method, props, body):
         """ Create a docker container """    
 
-        response = {'docker_instance_id': 0 }
+        docker_instance_id = create_container(body)
+
+        response = {'docker_instance_id': docker_instance_id }
 
         channel.basic_publish(
             exchange='',
