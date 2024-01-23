@@ -10,10 +10,9 @@ import sys
 
 from collections import abc
 
-import pika
-import rabbit
-
 from logger import g_logger, CustomFormatter
+
+import dockerinstance
 
 class DockerPorts():
     ''' this is a global object that keeps track of the free ports
@@ -197,7 +196,7 @@ class DockerPorts():
             g_logger.debug("Reusing existing instance for image %s", profilename)
             instance = self.instances_by_name[profilename][0]
         else:
-            instance = DockerInstance(
+            instance = dockerinstance.DockerInstance(
                 profilename, containername, innerport, checkupport, dockeroptions)
             instance.start()
 
@@ -208,15 +207,15 @@ class DockerPorts():
         self.instances_by_name[profilename] += [instance]
 
         # Send the information of the recent created docker instance to rabbitmq
-        try:
-            rabbit.send(instance.get_instance_info())
-        except pika.exceptions.AMQPConnectionError:
-            g_logger.warning(
-                "Cannot connect to rabbitmq. Are you sure it is running?")
-        else:
-            g_logger.info(
-                "Docker instance [%s] info sent to rabbitmq server",
-                instance.get_instance_id())
+        #try:
+        #    rabbit.send(instance.get_instance_info())
+        #except pika.exceptions.AMQPConnectionError:
+        #    g_logger.warning(
+        #        "Cannot connect to rabbitmq. Are you sure it is running?")
+        #else:
+        #    g_logger.info(
+        #        "Docker instance [%s] info sent to rabbitmq server",
+        #        instance.get_instance_id())
 
         return instance
 
