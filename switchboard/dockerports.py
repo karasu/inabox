@@ -1,13 +1,19 @@
 """ Check ports and allocate a new docker instance"""
 
 import configparser
+import copy
+import glob
 import json
 import logging
 import string
+import sys
 
 from collections import abc
 
-from logger import g_logger
+import pika
+import rabbit
+
+from logger import g_logger, CustomFormatter
 
 class DockerPorts():
     ''' this is a global object that keeps track of the free ports
