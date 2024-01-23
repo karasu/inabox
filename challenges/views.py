@@ -250,17 +250,11 @@ class ChallengeDetailView(generic.DetailView):
                 context['docker_instance'] = container.id
             except UserChallengeContainer.DoesNotExist:
                 # ask for it to switchboard
-                response = switchboard_task.delay(
+                switchboard_task.delay(
                     user_id = self.request.user.id,
                     challenge_id = context['challenge'].id,
-                    image_name = context['challenge'].docker_image__docker_name)
-
-                ucc = UserChallengeContainer(
-                    container_id=response['docker_instance_id'],
-                    challenge=context['challenge'],
-                    user=self.request.user)
-                ucc.save()
-                context['docker_instance'] = response['docker_instance_id']
+                    docker_image_name = context['challenge'].docker_image.docker_name)
+                #context['docker_instance'] = response['docker_instance_id']
             except UserChallengeContainer.MultipleObjectsReturned:
                 logging.error("Multiple entries in UserChallengeContainer table!")
 
@@ -569,7 +563,7 @@ class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
             "user": [
                 "id", "password", "groups", "user_permissions", "profile"],
             "profile": [
-                "id", "user", "private_key", "challenge", "dockercontainer",
+                "id", "user", "private_key", "challenge",
                 "proposedsolution", "quest", "logentry"]}
 
         for k, obj in objs.items():
@@ -620,7 +614,7 @@ class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
             }
         except AttributeError as err:
             print(err)
-            return {} 
+            return {}
 
 
 class PlayersListView(generic.ListView):

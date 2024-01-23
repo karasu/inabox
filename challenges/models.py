@@ -236,6 +236,9 @@ class UserChallengeContainer(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE)
 
+    # this needs some thinking
+    port = models.IntegerField(unique=True)
+
     def __str__(self):
         return str(self.container_id)
 

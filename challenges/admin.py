@@ -10,7 +10,6 @@ from django.contrib.auth.models import User
 from .models import Challenge
 from .models import Quest
 from .models import DockerImage
-from .models import DockerContainer
 from .models import Area
 from .models import ClassGroup
 from .models import Profile
@@ -22,7 +21,6 @@ admin.site.register(Challenge)
 admin.site.register(Quest)
 admin.site.register(Area)
 admin.site.register(DockerImage)
-admin.site.register(DockerContainer)
 admin.site.register(ClassGroup)
 admin.site.register(ProposedSolution)
 admin.site.register(Team)

@@ -16,7 +16,7 @@ from celery.utils.log import get_task_logger
 from celery_progress.backend import ProgressRecorder
 
 from .models import Challenge, ProposedSolution
-#from .models import UserChallengeContainer
+from .models import UserChallengeContainer
 
 g_logger = get_task_logger(__name__)
 
@@ -253,21 +253,28 @@ class Switchboard():
 
 
 @shared_task(bind=True)
-def switchboard_task(task, user_id, challenge_id, docker_image_name):
+def switchboard_task(task, user, challenge, docker_image_name):
     """ Listen to switchboard messages """
     g_logger.debug(
-        "[] User %d is asking switchboard for a new container for challenge [%d]",
-        user_id, challenge_id)
+        "[] User %s is asking switchboard for a new container for challenge [%s]",
+        user, challenge)
 
     call = {
-            "docker_instance_id": 0,
-            "docker_options": "",
-            "docker_image_name": image_name,
-            "user_id": user_id,
-            "challenge_id": challenge_id,
-            "port": 0,
-            "error": None
-         }
+        "docker_instance_id": 0,
+        "docker_options": "",
+        "docker_image_name": docker_image_name,
+        "user_id": user.id,
+        "challenge_id": challenge.id,
+        "port": 0,
+        "error": None
+    }
 
     switchboard = Switchboard()
-    return switchboard.run(call)
+    response = switchboard.run(call)
+
+    ucc = UserChallengeContainer(
+        container_id=response['docker_instance_id'],
+        challenge=challenge,
+        user=user,
+        port=response['port'])
+    ucc.save()
