@@ -253,7 +253,7 @@ class Switchboard():
 
 
 @shared_task(bind=True)
-def switchboard_task(task, user_id, challenge_id):
+def switchboard_task(task, user_id, challenge_id, docker_image_name):
     """ Listen to switchboard messages """
     g_logger.debug(
         "[] User %d is asking switchboard for a new container for challenge [%d]",
@@ -265,7 +265,7 @@ def switchboard_task(task, user_id, challenge_id):
             "docker_image_name": image_name,
             "user_id": user_id,
             "challenge_id": challenge_id,
-            "port": port,
+            "port": 0,
             "error": None
          }
 

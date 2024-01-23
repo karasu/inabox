@@ -253,7 +253,7 @@ class ChallengeDetailView(generic.DetailView):
                 response = switchboard_task.delay(
                     user_id = self.request.user.id,
                     challenge_id = context['challenge'].id,
-                    image_name = context['challenge'].docker_image)
+                    image_name = context['challenge'].docker_image__docker_name)
 
                 ucc = UserChallengeContainer(
                     container_id=response['docker_instance_id'],

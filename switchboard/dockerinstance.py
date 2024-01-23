@@ -35,6 +35,11 @@ class DockerInstance():
             return self._instance.name
         except Exception as exc:
             g_logger.warning("Failed to get instance name: %s", exc)
+            return None
+
+    def get_port(self):
+        """ gets outer port """
+        return self.outer_port
 
     def start(self):
         """ Start this instance """

@@ -11,7 +11,7 @@ import rabbit
 
 # Message is:
 # { "docker_instance_id", "docker_options", "docker_image_name",
-#  "user_id", "challenge_id", "error_message"}
+#  "port", "user_id", "challenge_id", "error_message"}
 
 
 def setup_logger():
@@ -44,7 +44,8 @@ def request(message):
         g_logger.warning("Error creating a docker instance from %s", message)
 
         result['docker_instance_id'] = -1
-        result['error'] = f"Error creating container from image {message['docker_image_name']}" 
+        result['error'] = "Error creating container"
+        result['port'] = 0
         return result
 
     # Instance created
@@ -54,6 +55,7 @@ def request(message):
         docker_instance.get_instance_id())
 
     result['docker_instance_id'] = docker_instance.get_instance_id()
+    result['port'] = docker_instance.get_port()
     result['error'] = None
     return result
 

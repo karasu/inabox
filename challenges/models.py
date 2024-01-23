@@ -151,7 +151,7 @@ def dockerimage_directory_path(instance, filename):
 class DockerImage(models.Model):
     """ Store a docker image information """
     # This name is what will be shown to the user
-    # (it can be different from the real image name)
+    # (it can be different from the real docker image name)
     name = models.CharField(
         max_length=64, unique=True)
     # data to connect to the docker container
