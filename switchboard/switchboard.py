@@ -2,6 +2,7 @@
 
 import logging
 import random
+import sys
 
 from logger import g_logger, CustomFormatter
 
@@ -27,42 +28,47 @@ def setup_logger():
 
     g_logger.setLevel(logging.DEBUG)
 
+def request(message):
+    """ Start a new docker instance """
+
+    docker_instance = g_docker_ports.create(message)
+
+    if docker_instance is None:
+        g_logger.warning("Error creating a docker instance from %s", message)
+
+        return {
+            "docker_instance_id": -1,
+            "user_id": message['user_id'],
+            "challenge_id": message['challenge_id'],
+            "docker_image_name": message['docker_image_name'],
+            "message": f"Error creating container from image {message['docker_image_name']}"}
+
+    # Instance created
+    g_logger.info(
+        "Incoming petition from user %s for a contanier from image %s",
+        message["username"],
+        docker_instance.get_instance_id())
+
+    return {
+        "docker_instance_id": docker_instance.get_instance_id(),
+        "user_id": message['user_id'],
+        "challenge_id": message['challenge_id'],
+        "docker_image_name": message['docker_image_name']
+    }
 
 def main():
     """ main function. Program starts here """
-
-    def request(message):
-        """ Start a new docker instance """
-
-        docker_instance = g_docker_ports.create(message)
-
-        if docker_instance is None:
-            g_logger.warning("Error creating a docker instance from %s", message)
-            return {
-                "docker_instance_id": -1,
-                "user_id": message['user_id'],
-                "challenge_id": message['challenge_id'],
-                "docker_image_name": message['docker_image_name'],
-                "message": f"Error creating container from image {message['docker_image_name']}"}
-
-        # Instance created
-        g_logger.info(
-            "Incoming petition from user %s for a contanier from image %s",
-            message["username"],
-            docker_instance.get_instance_id())
-        return {
-            "docker_instance_id": docker_instance.get_instance_id(),
-            "user_id": message['user_id'],
-            "challenge_id": message['challenge_id'],
-            "docker_image_name": message['docker_image_name']
-        }
 
     random.seed()
 
     setup_logger()
 
-    consumer = rabbit.Rabbit(request)
-    consumer.run()
+    try:
+        consumer = rabbit.Rabbit(request)
+        consumer.run()
+    except KeyboardInterrupt:
+        consumer.close()
+        sys.exit()
 
 g_docker_ports = dp.DockerPorts()
 g_docker_instances = {}

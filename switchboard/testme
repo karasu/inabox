@@ -3,5 +3,5 @@
 docker rm -f inabox-rabbitmq
 docker run --name inabox-rabbitmq -p 5672:5672 -d rabbitmq
 
-python switchboard.py
+sleep 3s && python switchboard.py
 

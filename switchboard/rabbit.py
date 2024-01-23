@@ -1,4 +1,5 @@
 """ RPC server """
+
 import json
 import pika
 
@@ -28,6 +29,11 @@ class Rabbit():
 
         channel.basic_ack(delivery_tag=method.delivery_tag)
 
+    def close(self):
+        """ closes the connection """
+        if self._connection is not None:
+            self._connection.close()
+
     def connect(self):
         """ Connect to rabbitmq """
         credentials = pika.PlainCredentials('guest', 'guest')
@@ -46,11 +52,11 @@ class Rabbit():
         """ Setups channel and queue """
         channel = self._connection.channel()
 
-        channel.queue_declare(queue=self.QUEUE)
-
         # In order to spread the load equally over multiple servers we need
         # to set the prefetch_count setting
         channel.basic_qos(prefetch_count=1)
+
+        channel.queue_declare(queue=self.QUEUE)
 
         channel.basic_consume(
             queue=self.QUEUE,
@@ -58,7 +64,6 @@ class Rabbit():
             on_message_callback=self.on_request)
 
         return channel
-
 
     def run(self):
         """ Setup connection and start consuming """
@@ -69,9 +74,6 @@ class Rabbit():
 
             g_logger.debug("Setting channel...")
             self._channel = self.setup_channel()
-
-            g_logger.debug("Declaring queue...")
-            self._channel.queue_declare(queue='switchboard')
 
             g_logger.info(" [x] Awaiting RPC requests")
             self._channel.start_consuming()
