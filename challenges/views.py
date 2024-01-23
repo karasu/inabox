@@ -29,16 +29,12 @@ from .privatekey import InvalidValueError
 from .worker import Worker, recycle_worker, clients
 
 from .models import Challenge, Area, Profile, ProposedSolution, Quest, QuestChallenge
-from .models import ClassGroup, Team, Organization
+from .models import ClassGroup, Team, Organization, UserChallengeContainer
 from .models import LEVELS, ROLES
 from .forms import ChallengeSSHForm, NewChallengeForm, UploadSolutionForm, SearchForm
 
 # Celery task to check if a proposed solution is valid or not
-from .task_validate import validate_solution_task
-
-# Celery task to communicate with switchboard
-from .task_switchboard import switchboard_task
-
+from .tasks import validate_solution_task, switchboard_task
 
 @register.filter
 def get_item(dictionary, key):
@@ -251,15 +247,22 @@ class ChallengeDetailView(generic.DetailView):
                 container = UserChallengeContainer.objects.get(
                     user=self.request.user,
                     challenge=context['challenge'])
+                context['docker_instance'] = container.id
             except UserChallengeContainer.DoesNotExist:
                 # ask for it to switchboard
-                container = switchboard_task.delay(
+                response = switchboard_task.delay(
                     user_id = self.request.user.id,
-                    challenge_id = context['challenge'].id)
+                    challenge_id = context['challenge'].id,
+                    image_name = context['challenge'].docker_image)
+
+                ucc = UserChallengeContainer(
+                    container_id=response['docker_instance_id'],
+                    challenge=context['challenge'],
+                    user=self.request.user)
+                ucc.save()
+                context['docker_instance'] = response['docker_instance_id']
             except UserChallengeContainer.MultipleObjectsReturned:
                 logging.error("Multiple entries in UserChallengeContainer table!")
-
-            context['docker_instance'] = container.id
 
         return context
 

@@ -10,8 +10,9 @@ import dockerports as dp
 import rabbit
 
 # Message is:
-# { "docker_instance_id", "user_id", "challenge_id", "docker_image_name",
-# "message", "docker_options", "ssh_port"}
+# { "docker_instance_id", "docker_options", "docker_image_name",
+#  "user_id", "challenge_id", "error_message"}
+
 
 def setup_logger():
     """ Setup logger """
@@ -31,17 +32,20 @@ def setup_logger():
 def request(message):
     """ Start a new docker instance """
 
+    result = {
+        "docker_options": message['docker_options'],
+        "docker_image_name": message['docker_image_name'],
+        "user_id": message['user_id'],
+        "challenge_id": message['challenge_id'] }
+
     docker_instance = g_docker_ports.create(message)
 
     if docker_instance is None:
         g_logger.warning("Error creating a docker instance from %s", message)
 
-        return {
-            "docker_instance_id": -1,
-            "user_id": message['user_id'],
-            "challenge_id": message['challenge_id'],
-            "docker_image_name": message['docker_image_name'],
-            "message": f"Error creating container from image {message['docker_image_name']}"}
+        result['docker_instance_id'] = -1
+        result['error'] = f"Error creating container from image {message['docker_image_name']}" 
+        return result
 
     # Instance created
     g_logger.info(
@@ -49,12 +53,9 @@ def request(message):
         message["username"],
         docker_instance.get_instance_id())
 
-    return {
-        "docker_instance_id": docker_instance.get_instance_id(),
-        "user_id": message['user_id'],
-        "challenge_id": message['challenge_id'],
-        "docker_image_name": message['docker_image_name']
-    }
+    result['docker_instance_id'] = docker_instance.get_instance_id()
+    result['error'] = None
+    return result
 
 def main():
     """ main function. Program starts here """

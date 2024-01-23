@@ -75,7 +75,7 @@ class Rabbit():
             g_logger.debug("Setting channel...")
             self._channel = self.setup_channel()
 
-            g_logger.info(" [x] Awaiting RPC requests")
+            g_logger.info("Awaiting RPC requests...")
             self._channel.start_consuming()
         except pika.exceptions.AMQPConnectionError as exc:
             g_logger.error("Error connecting to rabbitmq server: [%s]", exc)
