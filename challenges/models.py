@@ -227,7 +227,7 @@ class Challenge(models.Model):
         return str(self.title)
 
 
-class DockerContainer(models.Model):
+class UserChallengeContainer(models.Model):
     """ Store docker container's info """
     container_id = models.CharField(
         max_length=128, default="0")
@@ -238,7 +238,6 @@ class DockerContainer(models.Model):
 
     def __str__(self):
         return str(self.container_id)
-
 
 def user_solutions_path(instance, filename):
     """ file will be uploaded to MEDIA_ROOT/solutions/<username>/<challengetitle> """

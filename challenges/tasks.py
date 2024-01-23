@@ -6,16 +6,17 @@ import stat
 
 from django.utils.translation import gettext_lazy as _
 
+import pika
+import docker
+
 from celery import shared_task
 from celery.utils.log import get_task_logger
 from celery_progress.backend import ProgressRecorder
 
-import docker
-
 from .models import Challenge, ProposedSolution
+#from .models import UserChallengeContainer
 
 logger = get_task_logger(__name__)
-
 
 class ValidateSolution():
     """ Validate user's solution to a challenge """
@@ -172,3 +173,71 @@ def validate_solution_task(proposed_solution_id):
     """ Check if proposed solution is right or wrong """
 
     return ValidateSolution(proposed_solution_id).run()
+
+
+class Switchboard():
+    """ Listen to switchboard messages through rabbitmq (consumer) """
+
+    QUEUE = "switchboard"
+
+    def __init__(self, user_id, challenge_id):
+        self._connection = None
+        self._channel = None
+
+        self.user_id = user_id
+        self.challenge_id = challenge_id
+
+    def connect(self):
+        """ Connect to rabbitmq """
+        credentials = pika.PlainCredentials('guest', 'guest')
+
+        parameters = pika.ConnectionParameters(
+                host='localhost',
+                port=5672,
+                virtual_host='/',
+                heartbeat=5,
+                credentials=credentials
+            )
+
+        return pika.BlockingConnection(parameters)
+
+    def on_message(self, channel, method, properties, body):
+        """ message callback """
+        logger.debug("channel: %s", channel)
+        logger.debug("method: %s", method)
+        logger.debug("properties: %s", properties)
+        logger.info("body: %s", body)
+
+    def setup_channel(self):
+        """ Setups channel and queue """
+        channel = self._connection.channel()
+
+        channel.queue_declare(
+            queue=self.QUEUE)
+
+        channel.basic_consume(
+            queue=self.QUEUE,
+            auto_ack=True,
+            on_message_callback=self.on_message)
+
+        return channel
+
+    def close(self):
+        """ closes the connection """
+        if self._connection is not None:
+            self._connection.close()
+
+    def run(self):
+        """ Setup connection and start consuming """
+        self._connection = self.connect()
+        self._channel = self.setup_channel()
+        self._channel.start_consuming()
+
+
+@shared_task(bind=True)
+def switchboard_task(self, user_id, challenge_id):
+    """ Listen to switchboard messages """
+    logger.debug("task: %s", self)
+
+    switchboard = Switchboard(user_id, challenge_id)
+    return switchboard.run()

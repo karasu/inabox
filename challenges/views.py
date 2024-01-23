@@ -36,8 +36,8 @@ from .forms import ChallengeSSHForm, NewChallengeForm, UploadSolutionForm, Searc
 # Celery task to check if a proposed solution is valid or not
 from .task_validate import validate_solution_task
 
-# Celery task to communicate with switchbox
-from .task_switchbox import switchbox_task
+# Celery task to communicate with switchboard
+from .task_switchboard import switchboard_task
 
 
 @register.filter
@@ -247,9 +247,19 @@ class ChallengeDetailView(generic.DetailView):
             except ProposedSolution.MultipleObjectsReturned:
                 logging.error("Multiple entries in ProposedSolution table!")
 
-            res = switchbox_task.delay(
-                user_id = self.request.user.id,
-                challenge_id = context['challenge'].id)
+            try:
+                container = UserChallengeContainer.objects.get(
+                    user=self.request.user,
+                    challenge=context['challenge'])
+            except UserChallengeContainer.DoesNotExist:
+                # ask for it to switchboard
+                container = switchboard_task.delay(
+                    user_id = self.request.user.id,
+                    challenge_id = context['challenge'].id)
+            except UserChallengeContainer.MultipleObjectsReturned:
+                logging.error("Multiple entries in UserChallengeContainer table!")
+
+            context['docker_instance'] = container.id
 
         return context
 
