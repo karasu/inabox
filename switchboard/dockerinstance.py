@@ -15,32 +15,11 @@ class DockerInstance():
     After the docker container is started, we wait until the middleport becomes reachable
     before returning """
 
-    def __init__(self, image_name, docker_options):
+    def __init__(self, image_name, docker_options, outer_port):
         self.image_name = image_name
         self.docker_options = docker_options
-        self._innerport = innerport
-        self._checkupport = checkupport
+        self.outer_port = outer_port
         self._instance = None
-
-
-    def get_mapped_port(self, in_port):
-        """ return container mapped port """
-        try:
-            return int(
-                self._instance.attrs["NetworkSettings"]["Ports"][f"{in_port}/tcp"][0]["HostPort"])
-        except Exception as exc:
-            g_logger.warning(
-                "Failed to get port information for port %d from %d: %s",
-                in_port, self.get_instance_id(), exc)
-        return None
-
-    def get_middle_port(self):
-        """ returns inner port """
-        return self.get_mapped_port(self._innerport)
-
-    def get_middle_checkup_port(self):
-        """ gets checkup port """
-        return self.get_mapped_port(self._checkupport)
 
     def get_instance_id(self):
         """ get instance id """
@@ -49,6 +28,13 @@ class DockerInstance():
         except Exception as exc:
             g_logger.warning("Failed to get instance id: %s", exc)
         return "None"
+
+    def get_instance_name(self):
+        """ get container's name """
+        try:
+            return self._instance.name
+        except Exception as exc:
+            g_logger.warning("Failed to get instance name: %s", exc)
 
     def start(self):
         """ Start this instance """
@@ -62,48 +48,45 @@ class DockerInstance():
                 self.image_name,
                 pprint.pformat(self.docker_options))
 
-            clientres = client.containers.run(
+            client_res = client.containers.run(
                 self.image_name, **self.docker_options)
 
-            self._instance = client.containers.get(clientres.id)
+            self._instance = client.containers.get(client_res.id)
 
-
-####################################### WIP
-
-
-            g_logger.debug("Done starting instance %s of container image %s",
-                self.image_name(), self.get_container_name())
+            g_logger.debug("Done starting instance [%s] of container image %s",
+                self.get_instance_id(), self.image_name)
         except Exception as exc:
-            g_logger.debug("Failed to start instance %s of container %s: %s",
-                self.get_profile_name(), self.get_container_name(), exc)
+            g_logger.debug("Failed to start an instance of image %s: %s",
+                self.image_name, exc)
             self.stop()
             return False
 
-        # wait until container's checkupport is available
-        g_logger.debug("Started instance on middleport %s with ID %s",
-            self.get_middle_port(), self.get_instance_id())
+        # wait until container is available
+        g_logger.debug("Started instance on port %s with ID [%s]",
+            self.outer_port, self.get_instance_id())
 
-        if self._wait_for_open_port(self.get_middle_checkup_port()):
-            g_logger.debug("Started instance on middleport %d with ID %s has open port %d",
-                self.get_middle_port(), self.get_instance_id(), self.get_middle_checkup_port())
+        if self._wait_for_open_port(self.outer_port):
+            g_logger.debug("Port %d of started instance [%s] with ID [%s] is OPEN",
+                self.outer_port, self.get_instance_name(), self.get_instance_id())
             return True
 
-        g_logger.debug("Started instance on middleport %d with ID %s has closed port %d",
-            self.get_middle_port(), self.get_instance_id(), self.get_middle_checkup_port())
+        g_logger.debug("Port %d of started instance %s with ID [%s] is CLOSED. Aborting...",
+            self.outer_port, self.get_instance_name(), self.get_instance_id())
         self.stop()
         return False
 
     def stop(self):
         """ stop docker instance """
-        middle_port = self.get_middle_port()
+
         cid = self.get_instance_id()
-        g_logger.debug("Killing and removing %s (middleport %d)", cid, middle_port)
+        g_logger.debug("Killing and removing [%s] (port %d)", cid, self.outer_port)
 
         try:
             self._instance.remove(force=True)
         except Exception as exc:
-            g_logger.warning("Failed to remove instance for middleport %d, id %s: %s",
-                middle_port, cid, exc)
+            g_logger.warning(
+                "Failed to remove instance for middleport %d, id [%s]: %s",
+                self.outer_port, cid, exc)
             return False
         return True
 

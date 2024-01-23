@@ -1,6 +1,7 @@
 """ Runs a container when asked """
 
 import logging
+import random
 
 from logger import g_logger, CustomFormatter
 
@@ -8,7 +9,8 @@ import dockerports as dp
 import rabbit
 
 # Message is:
-# { "docker_instance_id", "user_id", "challenge_id", "docker_image_name", "message", "docker_options", "ssh_port"}
+# { "docker_instance_id", "user_id", "challenge_id", "docker_image_name",
+# "message", "docker_options", "ssh_port"}
 
 def setup_logger():
     """ Setup logger """
@@ -22,6 +24,8 @@ def setup_logger():
     handler = logging.StreamHandler()
     handler.setFormatter(CustomFormatter())
     g_logger.addHandler(handler)
+
+    g_logger.setLevel(logging.DEBUG)
 
 
 def main():
@@ -39,19 +43,23 @@ def main():
                 "user_id": message['user_id'],
                 "challenge_id": message['challenge_id'],
                 "docker_image_name": message['docker_image_name'],
-                "message": f"Error creating a docker instance from image {message['docker_image_name']}"}
+                "message": f"Error creating container from image {message['docker_image_name']}"}
 
         # Instance created
         g_logger.info(
             "Incoming petition from user %s for a contanier from image %s",
             message["username"],
-            docker_instance.get_profile_name())
+            docker_instance.get_instance_id())
         return {
-            "docker_instance_id": docker_instance.get_profile_name(),
+            "docker_instance_id": docker_instance.get_instance_id(),
             "user_id": message['user_id'],
             "challenge_id": message['challenge_id'],
             "docker_image_name": message['docker_image_name']
         }
+
+    random.seed()
+
+    setup_logger()
 
     consumer = rabbit.Rabbit(request)
     consumer.run()

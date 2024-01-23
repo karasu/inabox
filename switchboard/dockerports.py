@@ -1,21 +1,39 @@
 """ Check ports and allocate a new docker instance"""
 
+import random
+import socket
+import time
+
 from logger import g_logger
 
 import dockerinstance
 
-IMAGELIMIT = 20
 
 class DockerPorts():
     ''' this is a global object that keeps track of the free ports
     when requested, it allocates a new docker instance and returns it '''
 
-    CONFIG_PROFILEPREFIX = "profile:"
-    CONFIG_DOCKEROPTIONSPREFIX = "dockeroptions:"
+    IMAGELIMIT = 20
 
     def __init__(self):
         self.instances_by_name = {}
         self.image_params = {}
+        self.inner_port = 22
+        self.outer_port = 0
+
+    def update_docker_options(self, docker_options):
+        """ Add ports setup """
+
+        self.outer_port = self.get_available_port()
+
+        docker_options["detach"] = True
+
+        if "ports" not in docker_options:
+            docker_options["ports"] = {}
+        docker_options["ports"][self.inner_port] = None
+        docker_options["ports"][self.outer_port] = None
+
+        return docker_options
 
     def create(self, message):
         """ create docker instance """
@@ -23,18 +41,20 @@ class DockerPorts():
         image_name = message['docker_image_name']
         docker_options = message['docker_options']
 
+        docker_options = self.update_docker_options(docker_options)
+
         icount = 0
         if image_name in self.instances_by_name:
             icount = len(self.instances_by_name[image_name])
 
-        if icount >= IMAGELIMIT > 0:
+        if icount >= self.IMAGELIMIT > 0:
             g_logger.warning(
                 "Reached max count of %d (currently %d) for image %s",
-                IMAGELIMIT, icount, image_name)
+                self.IMAGELIMIT, icount, image_name)
             return None
 
         instance = dockerinstance.DockerInstance(
-                image_name, docker_options)
+                image_name, docker_options, self.outer_port)
         instance.start()
 
         if image_name not in self.instances_by_name:
@@ -66,3 +86,39 @@ class DockerPorts():
 
         # stop the instance
         instance.stop()
+
+    def _is_port_open(self, port, readtimeout=0.1):
+        """ checks if port is open, so we can use it """
+
+        sock = socket.socket()
+        ret = False
+        g_logger.debug("Checking whether port %d is open...", port)
+
+        if port is None:
+            time.sleep(readtimeout)
+        else:
+            try:
+                sock.connect(("0.0.0.0", port))
+                # just connecting is not enough, we should try to read and get at least 1 byte
+                # back since the daemon in the container might not have started accepting
+                # connections yet, while docker-proxy does
+                sock.settimeout(readtimeout)
+                data = sock.recv(1)
+                ret = len(data) > 0
+            except socket.error:
+                ret = False
+
+        g_logger.debug("result = %s", ret)
+        sock.close()
+        return ret
+
+    def get_available_port(self):
+        """ dynamic ports are from 49152-65535 """
+        port = 49152
+
+        while self._is_port_open(port):
+            port = random.randrange(49152, 65535)
+
+        g_logger.debug("Using port %d for the new container", port)
+
+        return port

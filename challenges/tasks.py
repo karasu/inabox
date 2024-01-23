@@ -212,8 +212,7 @@ class Switchboard():
         """ Setups channel and queue """
         channel = self._connection.channel()
 
-        channel.queue_declare(
-            queue=self.QUEUE)
+        channel.queue_declare(queue=self.QUEUE)
 
         channel.basic_consume(
             queue=self.QUEUE,
