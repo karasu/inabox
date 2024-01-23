@@ -1,38 +1,57 @@
 """ Runs a container when asked """
 
-from logger import g_logger
+import logging
+
+from logger import g_logger, CustomFormatter
 
 import dockerports as dp
 import rabbit
 
+# Message is:
+# { "docker_instance_id", "user_id", "challenge_id", "docker_image_name", "message", "docker_options", "ssh_port"}
+
+def setup_logger():
+    """ Setup logger """
+
+    # Log to a file
+    handler = logging.FileHandler("switchboard.log")
+    handler.setFormatter(CustomFormatter())
+    g_logger.addHandler(handler)
+
+    # Log to the screen, too
+    handler = logging.StreamHandler()
+    handler.setFormatter(CustomFormatter())
+    g_logger.addHandler(handler)
+
+
 def main():
     """ main function. Program starts here """
 
-    def request(params):
+    def request(message):
         """ Start a new docker instance """
 
-        docker_instance = g_docker_ports.create(params['profilename'])
+        docker_instance = g_docker_ports.create(message)
 
         if docker_instance is None:
-            g_logger.warning("Error creating a docker instance from %s", params['profilename'])
+            g_logger.warning("Error creating a docker instance from %s", message)
             return {
                 "docker_instance_id": -1,
-                "user_id": params['user_id'],
-                "challenge_id": params['challenge_id'],
-                "message": f"Error creating a docker instance from {params['profilename']}"}
-        else:
-            g_logger.info(
-                "Incoming petition from user %s for a contanier from image %s",
-                params["username"],
-                docker_instance.get_profile_name())
-            return {
-                "docker_instance_id": docker_instance.get_profile_name(),
-                "user_id": params['user_id'],
-                "challenge_id": params['challenge_id']
-            }
+                "user_id": message['user_id'],
+                "challenge_id": message['challenge_id'],
+                "docker_image_name": message['docker_image_name'],
+                "message": f"Error creating a docker instance from image {message['docker_image_name']}"}
 
-
-    g_docker_ports.read_config('switchboard.conf')
+        # Instance created
+        g_logger.info(
+            "Incoming petition from user %s for a contanier from image %s",
+            message["username"],
+            docker_instance.get_profile_name())
+        return {
+            "docker_instance_id": docker_instance.get_profile_name(),
+            "user_id": message['user_id'],
+            "challenge_id": message['challenge_id'],
+            "docker_image_name": message['docker_image_name']
+        }
 
     consumer = rabbit.Rabbit(request)
     consumer.run()

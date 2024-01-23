@@ -15,34 +15,13 @@ class DockerInstance():
     After the docker container is started, we wait until the middleport becomes reachable
     before returning """
 
-    def __init__(self, profilename, containername, innerport, checkupport, dockeroptions):
-        self._profilename = profilename
-        self._containername = containername
-        self._dockeroptions = dockeroptions
+    def __init__(self, image_name, docker_options):
+        self.image_name = image_name
+        self.docker_options = docker_options
         self._innerport = innerport
         self._checkupport = checkupport
         self._instance = None
 
-    def get_instance_info(self):
-        """ Return all instance parameters """
-        return {
-            "profile_name": self._profilename,
-            "container_name": self._containername,
-            "docker_options": self._dockeroptions,
-            "inner_port": self._innerport,
-            "checkup_port": self._checkupport,
-            "middle_port": self.get_middle_port(),
-            "middle_checkup_port": self.get_middle_checkup_port(),
-            "instance_id": self.get_instance_id(),
-        }
-
-    def get_docker_options(self):
-        """ Return docker options """
-        return self._dockeroptions
-
-    def get_container_name(self):
-        """ return container's name """
-        return self._containername
 
     def get_mapped_port(self, in_port):
         """ return container mapped port """
@@ -63,10 +42,6 @@ class DockerInstance():
         """ gets checkup port """
         return self.get_mapped_port(self._checkupport)
 
-    def get_profile_name(self):
-        """ get profile name """
-        return self._profilename
-
     def get_instance_id(self):
         """ get instance id """
         try:
@@ -83,18 +58,21 @@ class DockerInstance():
 
         # start instance
         try:
-            g_logger.debug("Starting instance %s of container %s with dockeroptions %s",
-                self.get_profile_name(),
-                self.get_container_name(),
-                pprint.pformat(self.get_docker_options()))
+            g_logger.debug("Starting container instance of image %s with dockeroptions %s",
+                self.image_name,
+                pprint.pformat(self.docker_options))
 
             clientres = client.containers.run(
-                self.get_container_name(), **self.get_docker_options())
+                self.image_name, **self.docker_options)
 
             self._instance = client.containers.get(clientres.id)
 
-            g_logger.debug("Done starting instance %s of container %s",
-                self.get_profile_name(), self.get_container_name())
+
+####################################### WIP
+
+
+            g_logger.debug("Done starting instance %s of container image %s",
+                self.image_name(), self.get_container_name())
         except Exception as exc:
             g_logger.debug("Failed to start instance %s of container %s: %s",
                 self.get_profile_name(), self.get_container_name(), exc)
