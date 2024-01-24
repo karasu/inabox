@@ -238,10 +238,11 @@ class RunDockerContainer():
             call['port'] = 0
             return call
 
+        g_logger.debug(instance)
         # Instance created
         g_logger.info(
-            "Incoming petition from user %s for a contanier from image %s",
-            call["username"], instance.get_instance_id())
+            "Incoming petition from user %s for contanier [%s] from image %s",
+            call["user_id"], instance.get_instance_id(), image_name)
 
         call['docker_instance_id'] = instance.get_instance_id()
         call['port'] = instance.get_port()

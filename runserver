@@ -10,10 +10,10 @@ docker run --name inabox-rabbitmq -p 5672:5672 -d rabbitmq
 docker rm -f inabox-redis
 docker run --name inabox-redis -p 6379:6379 -d redis:5
 
-# Build all images
-cd docker-images
-./build-all
-cd ..
+## Build all images
+#cd docker-images
+#./build-all
+#cd ..
 
 # Now run all services (development)
 PWD=`pwd`

@@ -29,7 +29,7 @@ from .privatekey import InvalidValueError
 from .worker import Worker, recycle_worker, clients
 
 from .models import Challenge, Area, Profile, ProposedSolution, Quest, QuestChallenge
-from .models import ClassGroup, Team, Organization, UserChallengeContainer
+from .models import ClassGroup, Team, Organization, UserChallengeContainer, DockerImage
 from .models import LEVELS, ROLES
 from .forms import ChallengeSSHForm, NewChallengeForm, UploadSolutionForm, SearchForm
 
@@ -249,11 +249,15 @@ class ChallengeDetailView(generic.DetailView):
                     challenge=context['challenge'])
                 context['docker_instance'] = container.id
             except UserChallengeContainer.DoesNotExist:
+                # Get the docker image name
+                docker_image = DockerImage.objects.get(
+                    id=context['challenge'].docker_image.id)
+
                 # Run the container
                 run_docker_container_task.delay(
                     user_id=self.request.user.id,
                     challenge_id=context['challenge'].id,
-                    docker_image_name=context['challenge'].docker_image.docker_name)
+                    docker_image_name=docker_image.docker_name)
                 #context['docker_instance'] = response['docker_instance_id']
                 
             except UserChallengeContainer.MultipleObjectsReturned:

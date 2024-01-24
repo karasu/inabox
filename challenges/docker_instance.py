@@ -25,14 +25,20 @@ class DockerInstance():
 
     def get_instance_id(self):
         """ get instance id """
+        if self._instance is None:
+            g_logger.warning("Container is not running. Did you call start()?")
+            return None
         try:
             return self._instance.id
         except Exception as exc:
             g_logger.warning("Failed to get instance id: %s", exc)
-        return "None"
+        return None
 
     def get_instance_name(self):
         """ get container's name """
+        if self._instance is None:
+            g_logger.warning("Container is not running. Did you call start()?")
+            return None
         try:
             return self._instance.name
         except Exception as exc:
@@ -48,6 +54,8 @@ class DockerInstance():
 
         # get docker client
         client = docker.from_env()
+
+        g_logger.debug("%s", client)
 
         # start instance
         try:
