@@ -114,7 +114,6 @@ class ValidateSolution():
             proposed_solution.script.path,
             challenge.check_solution_script.path]
 
-
         # Get challenge docker image name
         docker_image_name = challenge.docker_image.docker_name
 
@@ -194,37 +193,13 @@ class RunDockerContainer():
         # TODO: GET A NEW PORT AND USE IT
         return self.outer_port
 
-    def _is_port_open(self, port, readtimeout=0.1):
-        """ checks if port is open, so we can use it """
-
-        sock = socket.socket()
-        ret = False
-        g_logger.debug("Checking whether port %d is open...", port)
-
-        if port is None:
-            time.sleep(readtimeout)
-        else:
-            try:
-                sock.connect(("0.0.0.0", port))
-                # just connecting is not enough, we should try to read and get at least 1 byte
-                # back since the daemon in the container might not have started accepting
-                # connections yet, while docker-proxy does
-                sock.settimeout(readtimeout)
-                data = sock.recv(1)
-                ret = len(data) > 0
-            except socket.error:
-                ret = False
-
-        g_logger.debug("result = %s", ret)
-        sock.close()
-        return ret
-
     def run(self, call):
         """ Start a new docker container """
 
         image_name = call['docker_image_name']
         docker_options = call['docker_options']
 
+        g_logger.info("Starting container...")
         instance = DockerInstance(
                 image_name, docker_options, self.outer_port)
         instance.start()
@@ -238,7 +213,7 @@ class RunDockerContainer():
             call['port'] = 0
             return call
 
-        g_logger.debug(instance)
+        g_logger.info(instance)
         # Instance created
         g_logger.info(
             "Incoming petition from user %s for contanier [%s] from image %s",
@@ -247,14 +222,16 @@ class RunDockerContainer():
         call['docker_instance_id'] = instance.get_instance_id()
         call['port'] = instance.get_port()
         call['error'] = None
+
         return call
 
 
 @shared_task(bind=True)
 def run_docker_container_task(task, user_id, challenge_id, docker_image_name):
     """ Listen to switchboard messages """
-    g_logger.debug(
-        "[] User %s is asking switchboard for a new container for challenge [%s]",
+
+    g_logger.info(
+        "User %s is asking for a new container for challenge [%s]",
         user_id, challenge_id)
 
     call = {
