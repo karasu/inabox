@@ -34,7 +34,7 @@ from .models import LEVELS, ROLES
 from .forms import ChallengeSSHForm, NewChallengeForm, UploadSolutionForm, SearchForm
 
 # Celery task to check if a proposed solution is valid or not
-from .tasks import validate_solution_task, switchboard_task
+from .tasks import validate_solution_task, run_docker_container_task
 
 @register.filter
 def get_item(dictionary, key):
@@ -249,8 +249,8 @@ class ChallengeDetailView(generic.DetailView):
                     challenge=context['challenge'])
                 context['docker_instance'] = container.id
             except UserChallengeContainer.DoesNotExist:
-                # ask for it to switchboard
-                switchboard_task.delay(
+                # Run the container
+                run_docker_container_task.delay(
                     user_id=self.request.user.id,
                     challenge_id=context['challenge'].id,
                     docker_image_name=context['challenge'].docker_image.docker_name)

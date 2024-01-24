@@ -1,14 +1,14 @@
 """ Celery. Create your tasks here """
 
-import json
 import tarfile
 import os
 import stat
+import socket
+import time
 import uuid
 
 from django.utils.translation import gettext_lazy as _
 
-import pika
 import docker
 
 from celery import shared_task
@@ -17,6 +17,8 @@ from celery_progress.backend import ProgressRecorder
 
 from .models import Challenge, ProposedSolution
 from .models import UserChallengeContainer
+
+from .docker_instance import DockerInstance
 
 g_logger = get_task_logger(__name__)
 
@@ -177,87 +179,78 @@ def validate_solution_task(proposed_solution_id):
     return ValidateSolution(proposed_solution_id).run()
 
 
-class Switchboard():
-    """ Listen to switchboard messages through rabbitmq (consumer) """
-
-    QUEUE = "switchboard"
+class RunDockerContainer():
+    """ Runs a new docker container """
+    # call is:
+    # { "docker_instance_id", "docker_options", "docker_image_name",
+    #  "port", "user_id", "challenge_id", "error_message"}
 
     def __init__(self):
-        self._connection = None
-        self._channel = None
+        self.result = None
+        self.outer_port = 22
 
-        self.response = None
-        self.corr_id = None
-        self.callback_queue = None
+    def get_outer_port(self):
+        """ Gets docker container ssh access port """
+        # TODO: GET A NEW PORT AND USE IT
+        return self.outer_port
 
-    def connect(self):
-        """ Connect to rabbitmq """
+    def _is_port_open(self, port, readtimeout=0.1):
+        """ checks if port is open, so we can use it """
 
-        credentials = pika.PlainCredentials('guest', 'guest')
+        sock = socket.socket()
+        ret = False
+        g_logger.debug("Checking whether port %d is open...", port)
 
-        parameters = pika.ConnectionParameters(
-                host='localhost',
-                port=5672,
-                virtual_host='/',
-                heartbeat=5,
-                credentials=credentials
-            )
+        if port is None:
+            time.sleep(readtimeout)
+        else:
+            try:
+                sock.connect(("0.0.0.0", port))
+                # just connecting is not enough, we should try to read and get at least 1 byte
+                # back since the daemon in the container might not have started accepting
+                # connections yet, while docker-proxy does
+                sock.settimeout(readtimeout)
+                data = sock.recv(1)
+                ret = len(data) > 0
+            except socket.error:
+                ret = False
 
-        return pika.BlockingConnection(parameters)
-
-    def on_response(self, ch, method, props, body):
-        """ Receives switchboard response"""
-        if self.corr_id == props.correlation_id:
-            self.response = body
-            g_logger.info("Response from switchboard: %s", body)
-
-    def setup_channel(self):
-        """ setup rabbitmq channel """
-        channel = self._connection.channel()
-
-        result = channel.queue_declare(queue='', exclusive=True)
-        self.callback_queue = result.method.queue
-
-        channel.basic_consume(
-            queue=self.callback_queue,
-            on_message_callback=self.on_response,
-            auto_ack=True)
-
-        return channel
-
-    def close(self):
-        """ closes the connection """
-        if self._connection is not None:
-            self._connection.close()
+        g_logger.debug("result = %s", ret)
+        sock.close()
+        return ret
 
     def run(self, call):
-        """ Setup connection and make the rpc call """
-        self._connection = self.connect()
-        self._channel = self.setup_channel()
+        """ Start a new docker container """
 
+        image_name = call['docker_image_name']
+        docker_options = call['docker_options']
+
+        instance = DockerInstance(
+                image_name, docker_options, self.outer_port)
+        instance.start()
+
+        if instance is None:
+            g_logger.warning(
+                "Error creating a docker instance from %s", image_name)
+
+            call['docker_instance_id'] = -1
+            call['error'] = "Error creating container"
+            call['port'] = 0
+            return call
+
+        # Instance created
         g_logger.info(
-            "Asking switchboard to create a new container from image %s",
-            call['docker_image_name']
-        )
+            "Incoming petition from user %s for a contanier from image %s",
+            call["username"], instance.get_instance_id())
 
-        self.response = None
-        self.corr_id = str(uuid.uuid4())
-        self._channel.basic_publish(
-            exchange='',
-            routing_key='rpc_queue',
-            properties=pika.BasicProperties(
-                reply_to=self.callback_queue,
-                correlation_id=self.corr_id,
-            ),
-            body=json.dumps(call))
-
-        self._connection.process_data_events(time_limit=None)
-
-        return self.response
+        call['docker_instance_id'] = instance.get_instance_id()
+        call['port'] = instance.get_port()
+        call['error'] = None
+        return call
 
 
 @shared_task(bind=True)
-def switchboard_task(task, user_id, challenge_id, docker_image_name):
+def run_docker_container_task(task, user_id, challenge_id, docker_image_name):
     """ Listen to switchboard messages """
     g_logger.debug(
         "[] User %s is asking switchboard for a new container for challenge [%s]",

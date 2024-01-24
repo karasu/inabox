@@ -2,7 +2,7 @@
 
 import logging
 
-g_logger = logging.getLogger("switchboard")
+g_logger = logging.getLogger("inabox")
 
 class CustomFormatter(logging.Formatter):
     """ Class formatter for logging """
@@ -29,3 +29,18 @@ class CustomFormatter(logging.Formatter):
         log_fmt = self.FORMATS.get(record.levelno)
         formatter = logging.Formatter(log_fmt)
         return formatter.format(record)
+
+def setup_logger(level=logging.DEBUG):
+    """ Setup logger """
+
+    # Log to a file
+    handler = logging.FileHandler("/tmp/inabox.log")
+    handler.setFormatter(CustomFormatter())
+    g_logger.addHandler(handler)
+
+    # Log to the screen, too
+    handler = logging.StreamHandler()
+    handler.setFormatter(CustomFormatter())
+    g_logger.addHandler(handler)
+
+    g_logger.setLevel(level)

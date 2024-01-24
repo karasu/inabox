@@ -4,10 +4,11 @@ import random
 import socket
 import time
 
-from logger import g_logger
+from celery.utils.log import get_task_logger
 
-import dockerinstance
+from . import docker_instance
 
+g_logger = get_task_logger(__name__)
 
 class DockerPorts():
     ''' this is a global object that keeps track of the free ports
@@ -53,7 +54,7 @@ class DockerPorts():
                 self.IMAGELIMIT, icount, image_name)
             return None
 
-        instance = dockerinstance.DockerInstance(
+        instance = docker_instance.DockerInstance(
                 image_name, docker_options, self.outer_port)
         instance.start()
 

@@ -6,7 +6,9 @@ import time
 
 import docker
 
-from logger import g_logger
+from celery.utils.log import get_task_logger
+
+g_logger = get_task_logger(__name__)
 
 
 class DockerInstance():
