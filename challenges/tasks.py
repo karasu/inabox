@@ -209,7 +209,7 @@ class Switchboard():
         """ Receives switchboard response"""
         if self.corr_id == props.correlation_id:
             self.response = body
-            g_logger.debug("Response from switchboard: %s", body)
+            g_logger.info("Response from switchboard: %s", body)
 
     def setup_channel(self):
         """ setup rabbitmq channel """
@@ -235,7 +235,11 @@ class Switchboard():
         self._connection = self.connect()
         self._channel = self.setup_channel()
 
-        # Asks switchboard to create a new container
+        g_logger.info(
+            "Asking switchboard to create a new container from image %s",
+            call['docker_image_name']
+        )
+
         self.response = None
         self.corr_id = str(uuid.uuid4())
         self._channel.basic_publish(
@@ -253,18 +257,18 @@ class Switchboard():
 
 
 @shared_task(bind=True)
-def switchboard_task(task, user, challenge, docker_image_name):
+def switchboard_task(task, user_id, challenge_id, docker_image_name):
     """ Listen to switchboard messages """
     g_logger.debug(
         "[] User %s is asking switchboard for a new container for challenge [%s]",
-        user, challenge)
+        user_id, challenge_id)
 
     call = {
         "docker_instance_id": 0,
         "docker_options": "",
         "docker_image_name": docker_image_name,
-        "user_id": user.id,
-        "challenge_id": challenge.id,
+        "user_id": user_id,
+        "challenge_id": challenge_id,
         "port": 0,
         "error": None
     }
@@ -272,9 +276,9 @@ def switchboard_task(task, user, challenge, docker_image_name):
     switchboard = Switchboard()
     response = switchboard.run(call)
 
-    ucc = UserChallengeContainer(
-        container_id=response['docker_instance_id'],
-        challenge=challenge,
-        user=user,
-        port=response['port'])
-    ucc.save()
+    #ucc = UserChallengeContainer(
+    #    container_id=response['docker_instance_id'],
+    #    challenge=challenge,
+    #    user=user,
+    #    port=response['port'])
+    #ucc.save()

@@ -251,10 +251,11 @@ class ChallengeDetailView(generic.DetailView):
             except UserChallengeContainer.DoesNotExist:
                 # ask for it to switchboard
                 switchboard_task.delay(
-                    user_id = self.request.user.id,
-                    challenge_id = context['challenge'].id,
-                    docker_image_name = context['challenge'].docker_image.docker_name)
+                    user_id=self.request.user.id,
+                    challenge_id=context['challenge'].id,
+                    docker_image_name=context['challenge'].docker_image.docker_name)
                 #context['docker_instance'] = response['docker_instance_id']
+                
             except UserChallengeContainer.MultipleObjectsReturned:
                 logging.error("Multiple entries in UserChallengeContainer table!")
 
