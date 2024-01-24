@@ -17,6 +17,9 @@ class DockerInstance():
     After the docker container is started, we wait until the middleport becomes reachable
     before returning """
 
+    # All images have to expose port 22 (ssh)
+    INNER_PORT = 22
+
     def __init__(self, image_name, docker_options, outer_port):
         self.image_name = image_name
         self.docker_options = docker_options
@@ -56,41 +59,49 @@ class DockerInstance():
         client = docker.DockerClient(base_url='unix://var/run/docker.sock')
         client.ping()
 
-        g_logger.info("DOCKER CLIENT %s", client)
+        if "ports" not in self.docker_options:
+            self.docker_options["ports"] = {}
+        self.docker_options["ports"][self.INNER_PORT] = self.outer_port
+        #self.docker_options["ports"][self.outer_port] = None
 
         # start instance
         try:
-            g_logger.info("Starting container instance of image %s with dockeroptions %s",
+            g_logger.info(
+                "Starting container instance of image %s with dockeroptions %s",
                 self.image_name,
                 pprint.pformat(self.docker_options))
 
             result = client.containers.run(
                 image=self.image_name,
-                detach=True)
-                #self.docker_options)
+                **self.docker_options)
 
             self._instance = client.containers.get(result.id)
 
-            g_logger.info("Done starting instance [%s] of container image %s",
-                self.get_instance_id(), self.image_name)
         except Exception as exc:
             g_logger.warning("Failed to start an instance of image %s: %s",
                 self.image_name, exc)
             self.stop()
             return False
 
-        # wait until container is available
-        g_logger.info("Started instance on port %s with ID [%s]",
-            self.outer_port, self.get_instance_id())
+        cid = self.get_instance_id()
+        cname = self.get_instance_name()
+        cport = self.get_port()
 
-        if self._wait_for_open_port(self.outer_port):
-            g_logger.info("Port %d of started instance [%s] with ID [%s] is OPEN",
-                self.outer_port, self.get_instance_name(), self.get_instance_id())
+        # wait until container is available
+        g_logger.info("Started instance [%s] on port %s.", cid, cport)
+
+        if self._wait_for_open_port(port=cport):
+            g_logger.info(
+                "Port %d of started instance [%s] with ID [%s] is OPEN",
+                cport, cname, cid)
             return True
 
-        g_logger.warning("Port %d of started instance %s with ID [%s] is CLOSED. Aborting...",
-            self.outer_port, self.get_instance_name(), self.get_instance_id())
+        g_logger.warning(
+            "Port %d of started instance %s with ID [%s] is CLOSED. Aborting...",
+            cport, cname, cid)
+
         self.stop()
+
         return False
 
     def stop(self):
@@ -108,19 +119,20 @@ class DockerInstance():
             return False
         return True
 
-    def _is_port_open(self, port, readtimeout=0.1):
+    def _is_port_open(self, port, read_timeout=0.1):
         sock = socket.socket()
         ret = False
 
         if port is None:
-            time.sleep(readtimeout)
+            time.sleep(read_timeout)
         else:
             try:
                 sock.connect(("0.0.0.0", port))
-                # just connecting is not enough, we should try to read and get at least 1 byte
-                # back since the daemon in the container might not have started accepting
-                # connections yet, while docker-proxy does
-                sock.settimeout(readtimeout)
+                # just connecting is not enough, we should try to read
+                # and get at least 1 byte back since the daemon in the
+                # container might not have started accepting
+                # connections yet
+                sock.settimeout(read_timeout)
                 data = sock.recv(1)
                 ret = len(data) > 0
             except socket.error:

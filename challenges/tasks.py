@@ -186,28 +186,32 @@ class RunDockerContainer():
 
     def __init__(self):
         self.result = None
-        self.outer_port = 22
+        self._outer_port = 0
 
     def get_outer_port(self):
         """ Gets docker container ssh access port """
-        # TODO: GET A NEW PORT AND USE IT
-        return self.outer_port
+
+        if self._outer_port == 0:
+            sock = socket.socket()
+            sock.bind(('', 0))
+            self._outer_port = sock.getsockname()[1]
+            sock.close()
+        return self._outer_port
 
     def run(self, call):
         """ Start a new docker container """
 
         image_name = call['docker_image_name']
         docker_options = call['docker_options']
+        docker_options["detach"] = True
 
-        g_logger.info("Starting container...")
         instance = DockerInstance(
-                image_name, docker_options, self.outer_port)
+                image_name, docker_options, self.get_outer_port())
         instance.start()
 
         if instance is None:
             g_logger.warning(
                 "Error creating a docker instance from %s", image_name)
-
             call['docker_instance_id'] = -1
             call['error'] = "Error creating container"
             call['port'] = 0
@@ -220,7 +224,7 @@ class RunDockerContainer():
             call["user_id"], instance.get_instance_id(), image_name)
 
         call['docker_instance_id'] = instance.get_instance_id()
-        call['port'] = instance.get_port()
+        call['port'] = self.get_outer_port()
         call['error'] = None
 
         return call
@@ -236,7 +240,7 @@ def run_docker_container_task(task, user_id, challenge_id, docker_image_name):
 
     call = {
         "docker_instance_id": 0,
-        "docker_options": "",
+        "docker_options": {},
         "docker_image_name": docker_image_name,
         "user_id": user_id,
         "challenge_id": challenge_id,
