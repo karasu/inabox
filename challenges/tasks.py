@@ -266,8 +266,8 @@ def run_docker_container_task(task, user_id, challenge_id, docker_image_name):
         "error": None
     }
 
-    switchboard = Switchboard()
-    response = switchboard.run(call)
+    container = RunDockerContainer()
+    response = container.run(call)
 
     #ucc = UserChallengeContainer(
     #    container_id=response['docker_instance_id'],
