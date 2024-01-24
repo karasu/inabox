@@ -8,6 +8,7 @@ import time
 import uuid
 
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.models import User
 
 import docker
 
@@ -251,9 +252,11 @@ def run_docker_container_task(task, user_id, challenge_id, docker_image_name):
     container = RunDockerContainer()
     response = container.run(call)
 
-    #ucc = UserChallengeContainer(
-    #    container_id=response['docker_instance_id'],
-    #    challenge=challenge,
-    #    user=user,
-    #    port=response['port'])
-    #ucc.save()
+    # Update UserChallengeContainer with the container id
+
+    ucc = UserChallengeContainer(
+        container_id=response['docker_instance_id'],
+        challenge=Challenge.objects.get(id=user_id),
+        user=Challenge.objects.get(id=challenge_id),
+        port=response['port'])
+    ucc.save()

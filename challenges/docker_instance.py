@@ -62,7 +62,6 @@ class DockerInstance():
         if "ports" not in self.docker_options:
             self.docker_options["ports"] = {}
         self.docker_options["ports"][self.INNER_PORT] = self.outer_port
-        #self.docker_options["ports"][self.outer_port] = None
 
         # start instance
         try:
@@ -143,15 +142,10 @@ class DockerInstance():
 
     def _wait_for_open_port(self, port, timeout=5, step=0.1):
         """ waits until instance is running """
-
-        g_logger.info("Checking whether port %d is open...", port)
-
         started = time.time()
 
         while started + timeout >= time.time():
             if self._is_port_open(port):
-                g_logger.info("Port %d is open!", port)
                 return True
             time.sleep(step)
-        g_logger.warning("Port %d is closed!", port)
         return False

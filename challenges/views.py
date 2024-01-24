@@ -243,6 +243,9 @@ class ChallengeDetailView(generic.DetailView):
             except ProposedSolution.MultipleObjectsReturned:
                 logging.error("Multiple entries in ProposedSolution table!")
 
+
+
+            # TODO : Move this to form ChallengeSSHForm
             try:
                 container = UserChallengeContainer.objects.get(
                     user=self.request.user,
