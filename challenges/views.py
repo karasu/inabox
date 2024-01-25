@@ -216,6 +216,8 @@ class ChallengeDetailView(generic.DetailView):
             # Get the docker image of this challenge
             docker_image = context['challenge'].docker_image
 
+            g_logger.warning(docker_image.docker_name)
+
             # Get data for the SSH connection form
             data = {
                 "hostname": "localhost",
@@ -227,7 +229,7 @@ class ChallengeDetailView(generic.DetailView):
                 "totp": 0,
                 "term": "xterm-256color",
                 "challenge_id": context['challenge'].id,
-                "image_name": docker_image.docker_name,
+                "docker_image_name": docker_image.docker_name,
             }
 
             context['ssh_data'] = ChallengeSSHForm(data)

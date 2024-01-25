@@ -264,7 +264,7 @@ def run_docker_container_task(task, user_id, challenge_id, docker_image_name):
 
 
 @celery_app.task
-def prune_dead_containers(task):
+def prune_dead_containers():
     """ This task removes all stoped containers """
 
     ucct = UserChallengeContainerTemp.objects.all()
