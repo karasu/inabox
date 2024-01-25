@@ -6,16 +6,13 @@ import time
 
 from celery.utils.log import get_task_logger
 
-from .docker_utils import run_container
+from .docker_utils import DockerContainer
 
 g_logger = get_task_logger(__name__)
 
 
 class DockerInstance():
-    """ this class represents a single docker instance listening on a certain middleport.
-    The middleport is managed by the DockerPorts global object
-    After the docker container is started, we wait until the middleport becomes reachable
-    before returning """
+    """ this class represents a single docker instance """
 
     # All images have to expose port 22 (ssh)
     INNER_PORT = 22
@@ -60,7 +57,8 @@ class DockerInstance():
         self.docker_options["ports"][self.INNER_PORT] = self.outer_port
 
         # start instance
-        container = run_container(self.image_name, self.docker_options)
+        container = DockerContainer()
+        container.run(self.image_name, self.docker_options)
 
         if not container:
             g_logger.warning("Failed to start an instance of image %s",
@@ -68,7 +66,7 @@ class DockerInstance():
             return False
 
         #self._instance = client.containers.get(result.id)
-        self._instance = container
+        self._instance = container.get_instance()
 
         g_logger.info(
             "Started container of image %s with docker_options %s",

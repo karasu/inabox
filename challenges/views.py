@@ -28,7 +28,9 @@ from .privatekey import InvalidValueError
 from .worker import Worker, recycle_worker, clients
 
 from .models import Challenge, Area, Profile, ProposedSolution, Quest, QuestChallenge
-from .models import ClassGroup, Team, Organization, UserChallengeContainerTemp, DockerImage
+from .models import ClassGroup, Team, Organization
+#from .models import DockerImage
+#from .models import UserChallengeContainerTemp
 from .models import LEVELS, ROLES
 from .forms import ChallengeSSHForm, NewChallengeForm, UploadSolutionForm, SearchForm
 
@@ -332,29 +334,23 @@ class ChallengeDetailView(generic.DetailView):
         """ Create a form instance and populate it with data from the request: """
 
         form_data = request.POST
-
         form = ChallengeSSHForm(form_data)
 
         if form.is_valid():
-            # User is not in form data !!!!!!!!!!!!!!!!!!!!!
-            user = form_data.get('user')
-            challenge = form_data.get('challenge')
+            user = self.request.user
+            challenge_id = form_data.get('challenge_id')
             docker_image_name = form_data.get('docker_image_name')
 
             # Run the container
             task_result = run_docker_container_task.delay(
                 user_id=user.id,
-                challenge_id=challenge.id,
+                challenge_id=challenge_id,
                 docker_image_name=docker_image_name)
 
             # TODO: waiting for an async task as soon as submitting
             # defeats the purpose of Celery.
-            result = task_result.get()
-
-            # TODO: Remove old code from post
-            # ('port' now should not be in the database or in the form)
-            # overwrite port value (this needs a rewriting)
-            request.POST['port'] = result.get('port', "22")
+            run_result = task_result.get()
+            print(run_result)
 
             # Prepare SSH connection
 
@@ -381,6 +377,7 @@ class ChallengeDetailView(generic.DetailView):
             try:
                 _args = Args(
                     request,
+                    run_result.get('port', 22),
                     self.ssh_client.get_host_keys(),
                     self.ssh_client.get_system_host_keys()).get_args()
             except InvalidValueError as exc:

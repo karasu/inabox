@@ -235,9 +235,8 @@ class UserChallengeContainerTemp(models.Model):
         Challenge, on_delete=models.CASCADE)
     user = models.ForeignKey(
         User, on_delete=models.CASCADE)
-
     # this needs some thinking
-    port = models.IntegerField(unique=True)
+    port = models.IntegerField()
 
     def __str__(self):
         return str(self.container_id)

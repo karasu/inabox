@@ -19,8 +19,7 @@ from .models import Challenge, ProposedSolution
 from .models import UserChallengeContainerTemp
 
 from .docker_instance import DockerInstance
-
-from .docker_utils import container_running
+from .docker_utils import DockerContainer
 
 g_logger = get_task_logger(__name__)
 
@@ -28,7 +27,7 @@ class ValidateSolution():
     """ Validate user's solution to a challenge """
     _STEPS = 5
 
-    def __init__(self, proposed_solution_id):
+    def __init__(self, task, proposed_solution_id):
         """ Initalise class properties """
         self._client = None
 
@@ -37,7 +36,7 @@ class ValidateSolution():
 
         # Create the progress recorder instance
         # which we'll use to update the web page
-        self._progress_recorder = ProgressRecorder(self)
+        self._progress_recorder = ProgressRecorder(task)
         self._step = 1
 
         # docker container instance
@@ -174,10 +173,10 @@ class ValidateSolution():
         return True, _("Task complete")
 
 @shared_task(bind=True)
-def validate_solution_task(proposed_solution_id):
+def validate_solution_task(task, proposed_solution_id):
     """ Check if proposed solution is right or wrong """
 
-    return ValidateSolution(proposed_solution_id).run()
+    return ValidateSolution(task, proposed_solution_id).run()
 
 
 class RunDockerContainer():
@@ -269,8 +268,12 @@ def prune_dead_containers():
 
     ucct = UserChallengeContainerTemp.objects.all()
 
+    g_logger.info(
+        "Prunning all stoped containers references in UserChallengeContainerTemp table...")
+
     for instance in ucct:
-        if not container_running(ucct.container_id):
+        container = DockerContainer(container_id=ucct.container_id)
+        if container.status() != "running":
             instance.delete()
 
 
