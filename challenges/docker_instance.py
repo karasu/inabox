@@ -4,9 +4,9 @@ import pprint
 import socket
 import time
 
-import docker
-
 from celery.utils.log import get_task_logger
+
+from .docker_utils import run_container
 
 g_logger = get_task_logger(__name__)
 
@@ -55,32 +55,26 @@ class DockerInstance():
     def start(self):
         """ Start this instance """
 
-        # get docker client
-        client = docker.DockerClient(base_url='unix://var/run/docker.sock')
-        client.ping()
-
         if "ports" not in self.docker_options:
             self.docker_options["ports"] = {}
         self.docker_options["ports"][self.INNER_PORT] = self.outer_port
 
         # start instance
-        try:
-            g_logger.info(
-                "Starting container instance of image %s with dockeroptions %s",
-                self.image_name,
-                pprint.pformat(self.docker_options))
+        container = run_container(self.image_name, self.docker_options)
 
-            result = client.containers.run(
-                image=self.image_name,
-                **self.docker_options)
-
-            self._instance = client.containers.get(result.id)
-
-        except Exception as exc:
-            g_logger.warning("Failed to start an instance of image %s: %s",
-                self.image_name, exc)
-            self.stop()
+        if not container:
+            g_logger.warning("Failed to start an instance of image %s",
+                self.image_name)
             return False
+
+        #self._instance = client.containers.get(result.id)
+        self._instance = container
+
+        g_logger.info(
+            "Started container of image %s with docker_options %s",
+            self.image_name,
+            pprint.pformat(self.docker_options))
+
 
         cid = self.get_instance_id()
         cname = self.get_instance_name()

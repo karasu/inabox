@@ -227,7 +227,7 @@ class Challenge(models.Model):
         return str(self.title)
 
 
-class UserChallengeContainer(models.Model):
+class UserChallengeContainerTemp(models.Model):
     """ Store docker container's info """
     container_id = models.CharField(
         max_length=128, default="0")

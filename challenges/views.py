@@ -2,7 +2,6 @@
 
 import socket
 import os
-import logging
 import traceback
 import asyncio
 
@@ -29,12 +28,14 @@ from .privatekey import InvalidValueError
 from .worker import Worker, recycle_worker, clients
 
 from .models import Challenge, Area, Profile, ProposedSolution, Quest, QuestChallenge
-from .models import ClassGroup, Team, Organization, UserChallengeContainer, DockerImage
+from .models import ClassGroup, Team, Organization, UserChallengeContainerTemp, DockerImage
 from .models import LEVELS, ROLES
 from .forms import ChallengeSSHForm, NewChallengeForm, UploadSolutionForm, SearchForm
 
 # Celery task to check if a proposed solution is valid or not
 from .tasks import validate_solution_task, run_docker_container_task
+
+from .logger import g_logger
 
 @register.filter
 def get_item(dictionary, key):
@@ -66,7 +67,7 @@ class NewChallengeView(LoginRequiredMixin, generic.base.TemplateView):
                 form.save()
                 return HttpResponseRedirect(reverse("challenges:challenges"))
             # form not valid
-            logging.error(form.errors)
+            g_logger.error(form.errors)
             return render(
                 request,
                 template_name="challenges/form_error.html",
@@ -211,7 +212,11 @@ class ChallengeDetailView(generic.DetailView):
 
         if self.request.user.is_authenticated:
             # Add forms to our context so we can put them in the template
+
+            # Get the docker image of this challenge
             docker_image = context['challenge'].docker_image
+
+            # Get data for the SSH connection form
             data = {
                 "hostname": "localhost",
                 "port": docker_image.container_ssh_port,
@@ -222,7 +227,9 @@ class ChallengeDetailView(generic.DetailView):
                 "totp": 0,
                 "term": "xterm-256color",
                 "challenge_id": context['challenge'].id,
+                "image_name": docker_image.docker_name,
             }
+
             context['ssh_data'] = ChallengeSSHForm(data)
 
             context['upload_solution_form'] = UploadSolutionForm(
@@ -241,30 +248,7 @@ class ChallengeDetailView(generic.DetailView):
                     challenge=context['challenge'],
                     tries=0)
             except ProposedSolution.MultipleObjectsReturned:
-                logging.error("Multiple entries in ProposedSolution table!")
-
-
-
-            # TODO : Move this to form ChallengeSSHForm
-            try:
-                container = UserChallengeContainer.objects.get(
-                    user=self.request.user,
-                    challenge=context['challenge'])
-                context['docker_instance'] = container.id
-            except UserChallengeContainer.DoesNotExist:
-                # Get the docker image name
-                docker_image = DockerImage.objects.get(
-                    id=context['challenge'].docker_image.id)
-
-                # Run the container
-                run_docker_container_task.delay(
-                    user_id=self.request.user.id,
-                    challenge_id=context['challenge'].id,
-                    docker_image_name=docker_image.docker_name)
-                #context['docker_instance'] = response['docker_instance_id']
-                
-            except UserChallengeContainer.MultipleObjectsReturned:
-                logging.error("Multiple entries in UserChallengeContainer table!")
+                g_logger.error("Multiple entries in ProposedSolution table!")
 
         return context
 
@@ -300,7 +284,7 @@ class ChallengeDetailView(generic.DetailView):
         """ Connect to the container """
         ssh = self.ssh_client
         dst_addr = args[:2]
-        logging.info("Connecting to %s:%d", dst_addr[0], dst_addr[1])
+        g_logger.info("Connecting to %s:%d", dst_addr[0], dst_addr[1])
 
         try:
             #ssh.connect(*args, timeout=options.timeout)
@@ -347,6 +331,25 @@ class ChallengeDetailView(generic.DetailView):
         form = ChallengeSSHForm(request.POST)
 
         if form.is_valid():
+            user = request.POST.get('user')
+            challenge = request.POST.get('challenge')
+            docker_image_name = request.POST.get('docker_image_name')
+
+            # Run the container
+            task_result = run_docker_container_task.delay(
+                user_id=user.id,
+                challenge_id=challenge.id,
+                docker_image_name=docker_image_name)
+
+            # TODO: waiting for an async task as soon as submitting
+            # defeats the purpose of Celery.
+            result = task_result.get()
+
+            # TODO: Remove old code from post
+            # ('port' now should not be in the database or in the form)
+            # overwrite port value (this needs a rewriting)
+            request.POST['port'] = result.get('port', "22")
+
             # Prepare SSH connection
 
             #self.policy = policy
@@ -383,7 +386,7 @@ class ChallengeDetailView(generic.DetailView):
                  #worker = yield future
                 worker = future.result()
             except (ValueError, paramiko.SSHException) as exc:
-                logging.error(traceback.format_exc())
+                g_logger.error(traceback.format_exc())
                 result.update(status=str(exc))
             else:
                 if not workers:
@@ -399,7 +402,7 @@ class ChallengeDetailView(generic.DetailView):
             return JsonResponse(result)
 
         # form is not valid
-        logging.error(form.errors)
+        g_logger.error(form.errors)
         return render(
             request,
             template_name="challenges/form_error.html",
@@ -454,7 +457,7 @@ class ChallengeDetailView(generic.DetailView):
             return self.render_to_response(context=context)
 
         # Form is not valid
-        logging.error(form.errors)
+        g_logger.error(form.errors)
         return render(
             request,
             template_name="challenges/form_error.html",
@@ -545,7 +548,7 @@ class SearchView(generic.base.TemplateView):
             return self.render_to_response(context=context)
 
         # Form is not valid
-        logging.error(form.errors)
+        g_logger.error(form.errors)
         return render(
             request,
             template_name="challenges/form_error.html",

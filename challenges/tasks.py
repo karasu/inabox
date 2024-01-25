@@ -4,22 +4,23 @@ import tarfile
 import os
 import stat
 import socket
-import time
-import uuid
+
+import docker
 
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
 
-import docker
-
 from celery import shared_task
 from celery.utils.log import get_task_logger
 from celery_progress.backend import ProgressRecorder
+from inabox.celery import app as celery_app
 
 from .models import Challenge, ProposedSolution
-from .models import UserChallengeContainer
+from .models import UserChallengeContainerTemp
 
 from .docker_instance import DockerInstance
+
+from .docker_utils import container_running
 
 g_logger = get_task_logger(__name__)
 
@@ -190,8 +191,7 @@ class RunDockerContainer():
         self._outer_port = 0
 
     def get_outer_port(self):
-        """ Gets docker container ssh access port """
-
+        """ Gets a free tcp port """
         if self._outer_port == 0:
             sock = socket.socket()
             sock.bind(('', 0))
@@ -218,11 +218,10 @@ class RunDockerContainer():
             call['port'] = 0
             return call
 
-        g_logger.info(instance)
         # Instance created
         g_logger.info(
-            "Incoming petition from user %s for contanier [%s] from image %s",
-            call["user_id"], instance.get_instance_id(), image_name)
+            "Instance [%s] from image [%s] created by user [%d] ",
+            instance.get_instance_id(), image_name, call['user_id'])
 
         call['docker_instance_id'] = instance.get_instance_id()
         call['port'] = self.get_outer_port()
@@ -252,11 +251,32 @@ def run_docker_container_task(task, user_id, challenge_id, docker_image_name):
     container = RunDockerContainer()
     response = container.run(call)
 
-    # Update UserChallengeContainer with the container id
+    # Update UserChallengeContainerTemp with the container id
+    if call['docker_instance_id'] != -1:
+        ucct = UserChallengeContainerTemp(
+            container_id=response['docker_instance_id'],
+            challenge=Challenge.objects.get(id=challenge_id),
+            user=User.objects.get(id=user_id),
+            port=response['port'])
+        ucct.save()
 
-    ucc = UserChallengeContainer(
-        container_id=response['docker_instance_id'],
-        challenge=Challenge.objects.get(id=user_id),
-        user=Challenge.objects.get(id=challenge_id),
-        port=response['port'])
-    ucc.save()
+    return call
+
+
+@celery_app.task
+def prune_dead_containers(task):
+    """ This task removes all stoped containers """
+
+    ucct = UserChallengeContainerTemp.objects.all()
+
+    for instance in ucct:
+        if not container_running(ucct.container_id):
+            instance.delete()
+
+
+@celery_app.on_after_finalize.connect
+def setup_periodic_tasks(sender, **kwargs):
+    """ Put periodic tasks here """
+
+    # Calls prune_dead_containers every minute.
+    sender.add_periodic_task(60.0, prune_dead_containers)
