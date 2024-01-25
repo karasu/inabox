@@ -216,7 +216,7 @@ class ChallengeDetailView(generic.DetailView):
             # Get the docker image of this challenge
             docker_image = context['challenge'].docker_image
 
-            g_logger.warning(docker_image.docker_name)
+            print(docker_image.docker_name)
 
             # Get data for the SSH connection form
             data = {
@@ -330,12 +330,16 @@ class ChallengeDetailView(generic.DetailView):
 
     def challenge_ssh_form(self, request):
         """ Create a form instance and populate it with data from the request: """
-        form = ChallengeSSHForm(request.POST)
+
+        form_data = request.POST
+
+        form = ChallengeSSHForm(form_data)
 
         if form.is_valid():
-            user = request.POST.get('user')
-            challenge = request.POST.get('challenge')
-            docker_image_name = request.POST.get('docker_image_name')
+            # User is not in form data !!!!!!!!!!!!!!!!!!!!!
+            user = form_data.get('user')
+            challenge = form_data.get('challenge')
+            docker_image_name = form_data.get('docker_image_name')
 
             # Run the container
             task_result = run_docker_container_task.delay(
@@ -417,8 +421,11 @@ class ChallengeDetailView(generic.DetailView):
     def upload_solution_form(self, request, *args, **kwargs):
         """ We need to check if user has already tried and update the ProposedSolution
         if not just save this as the first one """
-        user = request.POST.get('user')
-        challenge = request.POST.get('challenge')
+
+        form_data = request.POST
+
+        user = form_data.get('user')
+        challenge = form_data.get('challenge')
         proposed_solution = ProposedSolution.objects.get(
             user=user,
             challenge=challenge)
@@ -429,7 +436,7 @@ class ChallengeDetailView(generic.DetailView):
             proposed_solution.save()
 
         form = UploadSolutionForm(
-            request.POST,
+            form_data,
             request.FILES,
             instance=proposed_solution)
 
