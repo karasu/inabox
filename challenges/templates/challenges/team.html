@@ -5,22 +5,23 @@
 {% load i18n %}
 {% load static %}
 <div class="row">
-  <div class="col-sm-2">
-    <div class="mb-3">
-      <img class="img-thumbnail"
+  <div class="col-sm-2 mb-3">
+    <img class="img-thumbnail"
       src="{% static team.image.url %}" alt="avatar" width="256">
-    </div>
   </div>
-  <h2>{{ _("Members:") }}</h2>
-  {% for member in members %}
-  <a class="btn btn-secondary" href="{% url 'challenges:player' pk=member.id %}">
-  {% if member.first_name and member.last_name %}
-  {{ member.first_name }} {{ member.last_name }}
-  {% else %}
-  {{ member.username }}
-  {% endif %}
-  </a>
-  <br />
-  {% endfor %}
+  <div class="col-sm-2 mb-3">
+    {{ team.description }}
+  </div>
 </div>
+
+<h2>{{ _("Members:") }}</h2>
+{% for member in members %}
+<a class="btn btn-secondary" href="{% url 'challenges:player' pk=member.id %}">
+{% if member.first_name and member.last_name %}
+{{ member.first_name }} {{ member.last_name }}
+{% else %}
+{{ member.username }}
+{% endif %}
+</a>
+{% endfor %}
 {% endblock %}
