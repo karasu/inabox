@@ -73,7 +73,6 @@ class DockerInstance():
             self.image_name,
             pprint.pformat(self.docker_options))
 
-
         cid = self.get_instance_id()
         cname = self.get_instance_name()
         cport = self.get_port()

@@ -185,7 +185,7 @@ class RunDockerContainer():
     # { "docker_instance_id", "docker_options", "docker_image_name",
     #  "port", "user_id", "challenge_id", "error_message"}
 
-    def __init__(self):
+    def __init__(self, container_id):
         self.result = None
         self._outer_port = 0
 
@@ -205,16 +205,35 @@ class RunDockerContainer():
         docker_options = call['docker_options']
         docker_options["detach"] = True
 
-        instance = DockerInstance(
-                image_name, docker_options, self.get_outer_port())
-        instance.start()
+        container_id = call['docker_instance_id']
 
+        instance = None
+
+        # If container_id is not None, we will try to start it instead
+        # of running a new one
+
+        if container_id:
+            container = DockerContainer(container_id)
+            if container.exists():
+                if container.status() == "stopped":
+                    container.start()
+                    instance = container.get_instance()
+ 
+        if instance is None:
+            # There was no previous instance or we failed to start it
+            # Let's try to create a new container
+
+            instance = DockerInstance(
+                    image_name, docker_options, self.get_outer_port())
+            instance.start()
+
+        # Everything failed
         if instance is None:
             g_logger.warning(
                 "Error creating a docker instance from %s", image_name)
-            call['docker_instance_id'] = -1
+            call['docker_instance_id'] = None
             call['error'] = "Error creating container"
-            call['port'] = 0
+            call['port'] = None
             return call
 
         # Instance created
@@ -230,7 +249,8 @@ class RunDockerContainer():
 
 
 @shared_task(bind=True)
-def run_docker_container_task(task, user_id, challenge_id, docker_image_name):
+def run_docker_container_task(
+    task, user_id, challenge_id, docker_image_name, container_id):
     """ Listen to switchboard messages """
 
     g_logger.info(
@@ -238,7 +258,7 @@ def run_docker_container_task(task, user_id, challenge_id, docker_image_name):
         user_id, challenge_id)
 
     call = {
-        "docker_instance_id": 0,
+        "docker_instance_id": container_id,
         "docker_options": {},
         "docker_image_name": docker_image_name,
         "user_id": user_id,
@@ -247,13 +267,16 @@ def run_docker_container_task(task, user_id, challenge_id, docker_image_name):
         "error": None
     }
 
-    container = RunDockerContainer()
+    container = RunDockerContainer(container_id)
     response = container.run(call)
 
     # Update UserChallengeContainerTemp with the container id
-    if call['docker_instance_id'] != -1:
+    old_container_id = container_id
+    new_container_id = call['docker_instance_id']
+
+    if old_container_id is None and new_container_id is not None:
         ucct = UserChallengeContainerTemp(
-            container_id=response['docker_instance_id'],
+            container_id=new_container_id,
             challenge=Challenge.objects.get(id=challenge_id),
             user=User.objects.get(id=user_id),
             port=response['port'])

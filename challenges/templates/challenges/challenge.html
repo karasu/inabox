@@ -143,7 +143,7 @@
       method="post" enctype="multipart/form-data">
       {% csrf_token %}
       <input type="hidden" name="form_name" value="SaveContainerForm">
-      <input type="hidden" name="docker_instance" value="{{ docker_instance }}">
+      <input type="hidden" name="challenge_id" value="{{ challenge.id }}">
       <button id="save-image-btn" type="submit" class="btn btn-primary">{{ _("Save changes") }}</button>
     </form>
     </div>

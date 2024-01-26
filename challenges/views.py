@@ -30,7 +30,7 @@ from .worker import Worker, recycle_worker, clients
 from .models import Challenge, Area, Profile, ProposedSolution, Quest, QuestChallenge
 from .models import ClassGroup, Team, Organization
 #from .models import DockerImage
-#from .models import UserChallengeContainerTemp
+from .models import UserChallengeContainerTemp
 from .models import LEVELS, ROLES
 from .forms import ChallengeSSHForm, NewChallengeForm, UploadSolutionForm, SearchForm
 
@@ -345,7 +345,8 @@ class ChallengeDetailView(generic.DetailView):
             task_result = run_docker_container_task.delay(
                 user_id=user.id,
                 challenge_id=challenge_id,
-                docker_image_name=docker_image_name)
+                docker_image_name=docker_image_name,
+                container_id=None)
 
             # TODO: waiting for an async task as soon as submitting
             # defeats the purpose of Celery.
@@ -476,9 +477,17 @@ class ChallengeDetailView(generic.DetailView):
     def save_container(self, request):
         """ save current container as a new image """
 
-        # TODO: Implement this!
+        #user = request.user
+        #challenge_id = request.POST['challenge_id']
+        #challenge = Challenge.objects.get(id=challenge_id)
+        #ucct = UserChallengeContainerTemp.objects.get(user=user, challenge=challenge)
+        #cid = ucct.container_id
 
-        #user = request.POST.get('user')
+
+        #print(cid)
+
+
+
 
         return render(
             request,
@@ -488,7 +497,6 @@ class ChallengeDetailView(generic.DetailView):
                 "errors": "Not implemented",
                 }
             )
-
 
     def post(self, request, *args, **kwargs):
         """ Deal with post data """

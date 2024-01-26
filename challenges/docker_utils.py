@@ -39,6 +39,11 @@ class DockerContainer():
         if self._container:
             self._container.stop()
 
+    def start(self):
+        """ Start existing container """
+        if self._container:
+            self._container.start()
+
     def get_instance(self):
         """ return container instance """
         return self._container
