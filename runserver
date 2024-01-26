@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 echo "" > known_hosts
 
@@ -19,7 +19,7 @@ docker run --name inabox-redis -p 6379:6379 -d redis:5
 CELERY_CMD="celery -A inabox worker --loglevel=INFO"
 DJANGO_CMD="python manage.py runserver"
 
-if [ "${XDG_SESSION_TYPE}" == "tty"  ]; then
+if [ "${XDG_SESSION_TYPE}" == "tty" ]; then
   ${CELERY_CMD}
   ${DJANGO_CMD}
 else
