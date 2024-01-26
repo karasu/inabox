@@ -10,21 +10,24 @@ docker run --name inabox-rabbitmq -p 5672:5672 -d rabbitmq
 docker rm -f inabox-redis
 docker run --name inabox-redis -p 6379:6379 -d redis:5
 
+echo Waiting for containers to start...
+sleep 4s
+
 ## Build all images
 #cd docker-images
 #./build-all
 #cd ..
 
-# Now run all services (development)
+echo "Now run Celery and Django (development)..."
+
 CELERY_CMD="celery -A inabox worker --loglevel=INFO"
 DJANGO_CMD="python manage.py runserver"
 
 if [ "${XDG_SESSION_TYPE}" == "tty" ]; then
-  ${CELERY_CMD}
-  ${DJANGO_CMD}
+  ${CELERY_CMD} &!
+  ${DJANGO_CMD} &!
 else
   PWD=`pwd`
   kitty --detach --title celery --directory ${PWD} ${CELERY_CMD}
   kitty --detach --title django --directory ${PWD} ${DJANGO_CMD}
 fi
-

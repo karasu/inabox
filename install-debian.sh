@@ -7,12 +7,16 @@ python3-daphne \
 python3-django \
 python3-django-celery-results \
 python3-django-channels \
+python3-django-redis \
 python3-docker \
 python3-msgpack \
 python3-paramiko \
 python3-pycryptodome \
 python3-redis \
 python3-yaml \
-docker-compose
+docker-compose \
+celery
 
-#django-admin-interface
+# django-admin-interface
+# django-bootstrap5
+
