@@ -13,7 +13,7 @@
   </div>
   <h2>{{ _("Members:") }}</h2>
   {% for member in members %}
-  <a href="{% url 'challenges:player' pk=member.id %}">
+  <a class="btn btn-secondary" href="{% url 'challenges:player' pk=member.id %}">
   {% if member.first_name and member.last_name %}
   {{ member.first_name }} {{ member.last_name }}
   {% else %}

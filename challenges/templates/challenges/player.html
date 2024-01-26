@@ -23,11 +23,8 @@
     <div class="form-group mb-3 row">
       <label for="organization" class="control-label col-sm-2 mt-2">{{ _("Organization") }}</label>
       <div class="col-sm-4">
-        
-        <a href="{% url 'challenges:organization' pk=player.profile.organization.id %}">
-          <span>
-          <input type="text" class="form-control" id="organization"
-          value="{{ player.profile.organization }}" disabled></span></a>
+          <a href="{% url 'challenges:organization' pk=player.profile.organization.id %}"
+           class="btn btn-secondary form-control text-start">{{ player.profile.organization }}</a>
         </div>
       <div class="col-sm-6"></div>
     </div>
@@ -35,12 +32,13 @@
     <div class="form-group mb-3 row">
       <label for="team" class="control-label col-sm-2 mt-2">{{ _("Team") }}</label>
       <div class="col-sm-4">
-        <input type="text" class="form-control" id="team"
-        value="{{ player.profile.team }}" disabled>
+        <a href="{% url 'challenges:team' pk=player.profile.team.id %}"
+         class="btn btn-secondary form-control text-start">{{ player.profile.team }}</a>
       </div>
       <div class="col-sm-6"></div>
     </div>
 
+    <!-- points -->
     <div class="form-group mb-3 row">
       <label for="points" class="control-label col-sm-2 mt-2">{{ _("Points") }}</label>
       <div class="col-sm-4">
@@ -50,6 +48,7 @@
       <div class="col-sm-6"></div>
     </div>
 
+    <!-- Num solved -->
     <div class="form-group mb-3 row">
       <label for="solved" class="control-label col-sm-2 mt-2">{{ _("Solved") }}</label>
       <div class="col-sm-4">

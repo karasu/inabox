@@ -577,23 +577,23 @@ class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
         }
 
         excludes = {
-            "user": [
-                "id", "password", "groups", "user_permissions", "profile"],
-            "profile": [
-                "id", "user", "private_key", "challenge",
+            "user": ["id", "password", "groups", "user_permissions", "profile"],
+            "profile": ["id", "user", "private_key", "challenge",
                 "proposedsolution", "quest", "logentry"]}
 
         for k, obj in objs.items():
             context[k + "_data"] = []
             for field in obj._meta.get_fields():
                 if field.name not in excludes[k]:
-                    context[k + "_data"].append(
-                        self.get_field_data(obj, field))
+                    item = self.get_field_data(obj, field)
+                    if item:
+                        context[k + "_data"].append(item)
 
         return context
 
     def get_field_data(self, obj, field):
         """ gets field label and value """
+
         try:
             label = field.verbose_name.capitalize()
             value = field.value_from_object(obj)
@@ -631,7 +631,7 @@ class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
             }
         except AttributeError as err:
             print(err)
-            return {}
+            return None
 
 
 class PlayersListView(generic.ListView):
