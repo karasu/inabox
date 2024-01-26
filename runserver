@@ -16,7 +16,15 @@ docker run --name inabox-redis -p 6379:6379 -d redis:5
 #cd ..
 
 # Now run all services (development)
-PWD=`pwd`
-kitty --detach --title switchboard --directory $PWD/switchboard python switchboard.py 
-sleep 2s && kitty --detach --title celery --directory $PWD celery -A inabox worker --loglevel=INFO
-kitty --detach --title django --directory $PWD python manage.py runserver
+CELERY_CMD="celery -A inabox worker --loglevel=INFO"
+DJANGO_CMD="python manage.py runserver"
+
+if [ "${XDG_SESSION_TYPE}" == "tty"  ]; then
+  ${CELERY_CMD}
+  ${DJANGO_CMD}
+else
+  PWD=`pwd`
+  kitty --detach --title celery --directory ${PWD} ${CELERY_CMD}
+  kitty --detach --title django --directory ${PWD} ${DJANGO_CMD}
+fi
+
