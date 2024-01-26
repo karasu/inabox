@@ -23,9 +23,12 @@
     <div class="form-group mb-3 row">
       <label for="organization" class="control-label col-sm-2 mt-2">{{ _("Organization") }}</label>
       <div class="col-sm-4">
-        <input type="text" class="form-control" id="organization"
-        value="{{ player.profile.organization }}" disabled>
-      </div>
+        
+        <a href="{% url 'challenges:organization' pk=player.profile.organization.id %}">
+          <span>
+          <input type="text" class="form-control" id="organization"
+          value="{{ player.profile.organization }}" disabled></span></a>
+        </div>
       <div class="col-sm-6"></div>
     </div>
 
