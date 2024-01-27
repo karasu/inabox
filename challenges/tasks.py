@@ -207,7 +207,7 @@ class RunDockerContainer():
         if container_id is None:
             if options is None:
                 options = {}
-                options['ports'] = {}
+            options['ports'] = {}
             options['ports'][22] = self.get_port()
 
         container = Container(container_id)
@@ -216,7 +216,7 @@ class RunDockerContainer():
         # Everything failed
         if container.status() != "running":
             g_logger.warning(
-                "Container [%d] is not running", container.get_id())
+                "Container [%s] is not running", container.get_id())
             args['docker_instance_id'] = None
             args['error'] = "Error creating container"
             args['port'] = None

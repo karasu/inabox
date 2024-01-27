@@ -70,7 +70,7 @@ class Container():
         if self._container:
             try:
                 return int(
-                self._instance.attrs["NetworkSettings"]["Ports"]["22/tcp"][0]["HostPort"])
+                self._container.attrs["NetworkSettings"]["Ports"]["22/tcp"][0]["HostPort"])
             except AttributeError as exc:
                 g_logger.warning("Failed to get port information: %s", exc)
         return None
