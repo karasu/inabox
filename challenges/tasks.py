@@ -18,8 +18,7 @@ from inabox.celery import app as celery_app
 from .models import Challenge, ProposedSolution
 from .models import UserChallengeContainerTemp
 
-from .docker_instance import DockerInstance
-from .docker_utils import DockerContainer
+from .container import Container
 
 g_logger = get_task_logger(__name__)
 
@@ -185,67 +184,54 @@ class RunDockerContainer():
     # { "docker_instance_id", "docker_options", "docker_image_name",
     #  "port", "user_id", "challenge_id", "error_message"}
 
-    def __init__(self, container_id):
+    def __init__(self):
         self.result = None
-        self._outer_port = 0
+        self._outer_port = None
 
-    def get_outer_port(self):
+    def get_port(self):
         """ Gets a free tcp port """
-        if self._outer_port == 0:
+        if self._outer_port is None:
             sock = socket.socket()
             sock.bind(('', 0))
             self._outer_port = sock.getsockname()[1]
             sock.close()
         return self._outer_port
 
-    def run(self, call):
+    def run(self, args):
         """ Start a new docker container """
 
-        image_name = call['docker_image_name']
-        docker_options = call['docker_options']
-        docker_options["detach"] = True
+        container_id = args['docker_instance_id']
+        image_name = args['docker_image_name']
+        options = args['docker_options']
 
-        container_id = call['docker_instance_id']
+        if container_id is None:
+            if options is None:
+                options = {}
+                options['ports'] = {}
+            options['ports'][22] = self.get_port()
 
-        instance = None
-
-        # If container_id is not None, we will try to start it instead
-        # of running a new one
-
-        if container_id:
-            container = DockerContainer(container_id)
-            if container.exists():
-                if container.status() == "stopped":
-                    container.start()
-                    instance = container.get_instance()
- 
-        if instance is None:
-            # There was no previous instance or we failed to start it
-            # Let's try to create a new container
-
-            instance = DockerInstance(
-                    image_name, docker_options, self.get_outer_port())
-            instance.start()
+        container = Container(container_id)
+        container.run(image_name, options)
 
         # Everything failed
-        if instance is None:
+        if container.status() != "running":
             g_logger.warning(
-                "Error creating a docker instance from %s", image_name)
-            call['docker_instance_id'] = None
-            call['error'] = "Error creating container"
-            call['port'] = None
-            return call
+                "Container [%d] is not running", container.get_id())
+            args['docker_instance_id'] = None
+            args['error'] = "Error creating container"
+            args['port'] = None
+            return args
 
         # Instance created
         g_logger.info(
             "Instance [%s] from image [%s] created by user [%d] ",
-            instance.get_instance_id(), image_name, call['user_id'])
+            container.get_id(), image_name, args['user_id'])
 
-        call['docker_instance_id'] = instance.get_instance_id()
-        call['port'] = self.get_outer_port()
-        call['error'] = None
+        args['docker_instance_id'] = container.get_id()
+        args['port'] = container.get_port()
+        args['error'] = None
 
-        return call
+        return args
 
 
 @shared_task(bind=True)
@@ -253,9 +239,14 @@ def run_docker_container_task(
     task, user_id, challenge_id, docker_image_name, container_id):
     """ Listen to switchboard messages """
 
-    g_logger.info(
-        "User %s is asking for a new container for challenge [%s]",
-        user_id, challenge_id)
+    if container_id is None:
+        g_logger.info(
+            "User %s is asking for a new container for challenge [%s]",
+            user_id, challenge_id)
+    else:
+        g_logger.info(
+            "Trying to reuse container [%s] for challenge [%s] and user [%s]",
+            container_id, challenge_id, user_id)
 
     call = {
         "docker_instance_id": container_id,
@@ -267,7 +258,7 @@ def run_docker_container_task(
         "error": None
     }
 
-    container = RunDockerContainer(container_id)
+    container = RunDockerContainer()
     response = container.run(call)
 
     # Update UserChallengeContainerTemp with the container id
