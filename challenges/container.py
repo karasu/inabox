@@ -2,6 +2,7 @@
 
 import socket
 import time
+import pprint
 
 import docker
 
@@ -65,14 +66,15 @@ class Container():
             return self._container.name
         return None
 
-    def get_port(self):
+    def get_port(self, opt_port=None):
         """ Returns container's ssh outer port """
         if self._container:
             try:
                 return int(
-                self._container.attrs["NetworkSettings"]["Ports"]["22/tcp"][0]["HostPort"])
-            except AttributeError as exc:
+                self._container.attrs['NetworkSettings']['Ports']['22/tcp'][0]['HostPort'])
+            except (AttributeError, KeyError) as exc:
                 g_logger.warning("Failed to get port information: %s", exc)
+                return opt_port
         return None
 
     def run(self, image_name=None, options=None):
@@ -92,14 +94,20 @@ class Container():
         # Ok, container does not exist, we need to create it from image_name
 
         if image_name is None:
-            g_logger.warning("No docker image name has been provided!")
+            g_logger.warning(
+                "No docker image name has been provided and no previous container was found.")
             return None
 
         if options is None:
-            g_logger.warning("No docker options have been provided!")
+            g_logger.warning(
+                "No docker options have been provided and no previous container was found.")
+            return None
 
         # force detached option
         options['detach'] = True
+
+        g_logger.warning("Starting a NEW container with these options: %s",
+            pprint.pformat(options))
 
         try:
             # if detached, run returns the container itself
@@ -108,7 +116,7 @@ class Container():
 
             cid = self.get_id()
             cname = self.get_name()
-            cport = self.get_port()
+            cport = options['ports'][22]
 
             # wait until container is available
             if self._wait_for_open_port(port=cport):

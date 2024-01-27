@@ -211,12 +211,13 @@ class RunDockerContainer():
             options['ports'][22] = self.get_port()
 
         container = Container(container_id)
-        container.run(image_name, options)
+        res = container.run(image_name, options)
 
         # Everything failed
-        if container.status() != "running":
+        if res is None:
             g_logger.warning(
-                "Container [%s] is not running", container.get_id())
+                "Container [%s] is not running, status:[%s]",
+                container.get_id(), container.status())
             args['docker_instance_id'] = None
             args['error'] = "Error creating container"
             args['port'] = None
@@ -227,8 +228,8 @@ class RunDockerContainer():
             "Instance [%s] from image [%s] created by user [%d] ",
             container.get_id(), image_name, args['user_id'])
 
-        args['docker_instance_id'] = container.get_id()
-        args['port'] = container.get_port()
+        args['docker_instance_id'] = res['id']
+        args['port'] = res['port']
         args['error'] = None
 
         return args
@@ -248,32 +249,33 @@ def run_docker_container_task(
             "Trying to reuse container [%s] for challenge [%s] and user [%s]",
             container_id, challenge_id, user_id)
 
-    call = {
-        "docker_instance_id": container_id,
-        "docker_options": {},
-        "docker_image_name": docker_image_name,
-        "user_id": user_id,
-        "challenge_id": challenge_id,
-        "port": 0,
-        "error": None
+    args = {
+        'docker_instance_id': container_id,
+        'docker_options': {},
+        'docker_image_name': docker_image_name,
+        'user_id': user_id,
+        'challenge_id': challenge_id,
+        'port': None,
+        'error': None
     }
 
     container = RunDockerContainer()
-    response = container.run(call)
+    response = container.run(args)
 
     # Update UserChallengeContainerTemp with the container id
     old_container_id = container_id
-    new_container_id = call['docker_instance_id']
+    new_container_id = args['docker_instance_id']
 
-    if old_container_id is None and new_container_id is not None:
-        ucct = UserChallengeContainerTemp(
-            container_id=new_container_id,
-            challenge=Challenge.objects.get(id=challenge_id),
-            user=User.objects.get(id=user_id),
-            port=response['port'])
-        ucct.save()
+# TODO: check this out
+#    if old_container_id is None and new_container_id is not None:
+#        ucct = UserChallengeContainerTemp(
+#            container_id=new_container_id,
+#            challenge=Challenge.objects.get(id=challenge_id),
+#            user=User.objects.get(id=user_id),
+#            port=response['port'])
+#        ucct.save()
 
-    return call
+    return args
 
 
 @celery_app.task

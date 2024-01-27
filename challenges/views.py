@@ -477,6 +477,7 @@ class ChallengeDetailView(generic.DetailView):
     def save_container(self, request):
         """ save current container as a new image """
 
+        # TODO: check this out
         #user = request.user
         #challenge_id = request.POST['challenge_id']
         #challenge = Challenge.objects.get(id=challenge_id)
