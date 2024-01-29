@@ -22,8 +22,12 @@ class Container():
             if container_id:
                 # Get the container
                 try:
-                    self._container = self._client.get(container_id)
-                except docker.errors.NotFound:
+                    self._container = self._client.containers.get(container_id)
+                    if self._container:
+                        ports = self._container.attrs["NetworkSettings"]["Ports"]
+                        self._port = int(ports["22/tcp"][0]["HostPort"])
+                except (docker.errors.NotFound, KeyError, AttributeError) as exc:
+                    g_logger.warning(exc)
                     g_logger.warning("Container with id %s not found", container_id)
         else:
             g_logger.error("Cannot connect to docker service. Is it running?")
@@ -86,7 +90,7 @@ class Container():
         if self._container:
             # container already exists, let's simply start it
             self.start()
-            return True
+            return self.get_info()
 
         # Ok, container does not exist, we need to create it from image_name
 
@@ -113,7 +117,7 @@ class Container():
                 g_logger.info(
                     "Port %d of started container [%s] with ID [%s] is OPEN :)",
                     self._port, cname, cid)
-                return { "id": cid, "name": cname, "port": self._port }
+                return self.get_info()
         except docker.errors.ContainerError:
             g_logger.warning("Coudn't start a new container from image %s", image_name)
         except docker.errors.ImageNotFound:

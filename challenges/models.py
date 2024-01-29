@@ -238,6 +238,13 @@ class UserChallengeContainerTemp(models.Model):
     # this needs some thinking
     port = models.IntegerField()
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'challenge'],
+                name='unique_user_challenge_combination'
+            )
+        ]
     def __str__(self):
         return str(self.container_id)
 

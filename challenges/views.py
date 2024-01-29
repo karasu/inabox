@@ -341,18 +341,30 @@ class ChallengeDetailView(generic.DetailView):
             challenge_id = form_data.get('challenge_id')
             docker_image_name = form_data.get('docker_image_name')
 
+            # Check in UserChallengeContainerTemp
+            try:
+                ucct = UserChallengeContainerTemp.objects.get(
+                    user=user,
+                    challenge=Challenge.objects.get(id=challenge_id)
+                )
+                container_id = ucct.container_id
+            except UserChallengeContainerTemp.DoesNotExist:
+                g_logger.warning("No previous container found, a new one will be created.")
+                container_id = None
+
             # Run the container
             task_result = run_docker_container_task.delay(
                 user_id=user.id,
                 challenge_id=challenge_id,
-                docker_image_name=docker_image_name)
+                docker_image_name=docker_image_name,
+                container_id=container_id)
 
             # TODO: waiting for an async task as soon as submitting
             # defeats the purpose of Celery.
             container_info = task_result.get()
-            print(container_info)
+            #print(container_info)
 
-            if container_info is None:
+            if container_info is None or container_info['port'] is None:
                 result = {
                     'workerid': None,
                     'status': _("Could not run the container! Please ask help to an administrator"),
@@ -362,12 +374,13 @@ class ChallengeDetailView(generic.DetailView):
 
             # Update UserChallengeContainerTemp with the container id and port
 
-            ucct = UserChallengeContainerTemp(
-                container_id=container_info['id'],
-                challenge=Challenge.objects.get(id=challenge_id),
-                user=user,
-                port=container_info['port'])
-            ucct.save()
+            # TODO: Fix this (update or save)
+            ##ucct = UserChallengeContainerTemp(
+            ##    container_id=container_info['id'],
+            ##    challenge=Challenge.objects.get(id=challenge_id),
+            ##    user=user,
+            ##    port=container_info['port'])
+            ##ucct.save()
 
             # Prepare SSH connection
 

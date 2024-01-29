@@ -16,6 +16,7 @@ from .models import Profile
 from .models import ProposedSolution
 from .models import Team
 from .models import Organization
+from .models import UserChallengeContainerTemp
 
 admin.site.register(Challenge)
 admin.site.register(Quest)
@@ -25,6 +26,7 @@ admin.site.register(ClassGroup)
 admin.site.register(ProposedSolution)
 admin.site.register(Team)
 admin.site.register(Organization)
+admin.site.register(UserChallengeContainerTemp)
 
 
 class ProfileInline(admin.StackedInline):
