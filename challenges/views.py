@@ -394,7 +394,7 @@ class ChallengeDetailView(generic.DetailView):
             try:
                 _args = Args(
                     request,
-                    container_port,
+                    container_info['port'],
                     self.ssh_client.get_host_keys(),
                     self.ssh_client.get_system_host_keys()).get_args()
             except InvalidValueError as exc:
