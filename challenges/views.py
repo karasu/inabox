@@ -341,11 +341,13 @@ class ChallengeDetailView(generic.DetailView):
             challenge_id = form_data.get('challenge_id')
             docker_image_name = form_data.get('docker_image_name')
 
+            challenge = Challenge.objects.get(id=challenge_id)
+
             # Check in UserChallengeContainerTemp
             try:
                 ucct = UserChallengeContainerTemp.objects.get(
                     user=user,
-                    challenge=Challenge.objects.get(id=challenge_id)
+                    challenge=challenge
                 )
                 container_id = ucct.container_id
             except UserChallengeContainerTemp.DoesNotExist:
@@ -373,14 +375,20 @@ class ChallengeDetailView(generic.DetailView):
                 return JsonResponse(result)
 
             # Update UserChallengeContainerTemp with the container id and port
-
-            # TODO: Fix this (update or save)
-            ##ucct = UserChallengeContainerTemp(
-            ##    container_id=container_info['id'],
-            ##    challenge=Challenge.objects.get(id=challenge_id),
-            ##    user=user,
-            ##    port=container_info['port'])
-            ##ucct.save()
+            try:
+                ucct = UserChallengeContainerTemp.objects.get(
+                    challenge=challenge,
+                    user=user)
+                ucct.container_id = container_info['id']
+                ucct.port = container_info['port']
+                ucct.save(update_fields=['container_id', 'port'])
+            except UserChallengeContainerTemp.DoesNotExist:    
+                ucct = UserChallengeContainerTemp(
+                    container_id=container_info['id'],
+                    challenge=challenge,
+                    user=user,
+                    port=container_info['port'])
+                ucct.save()
 
             # Prepare SSH connection
 
