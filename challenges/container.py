@@ -2,7 +2,6 @@
 
 import socket
 import time
-import pprint
 
 import docker
 

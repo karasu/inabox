@@ -349,16 +349,25 @@ class ChallengeDetailView(generic.DetailView):
 
             # TODO: waiting for an async task as soon as submitting
             # defeats the purpose of Celery.
-            container_port = task_result.get()
-            print(container_port)
+            container_info = task_result.get()
+            print(container_info)
 
-            if container_port is None:
+            if container_info is None:
                 result = {
                     'workerid': None,
                     'status': _("Could not run the container! Please ask help to an administrator"),
                     'encoding': 'utf-8'
                 }
                 return JsonResponse(result)
+
+            # Update UserChallengeContainerTemp with the container id and port
+
+            ucct = UserChallengeContainerTemp(
+                container_id=container_info['id'],
+                challenge=Challenge.objects.get(id=challenge_id),
+                user=user,
+                port=container_info['port'])
+            ucct.save()
 
             # Prepare SSH connection
 

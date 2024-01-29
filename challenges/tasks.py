@@ -7,7 +7,6 @@ import stat
 import docker
 
 from django.utils.translation import gettext_lazy as _
-from django.contrib.auth.models import User
 
 from celery import shared_task
 from celery.utils.log import get_task_logger
@@ -199,17 +198,9 @@ def run_docker_container_task(
             "Container [%s] is listening at port [%d]",
             container.get_id(), container.get_port())
 
-        # Update UserChallengeContainerTemp with the container id and port
-        #
-        #        ucct = UserChallengeContainerTemp(
-        #            container_id=new_container_id,
-        #            challenge=Challenge.objects.get(id=challenge_id),
-        #            user=User.objects.get(id=user_id),
-        #            port=response['port'])
-        #        ucct.save()
-
-        # return external ssh port so we can connect to it
-        return container.get_port()
+        return {
+            'id': container.get_id(),
+            'port': container.get_port()}
 
     # Could not start the container.
     g_logger.warning(
