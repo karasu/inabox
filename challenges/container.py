@@ -17,6 +17,7 @@ class Container():
     def __init__(self, container_id=None):
         self._container = None
         self._client = docker.DockerClient(base_url=URL)
+        self._port = None
 
         if self._client:
             if container_id:
@@ -68,13 +69,7 @@ class Container():
 
     def get_port(self):
         """ Returns container's ssh outer port """
-        if self._container:
-            try:
-                return int(
-                self._container.attrs['NetworkSettings']['Ports']['22/tcp'][0]['HostPort'])
-            except (AttributeError, KeyError) as exc:
-                g_logger.warning("Failed to get port information: %s", exc)
-        return None
+        return self._port
 
     def get_info(self):
         """ Returns a dict with container's info """
@@ -101,20 +96,25 @@ class Container():
                 "No docker image name has been provided and no previous container was found.")
             return False
 
+        # Expose port 22 to this port
+        self._port = self.get_free_port()
+
+        options = { 'detach': True, 'ports': {22: self._port}}
+
         try:
             # if detached, run returns the container itself
             self._container = self._client.containers.run(
-                image=image_name, detach=True)
+                image=image_name, **options)
 
-            # Load this object from the server again and update attrs with the new data.
-            self._container.reload()
+            cname = self.get_name()
+            cid = self.get_id()
 
-            # wait until container is available
-            if self._wait_for_open_port(port=self.get_port()):
+            # wait for container external port
+            if self._wait_for_open_port(port=self._port):
                 g_logger.info(
                     "Port %d of started container [%s] with ID [%s] is OPEN :)",
-                    cport, cname, cid)
-                return { "id": cid, "name": cname, "port": cport }
+                    self._port, cname, cid)
+                return { "id": cid, "name": cname, "port": self._port }
         except docker.errors.ContainerError:
             g_logger.warning("Coudn't start a new container from image %s", image_name)
         except docker.errors.ImageNotFound:
@@ -124,9 +124,17 @@ class Container():
 
         g_logger.warning(
             "Port %d of started container %s with ID [%s] is CLOSED :(",
-            cport, cname, cid)
+            self._port, cname, cid)
 
         return None
+
+    def get_free_port(self):
+        """ Gets a free tcp port """
+        sock = socket.socket()
+        sock.bind(('', 0))
+        port = sock.getsockname()[1]
+        sock.close()
+        return port
 
     def _is_port_open(self, port, read_timeout=0.1):
         """ check if port is open """

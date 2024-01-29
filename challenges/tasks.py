@@ -3,7 +3,6 @@
 import tarfile
 import os
 import stat
-import socket
 
 import docker
 
