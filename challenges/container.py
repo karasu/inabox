@@ -66,7 +66,7 @@ class Container():
             return self._container.name
         return None
 
-    def get_port(self, opt_port=None):
+    def get_port(self):
         """ Returns container's ssh outer port """
         if self._container:
             try:
@@ -74,52 +74,43 @@ class Container():
                 self._container.attrs['NetworkSettings']['Ports']['22/tcp'][0]['HostPort'])
             except (AttributeError, KeyError) as exc:
                 g_logger.warning("Failed to get port information: %s", exc)
-                return opt_port
         return None
 
-    def run(self, image_name=None, options=None):
-        """ Runs a new detached container from image name and returns it """
+    def get_info(self):
+        """ Returns a dict with container's info """
+        return {
+            "id": self.get_id(),
+            "name": self.get_name(),
+            "port": self.get_port() }
+
+    def run(self, image_name=None):
+        """ Runs a new detached container from image name """
 
         if not self._client:
-            return None
+            return False
 
         if self._container:
             # container already exists, let's simply start it
             self.start()
-            return {
-                "id": self.get_id(),
-                "name": self.get_name(),
-                "port": self.get_port() }
+            return True
 
         # Ok, container does not exist, we need to create it from image_name
 
         if image_name is None:
             g_logger.warning(
                 "No docker image name has been provided and no previous container was found.")
-            return None
-
-        if options is None:
-            g_logger.warning(
-                "No docker options have been provided and no previous container was found.")
-            return None
-
-        # force detached option
-        options['detach'] = True
-
-        g_logger.warning("Starting a NEW container with these options: %s",
-            pprint.pformat(options))
+            return False
 
         try:
             # if detached, run returns the container itself
             self._container = self._client.containers.run(
-                image=image_name, **options)
+                image=image_name, detach=True)
 
-            cid = self.get_id()
-            cname = self.get_name()
-            cport = options['ports'][22]
+            # Load this object from the server again and update attrs with the new data.
+            self._container.reload()
 
             # wait until container is available
-            if self._wait_for_open_port(port=cport):
+            if self._wait_for_open_port(port=self.get_port()):
                 g_logger.info(
                     "Port %d of started container [%s] with ID [%s] is OPEN :)",
                     cport, cname, cid)
@@ -168,3 +159,13 @@ class Container():
                 return True
             time.sleep(step)
         return False
+
+    def commit(self, name):
+        """ Commit a container to create an image called 'name' from its contents """
+        try:
+            self._container.wait()
+            image = self._container.commit(name)
+            return image.id
+        except docker.errors.APIError as exc:
+            g_logger.warning(exc)
+            return None

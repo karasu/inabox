@@ -178,104 +178,45 @@ def validate_solution_task(task, proposed_solution_id):
     return ValidateSolution(task, proposed_solution_id).run()
 
 
-class RunDockerContainer():
-    """ Runs a new docker container """
-    # call is:
-    # { "docker_instance_id", "docker_options", "docker_image_name",
-    #  "port", "user_id", "challenge_id", "error_message"}
-
-    def __init__(self):
-        self.result = None
-        self._outer_port = None
-
-    def get_port(self):
-        """ Gets a free tcp port """
-        if self._outer_port is None:
-            sock = socket.socket()
-            sock.bind(('', 0))
-            self._outer_port = sock.getsockname()[1]
-            sock.close()
-        return self._outer_port
-
-    def run(self, args):
-        """ Start a new docker container """
-
-        container_id = args['docker_instance_id']
-        image_name = args['docker_image_name']
-        options = args['docker_options']
-
-        if container_id is None:
-            if options is None:
-                options = {}
-            options['ports'] = {}
-            options['ports'][22] = self.get_port()
-
-        container = Container(container_id)
-        res = container.run(image_name, options)
-
-        # Everything failed
-        if res is None:
-            g_logger.warning(
-                "Container [%s] is not running, status:[%s]",
-                container.get_id(), container.status())
-            args['docker_instance_id'] = None
-            args['error'] = "Error creating container"
-            args['port'] = None
-            return args
-
-        # Instance created
-        g_logger.info(
-            "Instance [%s] from image [%s] created by user [%d] ",
-            container.get_id(), image_name, args['user_id'])
-
-        args['docker_instance_id'] = res['id']
-        args['port'] = res['port']
-        args['error'] = None
-
-        return args
-
-
 @shared_task(bind=True)
 def run_docker_container_task(
-    task, user_id, challenge_id, docker_image_name, container_id):
-    """ Listen to switchboard messages """
+    task, user_id, challenge_id, docker_image_name, container_id=None):
+    """ Runs docker container """
 
     if container_id is None:
         g_logger.info(
-            "User %s is asking for a new container for challenge [%s]",
+            "User [%d] is asking for a new container for challenge [%s]",
             user_id, challenge_id)
     else:
         g_logger.info(
-            "Trying to reuse container [%s] for challenge [%s] and user [%s]",
-            container_id, challenge_id, user_id)
+            "User [%d] is trying to reuse container [%s] for challenge [%s]",
+            user_id, container_id, challenge_id)
 
-    args = {
-        'docker_instance_id': container_id,
-        'docker_options': {},
-        'docker_image_name': docker_image_name,
-        'user_id': user_id,
-        'challenge_id': challenge_id,
-        'port': None,
-        'error': None
-    }
+    container = Container(container_id)
+    res = container.run(docker_image_name)
 
-    container = RunDockerContainer()
-    response = container.run(args)
+    if res:
+        g_logger.info(
+            "Container [%s] is listening at port [%d]",
+            container.get_id(), container.get_port())
 
-    # Update UserChallengeContainerTemp with the container id
-    old_container_id = container_id
-    new_container_id = args['docker_instance_id']
+        # Update UserChallengeContainerTemp with the container id and port
+        #
+        #        ucct = UserChallengeContainerTemp(
+        #            container_id=new_container_id,
+        #            challenge=Challenge.objects.get(id=challenge_id),
+        #            user=User.objects.get(id=user_id),
+        #            port=response['port'])
+        #        ucct.save()
 
-# TODO: check this out
-#    if old_container_id is None and new_container_id is not None:
-#        ucct = UserChallengeContainerTemp(
-#            container_id=new_container_id,
-#            challenge=Challenge.objects.get(id=challenge_id),
-#            user=User.objects.get(id=user_id),
-#            port=response['port'])
-#        ucct.save()
+        # return external ssh port so we can connect to it
+        return container.get_port()
 
-    return args
+    # Could not start the container.
+    g_logger.warning(
+      "Couldn't create (or reuse) container for challenge [%d] asked by user [%d]",
+            challenge_id, user_id)
+    return None
 
 
 @celery_app.task

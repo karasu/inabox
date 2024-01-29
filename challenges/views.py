@@ -345,13 +345,20 @@ class ChallengeDetailView(generic.DetailView):
             task_result = run_docker_container_task.delay(
                 user_id=user.id,
                 challenge_id=challenge_id,
-                docker_image_name=docker_image_name,
-                container_id=None)
+                docker_image_name=docker_image_name)
 
             # TODO: waiting for an async task as soon as submitting
             # defeats the purpose of Celery.
-            run_result = task_result.get()
-            print(run_result)
+            container_port = task_result.get()
+            print(container_port)
+
+            if container_port is None:
+                result = {
+                    'workerid': None,
+                    'status': _("Could not run the container! Please ask help to an administrator"),
+                    'encoding': 'utf-8'
+                }
+                return JsonResponse(result)
 
             # Prepare SSH connection
 
@@ -363,7 +370,7 @@ class ChallengeDetailView(generic.DetailView):
             result = {
                 'workerid': None,
                 'status': None,
-                'encoding':None
+                'encoding': None
             }
 
             src_ip, src_port = self.get_client_ip_and_port(request)
@@ -378,7 +385,7 @@ class ChallengeDetailView(generic.DetailView):
             try:
                 _args = Args(
                     request,
-                    run_result.get('port', 22),
+                    container_port,
                     self.ssh_client.get_host_keys(),
                     self.ssh_client.get_system_host_keys()).get_args()
             except InvalidValueError as exc:
