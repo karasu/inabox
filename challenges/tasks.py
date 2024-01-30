@@ -1,22 +1,22 @@
 """ Celery. Create your tasks here """
 
-import json
 import tarfile
 import os
 import stat
-import uuid
+
+import docker
 
 from django.utils.translation import gettext_lazy as _
-
-import pika
-import docker
 
 from celery import shared_task
 from celery.utils.log import get_task_logger
 from celery_progress.backend import ProgressRecorder
+from inabox.celery import app as celery_app
 
 from .models import Challenge, ProposedSolution
 from .models import UserChallengeContainer
+
+from .container import Container
 
 g_logger = get_task_logger(__name__)
 
@@ -24,7 +24,7 @@ class ValidateSolution():
     """ Validate user's solution to a challenge """
     _STEPS = 5
 
-    def __init__(self, proposed_solution_id):
+    def __init__(self, task, proposed_solution_id):
         """ Initalise class properties """
         self._client = None
 
@@ -33,7 +33,7 @@ class ValidateSolution():
 
         # Create the progress recorder instance
         # which we'll use to update the web page
-        self._progress_recorder = ProgressRecorder(self)
+        self._progress_recorder = ProgressRecorder(task)
         self._step = 1
 
         # docker container instance
@@ -112,7 +112,6 @@ class ValidateSolution():
             proposed_solution.script.path,
             challenge.check_solution_script.path]
 
-
         # Get challenge docker image name
         docker_image_name = challenge.docker_image.docker_name
 
@@ -171,114 +170,70 @@ class ValidateSolution():
         return True, _("Task complete")
 
 @shared_task(bind=True)
-def validate_solution_task(proposed_solution_id):
+def validate_solution_task(task, proposed_solution_id):
     """ Check if proposed solution is right or wrong """
 
-    return ValidateSolution(proposed_solution_id).run()
-
-
-class Switchboard():
-    """ Listen to switchboard messages through rabbitmq (consumer) """
-
-    QUEUE = "switchboard"
-
-    def __init__(self):
-        self._connection = None
-        self._channel = None
-
-        self.response = None
-        self.corr_id = None
-        self.callback_queue = None
-
-    def connect(self):
-        """ Connect to rabbitmq """
-
-        credentials = pika.PlainCredentials('guest', 'guest')
-
-        parameters = pika.ConnectionParameters(
-                host='localhost',
-                port=5672,
-                virtual_host='/',
-                heartbeat=5,
-                credentials=credentials
-            )
-
-        return pika.BlockingConnection(parameters)
-
-    def on_response(self, ch, method, props, body):
-        """ Receives switchboard response"""
-        if self.corr_id == props.correlation_id:
-            self.response = body
-            g_logger.info("Response from switchboard: %s", body)
-
-    def setup_channel(self):
-        """ setup rabbitmq channel """
-        channel = self._connection.channel()
-
-        result = channel.queue_declare(queue='', exclusive=True)
-        self.callback_queue = result.method.queue
-
-        channel.basic_consume(
-            queue=self.callback_queue,
-            on_message_callback=self.on_response,
-            auto_ack=True)
-
-        return channel
-
-    def close(self):
-        """ closes the connection """
-        if self._connection is not None:
-            self._connection.close()
-
-    def run(self, call):
-        """ Setup connection and make the rpc call """
-        self._connection = self.connect()
-        self._channel = self.setup_channel()
-
-        g_logger.info(
-            "Asking switchboard to create a new container from image %s",
-            call['docker_image_name']
-        )
-
-        self.response = None
-        self.corr_id = str(uuid.uuid4())
-        self._channel.basic_publish(
-            exchange='',
-            routing_key='rpc_queue',
-            properties=pika.BasicProperties(
-                reply_to=self.callback_queue,
-                correlation_id=self.corr_id,
-            ),
-            body=json.dumps(call))
-
-        self._connection.process_data_events(time_limit=None)
-
-        return self.response
+    return ValidateSolution(task, proposed_solution_id).run()
 
 
 @shared_task(bind=True)
-def switchboard_task(task, user_id, challenge_id, docker_image_name):
-    """ Listen to switchboard messages """
-    g_logger.debug(
-        "[] User %s is asking switchboard for a new container for challenge [%s]",
-        user_id, challenge_id)
+def run_container_task(
+    task, user_id, challenge_id, image_name, container_id=None):
+    """ Runs docker container """
 
-    call = {
-        "docker_instance_id": 0,
-        "docker_options": "",
-        "docker_image_name": docker_image_name,
-        "user_id": user_id,
-        "challenge_id": challenge_id,
-        "port": 0,
-        "error": None
-    }
+    if container_id is None:
+        g_logger.info(
+            "User [%d] is asking for a new container for challenge [%s]",
+            user_id, challenge_id)
+    else:
+        g_logger.info(
+            "User [%d] is trying to reuse container [%s] for challenge [%s]",
+            user_id, container_id, challenge_id)
 
-    switchboard = Switchboard()
-    response = switchboard.run(call)
+    container = Container(container_id)
+    res = container.run(image_name)
 
-    #ucc = UserChallengeContainer(
-    #    container_id=response['docker_instance_id'],
-    #    challenge=challenge,
-    #    user=user,
-    #    port=response['port'])
-    #ucc.save()
+    if res:
+        g_logger.info(
+            "Container [%s] is listening at port [%d]",
+            container.get_id(), container.get_port())
+
+        return {
+            'id': container.get_id(),
+            'port': container.get_port()}
+
+    # Could not start the container.
+    g_logger.warning(
+      "Couldn't create (or reuse) container for challenge [%d] asked by user [%d]",
+            challenge_id, user_id)
+    return None
+
+@shared_task(bind=True)
+def commit_container_task(task, container_id, image_name):
+    """ Saves container as a new image """
+    container = Container(container_id)
+    image_id = container.commit(image_name)
+
+    return image_id
+
+@celery_app.task
+def prune_dead_containers():
+    """ This task removes all stoped containers """
+
+    ucc = UserChallengeContainer.objects.all()
+
+    g_logger.info(
+        "Prunning all stoped containers references in UserChallengeContainer table...")
+
+    for instance in ucc:
+        container = DockerContainer(container_id=ucc.container_id)
+        if container.status() != "running":
+            instance.delete()
+
+
+@celery_app.on_after_finalize.connect
+def setup_periodic_tasks(sender, **kwargs):
+    """ Put periodic tasks here """
+
+    # Calls prune_dead_containers every minute.
+    sender.add_periodic_task(60.0, prune_dead_containers)

@@ -18,4 +18,3 @@ python-celery
 django-celery-results
 celery-progress
 python-dateutil
-python-pika

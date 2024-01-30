@@ -2,7 +2,6 @@
 
 import socket
 import os
-import logging
 import traceback
 import asyncio
 
@@ -29,12 +28,17 @@ from .privatekey import InvalidValueError
 from .worker import Worker, recycle_worker, clients
 
 from .models import Challenge, Area, Profile, ProposedSolution, Quest, QuestChallenge
-from .models import ClassGroup, Team, Organization, UserChallengeContainer
+from .models import ClassGroup, Team, Organization
+#from .models import DockerImage
+from .models import UserChallengeContainer, UserChallengeImage
 from .models import LEVELS, ROLES
 from .forms import ChallengeSSHForm, NewChallengeForm, UploadSolutionForm, SearchForm
 
 # Celery task to check if a proposed solution is valid or not
-from .tasks import validate_solution_task, switchboard_task
+from .tasks import validate_solution_task
+from .tasks import run_container_task, commit_container_task
+
+from .logger import g_logger
 
 @register.filter
 def get_item(dictionary, key):
@@ -66,7 +70,7 @@ class NewChallengeView(LoginRequiredMixin, generic.base.TemplateView):
                 form.save()
                 return HttpResponseRedirect(reverse("challenges:challenges"))
             # form not valid
-            logging.error(form.errors)
+            g_logger.error(form.errors)
             return render(
                 request,
                 template_name="challenges/form_error.html",
@@ -211,7 +215,13 @@ class ChallengeDetailView(generic.DetailView):
 
         if self.request.user.is_authenticated:
             # Add forms to our context so we can put them in the template
+
+            # Get the docker image of this challenge
             docker_image = context['challenge'].docker_image
+
+            print(docker_image.docker_name)
+
+            # Get data for the SSH connection form
             data = {
                 "hostname": "localhost",
                 "port": docker_image.container_ssh_port,
@@ -222,13 +232,14 @@ class ChallengeDetailView(generic.DetailView):
                 "totp": 0,
                 "term": "xterm-256color",
                 "challenge_id": context['challenge'].id,
+                "docker_image_name": docker_image.docker_name,
             }
+
             context['ssh_data'] = ChallengeSSHForm(data)
 
             context['upload_solution_form'] = UploadSolutionForm(
                 user_id = self.request.user.id,
-                challenge_id = context['challenge'].id
-            )
+                challenge_id = context['challenge'].id)
 
             try:
                 context['proposed'] = ProposedSolution.objects.get(
@@ -241,23 +252,7 @@ class ChallengeDetailView(generic.DetailView):
                     challenge=context['challenge'],
                     tries=0)
             except ProposedSolution.MultipleObjectsReturned:
-                logging.error("Multiple entries in ProposedSolution table!")
-
-            try:
-                container = UserChallengeContainer.objects.get(
-                    user=self.request.user,
-                    challenge=context['challenge'])
-                context['docker_instance'] = container.id
-            except UserChallengeContainer.DoesNotExist:
-                # ask for it to switchboard
-                switchboard_task.delay(
-                    user_id=self.request.user.id,
-                    challenge_id=context['challenge'].id,
-                    docker_image_name=context['challenge'].docker_image.docker_name)
-                #context['docker_instance'] = response['docker_instance_id']
-                
-            except UserChallengeContainer.MultipleObjectsReturned:
-                logging.error("Multiple entries in UserChallengeContainer table!")
+                g_logger.error("Multiple entries in ProposedSolution table!")
 
         return context
 
@@ -293,7 +288,7 @@ class ChallengeDetailView(generic.DetailView):
         """ Connect to the container """
         ssh = self.ssh_client
         dst_addr = args[:2]
-        logging.info("Connecting to %s:%d", dst_addr[0], dst_addr[1])
+        g_logger.info("Connecting to %s:%d", dst_addr[0], dst_addr[1])
 
         try:
             #ssh.connect(*args, timeout=options.timeout)
@@ -337,9 +332,66 @@ class ChallengeDetailView(generic.DetailView):
 
     def challenge_ssh_form(self, request):
         """ Create a form instance and populate it with data from the request: """
-        form = ChallengeSSHForm(request.POST)
+
+        form_data = request.POST
+        form = ChallengeSSHForm(form_data)
 
         if form.is_valid():
+            user = self.request.user
+            challenge_id = form_data.get('challenge_id')
+            challenge = Challenge.objects.get(id=challenge_id)
+            image_name = form_data.get('docker_image_name')
+
+            # TODO: Check if user has a previous saved image for this challenge
+            # before running a new container!
+
+            # Check in UserChallengeContainer
+            try:
+                ucc = UserChallengeContainer.objects.get(
+                    user=user,
+                    challenge=challenge
+                )
+                container_id = ucc.container_id
+            except UserChallengeContainer.DoesNotExist:
+                g_logger.warning("No previous container found, a new one will be created.")
+                container_id = None
+
+            # Run the container
+            task_result = run_container_task.delay(
+                user_id=user.id,
+                challenge_id=challenge_id,
+                image_name=image_name,
+                container_id=container_id)
+
+            # TODO: waiting for an async task as soon as submitting
+            # defeats the purpose of Celery.
+            container_info = task_result.get()
+            #print(container_info)
+
+            if container_info is None or container_info['port'] is None:
+                result = {
+                    'workerid': None,
+                    'status': _("Could not run the container! Please ask help to an administrator"),
+                    'encoding': 'utf-8'
+                }
+                return JsonResponse(result)
+
+            # Update UserChallengeContainer with the container id and port
+            try:
+                ucc = UserChallengeContainer.objects.get(
+                    challenge=challenge,
+                    user=user)
+                ucc.container_id = container_info['id']
+                ucc.port = container_info['port']
+                ucc.save(update_fields=['container_id', 'port'])
+            except UserChallengeContainer.DoesNotExist:    
+                ucc = UserChallengeContainer(
+                    container_id=container_info['id'],
+                    challenge=challenge,
+                    user=user,
+                    port=container_info['port'])
+                ucc.save()
+
             # Prepare SSH connection
 
             #self.policy = policy
@@ -350,7 +402,7 @@ class ChallengeDetailView(generic.DetailView):
             result = {
                 'workerid': None,
                 'status': None,
-                'encoding':None
+                'encoding': None
             }
 
             src_ip, src_port = self.get_client_ip_and_port(request)
@@ -365,6 +417,7 @@ class ChallengeDetailView(generic.DetailView):
             try:
                 _args = Args(
                     request,
+                    container_info['port'],
                     self.ssh_client.get_host_keys(),
                     self.ssh_client.get_system_host_keys()).get_args()
             except InvalidValueError as exc:
@@ -376,7 +429,7 @@ class ChallengeDetailView(generic.DetailView):
                  #worker = yield future
                 worker = future.result()
             except (ValueError, paramiko.SSHException) as exc:
-                logging.error(traceback.format_exc())
+                g_logger.error(traceback.format_exc())
                 result.update(status=str(exc))
             else:
                 if not workers:
@@ -392,7 +445,7 @@ class ChallengeDetailView(generic.DetailView):
             return JsonResponse(result)
 
         # form is not valid
-        logging.error(form.errors)
+        g_logger.error(form.errors)
         return render(
             request,
             template_name="challenges/form_error.html",
@@ -405,8 +458,11 @@ class ChallengeDetailView(generic.DetailView):
     def upload_solution_form(self, request, *args, **kwargs):
         """ We need to check if user has already tried and update the ProposedSolution
         if not just save this as the first one """
-        user = request.POST.get('user')
-        challenge = request.POST.get('challenge')
+
+        form_data = request.POST
+
+        user = form_data.get('user')
+        challenge = form_data.get('challenge')
         proposed_solution = ProposedSolution.objects.get(
             user=user,
             challenge=challenge)
@@ -417,7 +473,7 @@ class ChallengeDetailView(generic.DetailView):
             proposed_solution.save()
 
         form = UploadSolutionForm(
-            request.POST,
+            form_data,
             request.FILES,
             instance=proposed_solution)
 
@@ -447,7 +503,7 @@ class ChallengeDetailView(generic.DetailView):
             return self.render_to_response(context=context)
 
         # Form is not valid
-        logging.error(form.errors)
+        g_logger.error(form.errors)
         return render(
             request,
             template_name="challenges/form_error.html",
@@ -460,19 +516,45 @@ class ChallengeDetailView(generic.DetailView):
     def save_container(self, request):
         """ save current container as a new image """
 
-        # TODO: Implement this!
+        user = request.user
+        challenge_id = request.POST['challenge_id']
+        challenge = Challenge.objects.get(id=challenge_id)
 
-        #user = request.POST.get('user')
+        # Get current container
+        ucc = UserChallengeContainer.objects.get(user=user, challenge=challenge)
 
+        if ucc.container_id:
+            challenge_name = challenge.name.replace('\'', '_').replace(' ', '_')
+            image_name = f"inabox_{user.username}_{challenge_name}"
+
+            image_id = commit_container_task.delay(
+                container_id=ucc.container_id,
+                image_name=image_name)
+
+            if image_id:
+                # Update UserChallengeImage with the new image id
+                try:
+                    uci = UserChallengeImage.objects.get(
+                        challenge=challenge,
+                        user=user)
+                    uci.image_id = image_id
+                    uci.save(update_fields=['image_id'])
+                except UserChallengeImage.DoesNotExist:
+                    uci = UserChallengeImage(
+                        image_id=image_id,
+                        challenge=challenge,
+                        user=user)
+                    uci.save()
+            else:
+                g_logger.warning("Error trying to commit container [%s]", ucc.container_id)
+
+        # Could not save container
         return render(
             request,
             template_name="challenges/form_error.html",
             context={
                 "title": _("Error saving changes. Check the error(s) below:"),
-                "errors": "Not implemented",
-                }
-            )
-
+                "errors": "Not implemented"})
 
     def post(self, request, *args, **kwargs):
         """ Deal with post data """
@@ -538,7 +620,7 @@ class SearchView(generic.base.TemplateView):
             return self.render_to_response(context=context)
 
         # Form is not valid
-        logging.error(form.errors)
+        g_logger.error(form.errors)
         return render(
             request,
             template_name="challenges/form_error.html",
@@ -561,23 +643,23 @@ class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
         }
 
         excludes = {
-            "user": [
-                "id", "password", "groups", "user_permissions", "profile"],
-            "profile": [
-                "id", "user", "private_key", "challenge",
+            "user": ["id", "password", "groups", "user_permissions", "profile"],
+            "profile": ["id", "user", "private_key", "challenge",
                 "proposedsolution", "quest", "logentry"]}
 
         for k, obj in objs.items():
             context[k + "_data"] = []
             for field in obj._meta.get_fields():
                 if field.name not in excludes[k]:
-                    context[k + "_data"].append(
-                        self.get_field_data(obj, field))
+                    item = self.get_field_data(obj, field)
+                    if item:
+                        context[k + "_data"].append(item)
 
         return context
 
     def get_field_data(self, obj, field):
         """ gets field label and value """
+
         try:
             label = field.verbose_name.capitalize()
             value = field.value_from_object(obj)
@@ -615,7 +697,7 @@ class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
             }
         except AttributeError as err:
             print(err)
-            return {}
+            return None
 
 
 class PlayersListView(generic.ListView):

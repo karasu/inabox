@@ -17,9 +17,10 @@ DEFAULT_PORT=22
 class Args():
     """ Get ssh arguments """
 
-    def __init__(self, request, host_keys, system_host_keys):
+    def __init__(self, request, port, host_keys, system_host_keys):
         self.request = request
         self.post = request.POST
+        self.port = port
         self._host_keys = host_keys
         self._system_host_keys = system_host_keys
 
@@ -48,7 +49,7 @@ class Args():
 
     def get_port(self):
         """ return connection port """
-        value = self.post.get('port', '')
+        value = self.port
         if not value:
             return DEFAULT_PORT
 
