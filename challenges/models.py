@@ -253,8 +253,8 @@ class UserChallengeContainer(models.Model):
 class UserChallengeImage(models.Model):
     """ For each user and challenge, store its
     stored docker image """
-    image_id = models.CharField(
-        max_length=128, default="0")
+    image_name = models.CharField(
+        max_length=128, default="")
     challenge = models.ForeignKey(
         Challenge, on_delete=models.CASCADE)
     user = models.ForeignKey(
@@ -268,7 +268,7 @@ class UserChallengeImage(models.Model):
             )
         ]
     def __str__(self):
-        return str(self.image_id)
+        return str(self.image_name)
 
 
 def user_solutions_path(instance, filename):

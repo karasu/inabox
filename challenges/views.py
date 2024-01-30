@@ -232,7 +232,6 @@ class ChallengeDetailView(generic.DetailView):
                 "totp": 0,
                 "term": "xterm-256color",
                 "challenge_id": context['challenge'].id,
-                "docker_image_name": docker_image.docker_name,
             }
 
             context['ssh_data'] = ChallengeSSHForm(data)
@@ -340,21 +339,36 @@ class ChallengeDetailView(generic.DetailView):
             user = self.request.user
             challenge_id = form_data.get('challenge_id')
             challenge = Challenge.objects.get(id=challenge_id)
-            image_name = form_data.get('docker_image_name')
 
-            # TODO: Check if user has a previous saved image for this challenge
-            # before running a new container!
+            image_name = challenge.docker_image.name
 
-            # Check in UserChallengeContainer
+            # Check if user has a previous saved image for this challenge
+            # in UserChallengeImage
             try:
-                ucc = UserChallengeContainer.objects.get(
+                uci = UserChallengeImage.objects.get(
                     user=user,
                     challenge=challenge
                 )
-                container_id = ucc.container_id
+                user_image_name = uci.image_name
             except UserChallengeContainer.DoesNotExist:
-                g_logger.warning("No previous container found, a new one will be created.")
+                g_logger.info("No previous saved image found.")
+                user_image_name = None
+
+            if user_image_name:
+                image_name = user_image_name
                 container_id = None
+            else:
+                # No previous image found. Let's try a previous container.
+                # If there is none, a new container will be created
+                try:
+                    ucc = UserChallengeContainer.objects.get(
+                        user=user,
+                        challenge=challenge
+                    )
+                    container_id = ucc.container_id
+                except UserChallengeContainer.DoesNotExist:
+                    g_logger.warning("No previous container found, a new one will be created.")
+                    container_id = None
 
             # Run the container
             task_result = run_container_task.delay(
@@ -384,7 +398,7 @@ class ChallengeDetailView(generic.DetailView):
                 ucc.container_id = container_info['id']
                 ucc.port = container_info['port']
                 ucc.save(update_fields=['container_id', 'port'])
-            except UserChallengeContainer.DoesNotExist:    
+            except UserChallengeContainer.DoesNotExist:
                 ucc = UserChallengeContainer(
                     container_id=container_info['id'],
                     challenge=challenge,
@@ -513,7 +527,7 @@ class ChallengeDetailView(generic.DetailView):
                 }
             )
 
-    def save_container(self, request):
+    def save_container(self, request, *args, **kwargs):
         """ save current container as a new image """
 
         user = request.user
@@ -525,36 +539,38 @@ class ChallengeDetailView(generic.DetailView):
 
         if ucc.container_id:
             challenge_name = challenge.name.replace('\'', '_').replace(' ', '_')
-            image_name = f"inabox_{user.username}_{challenge_name}"
+            image_name = f"inabox/{user.username}_{challenge_name}"
 
-            image_id = commit_container_task.delay(
+            res = commit_container_task.delay(
                 container_id=ucc.container_id,
                 image_name=image_name)
 
-            if image_id:
+            if res:
                 # Update UserChallengeImage with the new image id
                 try:
                     uci = UserChallengeImage.objects.get(
                         challenge=challenge,
                         user=user)
-                    uci.image_id = image_id
-                    uci.save(update_fields=['image_id'])
+                    uci.image_name = image_name
+                    uci.save(update_fields=['image_name'])
                 except UserChallengeImage.DoesNotExist:
                     uci = UserChallengeImage(
-                        image_id=image_id,
+                        image_name=image_name,
                         challenge=challenge,
                         user=user)
                     uci.save()
-            else:
-                g_logger.warning("Error trying to commit container [%s]", ucc.container_id)
 
-        # Could not save container
-        return render(
-            request,
-            template_name="challenges/form_error.html",
-            context={
-                "title": _("Error saving changes. Check the error(s) below:"),
-                "errors": "Not implemented"})
+                context = self.get_context_data(**kwargs)
+                return self.render_to_response(context=context)
+
+            # Could not save container
+            g_logger.warning("Error trying to commit container [%s]", ucc.container_id)
+            return render(
+                request,
+                template_name="challenges/form_error.html",
+                context={
+                    "title": _("Error saving changes. Check the error(s) below:"),
+                    "errors": "Not implemented"})
 
     def post(self, request, *args, **kwargs):
         """ Deal with post data """

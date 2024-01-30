@@ -16,7 +16,6 @@ class ChallengeSSHForm(forms.Form):
     totp = forms.CharField(widget=forms.HiddenInput(), required=False)
     term = forms.CharField(widget=forms.HiddenInput())
     challenge_id = forms.IntegerField(widget=forms.HiddenInput())
-    docker_image_name = forms.CharField(widget=forms.HiddenInput())
 
 
 class UploadSolutionForm(forms.ModelForm):

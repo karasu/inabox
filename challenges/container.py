@@ -174,7 +174,7 @@ class Container():
             time.sleep(step)
         return False
 
-    def commit(self, name, overwrite=True):
+    def commit(self, image_name, overwrite=True):
         """ Commit a container to create an image called 'name' from its contents """
         # commit(repository=None, tag=None, **kwargs)
         # Commit a container to an image. Similar to the docker commit command.
@@ -193,10 +193,10 @@ class Container():
         # TODO: Delete image if already exists
         try:
             self._container.wait()
-            image = self._container.commit(
-                repository=f"inabox/{name}",
+            self._container.commit(
+                repository=image_name,
                 tag="latest")
-            return image.id
+            return True
         except docker.errors.APIError as exc:
             g_logger.warning(exc)
-            return None
+            return False

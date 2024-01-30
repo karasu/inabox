@@ -212,9 +212,7 @@ def run_container_task(
 def commit_container_task(task, container_id, image_name):
     """ Saves container as a new image """
     container = Container(container_id)
-    image_id = container.commit(image_name)
-
-    return image_id
+    return container.commit(image_name)
 
 @celery_app.task
 def prune_dead_containers():
