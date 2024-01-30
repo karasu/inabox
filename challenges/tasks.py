@@ -14,7 +14,7 @@ from celery_progress.backend import ProgressRecorder
 from inabox.celery import app as celery_app
 
 from .models import Challenge, ProposedSolution
-from .models import UserChallengeContainerTemp
+from .models import UserChallengeContainer
 
 from .container import Container
 
@@ -177,8 +177,8 @@ def validate_solution_task(task, proposed_solution_id):
 
 
 @shared_task(bind=True)
-def run_docker_container_task(
-    task, user_id, challenge_id, docker_image_name, container_id=None):
+def run_container_task(
+    task, user_id, challenge_id, image_name, container_id=None):
     """ Runs docker container """
 
     if container_id is None:
@@ -191,7 +191,7 @@ def run_docker_container_task(
             user_id, container_id, challenge_id)
 
     container = Container(container_id)
-    res = container.run(docker_image_name)
+    res = container.run(image_name)
 
     if res:
         g_logger.info(
@@ -208,18 +208,25 @@ def run_docker_container_task(
             challenge_id, user_id)
     return None
 
+@shared_task(bind=True)
+def commit_container_task(task, container_id, image_name):
+    """ Saves container as a new image """
+    container = Container(container_id)
+    image_id = container.commit(image_name)
+
+    return image_id
 
 @celery_app.task
 def prune_dead_containers():
     """ This task removes all stoped containers """
 
-    ucct = UserChallengeContainerTemp.objects.all()
+    ucc = UserChallengeContainer.objects.all()
 
     g_logger.info(
-        "Prunning all stoped containers references in UserChallengeContainerTemp table...")
+        "Prunning all stoped containers references in UserChallengeContainer table...")
 
-    for instance in ucct:
-        container = DockerContainer(container_id=ucct.container_id)
+    for instance in ucc:
+        container = DockerContainer(container_id=ucc.container_id)
         if container.status() != "running":
             instance.delete()
 

@@ -227,8 +227,9 @@ class Challenge(models.Model):
         return str(self.title)
 
 
-class UserChallengeContainerTemp(models.Model):
-    """ Store docker container's info """
+class UserChallengeContainer(models.Model):
+    """ For each user and challenge, store its
+    last test docker container """
     container_id = models.CharField(
         max_length=128, default="0")
     challenge = models.ForeignKey(
@@ -242,11 +243,33 @@ class UserChallengeContainerTemp(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'challenge'],
-                name='unique_user_challenge_combination'
+                name='unique_container_user_challenge_combination'
             )
         ]
     def __str__(self):
         return str(self.container_id)
+
+
+class UserChallengeImage(models.Model):
+    """ For each user and challenge, store its
+    stored docker image """
+    image_id = models.CharField(
+        max_length=128, default="0")
+    challenge = models.ForeignKey(
+        Challenge, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'challenge'],
+                name='unique_image_user_challenge_combination'
+            )
+        ]
+    def __str__(self):
+        return str(self.image_id)
+
 
 def user_solutions_path(instance, filename):
     """ file will be uploaded to MEDIA_ROOT/solutions/<username>/<challengetitle> """

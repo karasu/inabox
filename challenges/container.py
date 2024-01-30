@@ -26,9 +26,12 @@ class Container():
                     if self._container:
                         ports = self._container.attrs["NetworkSettings"]["Ports"]
                         self._port = int(ports["22/tcp"][0]["HostPort"])
-                except (docker.errors.NotFound, KeyError, AttributeError) as exc:
-                    g_logger.warning(exc)
-                    g_logger.warning("Container with id %s not found", container_id)
+                except (docker.errors.NotFound, KeyError, AttributeError):
+                    # TODO: reuse container even if it is stopped
+                    g_logger.warning(
+                        "Container with id [%s] not found or is not running",
+                        container_id)
+                    self._container = None
         else:
             g_logger.error("Cannot connect to docker service. Is it running?")
 
@@ -171,11 +174,28 @@ class Container():
             time.sleep(step)
         return False
 
-    def commit(self, name):
+    def commit(self, name, overwrite=True):
         """ Commit a container to create an image called 'name' from its contents """
+        # commit(repository=None, tag=None, **kwargs)
+        # Commit a container to an image. Similar to the docker commit command.
+        # Parameters:
+        # repository (str) – The repository to push the image to
+        # tag (str) – The tag to push
+        # message (str) – A commit message
+        # author (str) – The name of the author
+        # pause (bool) – Whether to pause the container before committing
+        # changes (str) – Dockerfile instructions to apply while committing
+        # conf (dict) – The configuration for the container. See the
+        #      Engine API documentation for full details.
+        # Raises:
+        # docker.errors.APIError – If the server returns an error.
+
+        # TODO: Delete image if already exists
         try:
             self._container.wait()
-            image = self._container.commit(name)
+            image = self._container.commit(
+                repository=f"inabox/{name}",
+                tag="latest")
             return image.id
         except docker.errors.APIError as exc:
             g_logger.warning(exc)

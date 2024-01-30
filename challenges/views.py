@@ -30,12 +30,13 @@ from .worker import Worker, recycle_worker, clients
 from .models import Challenge, Area, Profile, ProposedSolution, Quest, QuestChallenge
 from .models import ClassGroup, Team, Organization
 #from .models import DockerImage
-from .models import UserChallengeContainerTemp
+from .models import UserChallengeContainer, UserChallengeImage
 from .models import LEVELS, ROLES
 from .forms import ChallengeSSHForm, NewChallengeForm, UploadSolutionForm, SearchForm
 
 # Celery task to check if a proposed solution is valid or not
-from .tasks import validate_solution_task, run_docker_container_task
+from .tasks import validate_solution_task
+from .tasks import run_container_task, commit_container_task
 
 from .logger import g_logger
 
@@ -238,8 +239,7 @@ class ChallengeDetailView(generic.DetailView):
 
             context['upload_solution_form'] = UploadSolutionForm(
                 user_id = self.request.user.id,
-                challenge_id = context['challenge'].id
-            )
+                challenge_id = context['challenge'].id)
 
             try:
                 context['proposed'] = ProposedSolution.objects.get(
@@ -339,26 +339,28 @@ class ChallengeDetailView(generic.DetailView):
         if form.is_valid():
             user = self.request.user
             challenge_id = form_data.get('challenge_id')
-            docker_image_name = form_data.get('docker_image_name')
-
             challenge = Challenge.objects.get(id=challenge_id)
+            image_name = form_data.get('docker_image_name')
 
-            # Check in UserChallengeContainerTemp
+            # TODO: Check if user has a previous saved image for this challenge
+            # before running a new container!
+
+            # Check in UserChallengeContainer
             try:
-                ucct = UserChallengeContainerTemp.objects.get(
+                ucc = UserChallengeContainer.objects.get(
                     user=user,
                     challenge=challenge
                 )
-                container_id = ucct.container_id
-            except UserChallengeContainerTemp.DoesNotExist:
+                container_id = ucc.container_id
+            except UserChallengeContainer.DoesNotExist:
                 g_logger.warning("No previous container found, a new one will be created.")
                 container_id = None
 
             # Run the container
-            task_result = run_docker_container_task.delay(
+            task_result = run_container_task.delay(
                 user_id=user.id,
                 challenge_id=challenge_id,
-                docker_image_name=docker_image_name,
+                image_name=image_name,
                 container_id=container_id)
 
             # TODO: waiting for an async task as soon as submitting
@@ -374,21 +376,21 @@ class ChallengeDetailView(generic.DetailView):
                 }
                 return JsonResponse(result)
 
-            # Update UserChallengeContainerTemp with the container id and port
+            # Update UserChallengeContainer with the container id and port
             try:
-                ucct = UserChallengeContainerTemp.objects.get(
+                ucc = UserChallengeContainer.objects.get(
                     challenge=challenge,
                     user=user)
-                ucct.container_id = container_info['id']
-                ucct.port = container_info['port']
-                ucct.save(update_fields=['container_id', 'port'])
-            except UserChallengeContainerTemp.DoesNotExist:    
-                ucct = UserChallengeContainerTemp(
+                ucc.container_id = container_info['id']
+                ucc.port = container_info['port']
+                ucc.save(update_fields=['container_id', 'port'])
+            except UserChallengeContainer.DoesNotExist:    
+                ucc = UserChallengeContainer(
                     container_id=container_info['id'],
                     challenge=challenge,
                     user=user,
                     port=container_info['port'])
-                ucct.save()
+                ucc.save()
 
             # Prepare SSH connection
 
@@ -514,27 +516,45 @@ class ChallengeDetailView(generic.DetailView):
     def save_container(self, request):
         """ save current container as a new image """
 
-        # TODO: check this out
-        #user = request.user
-        #challenge_id = request.POST['challenge_id']
-        #challenge = Challenge.objects.get(id=challenge_id)
-        #ucct = UserChallengeContainerTemp.objects.get(user=user, challenge=challenge)
-        #cid = ucct.container_id
+        user = request.user
+        challenge_id = request.POST['challenge_id']
+        challenge = Challenge.objects.get(id=challenge_id)
 
+        # Get current container
+        ucc = UserChallengeContainer.objects.get(user=user, challenge=challenge)
 
-        #print(cid)
+        if ucc.container_id:
+            challenge_name = challenge.name.replace('\'', '_').replace(' ', '_')
+            image_name = f"inabox_{user.username}_{challenge_name}"
 
+            image_id = commit_container_task.delay(
+                container_id=ucc.container_id,
+                image_name=image_name)
 
+            if image_id:
+                # Update UserChallengeImage with the new image id
+                try:
+                    uci = UserChallengeImage.objects.get(
+                        challenge=challenge,
+                        user=user)
+                    uci.image_id = image_id
+                    uci.save(update_fields=['image_id'])
+                except UserChallengeImage.DoesNotExist:
+                    uci = UserChallengeImage(
+                        image_id=image_id,
+                        challenge=challenge,
+                        user=user)
+                    uci.save()
+            else:
+                g_logger.warning("Error trying to commit container [%s]", ucc.container_id)
 
-
+        # Could not save container
         return render(
             request,
             template_name="challenges/form_error.html",
             context={
                 "title": _("Error saving changes. Check the error(s) below:"),
-                "errors": "Not implemented",
-                }
-            )
+                "errors": "Not implemented"})
 
     def post(self, request, *args, **kwargs):
         """ Deal with post data """
