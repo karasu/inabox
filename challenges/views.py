@@ -329,6 +329,41 @@ class ChallengeDetailView(generic.DetailView):
             port = request.META.get('REMOTE_PORT')
         return (ip_address, port)
 
+    def prepare_container(self, challenge):
+        """ Gets the docker container ready """
+        user = self.request.user
+        image_name = challenge.docker_image.name
+
+        # Check if user has a previous saved image for this challenge
+        # in UserChallengeImage
+        try:
+            uci = UserChallengeImage.objects.get(
+                user=user,
+                challenge=challenge
+            )
+            user_image_name = uci.image_name
+        except UserChallengeContainer.DoesNotExist:
+            g_logger.info("No previous saved image found.")
+            user_image_name = None
+
+        if user_image_name:
+            image_name = user_image_name
+            container_id = None
+        else:
+            # No previous image found. Let's try a previous container.
+            # If there is none, a new container will be created
+            try:
+                ucc = UserChallengeContainer.objects.get(
+                    user=user,
+                    challenge=challenge
+                )
+                container_id = ucc.container_id
+            except UserChallengeContainer.DoesNotExist:
+                g_logger.warning("No previous container found, a new one will be created.")
+                container_id = None
+        return image_name, container_id
+
+
     def challenge_ssh_form(self, request):
         """ Create a form instance and populate it with data from the request: """
 
@@ -336,41 +371,15 @@ class ChallengeDetailView(generic.DetailView):
         form = ChallengeSSHForm(form_data)
 
         if form.is_valid():
-            user = self.request.user
             challenge_id = form_data.get('challenge_id')
             challenge = Challenge.objects.get(id=challenge_id)
 
-            image_name = challenge.docker_image.name
+            # Get docker image and container id (if exist)
+            image_name, container_id = self.prepare_container(challenge)
 
-            # Check if user has a previous saved image for this challenge
-            # in UserChallengeImage
-            try:
-                uci = UserChallengeImage.objects.get(
-                    user=user,
-                    challenge=challenge
-                )
-                user_image_name = uci.image_name
-            except UserChallengeContainer.DoesNotExist:
-                g_logger.info("No previous saved image found.")
-                user_image_name = None
-
-            if user_image_name:
-                image_name = user_image_name
-                container_id = None
-            else:
-                # No previous image found. Let's try a previous container.
-                # If there is none, a new container will be created
-                try:
-                    ucc = UserChallengeContainer.objects.get(
-                        user=user,
-                        challenge=challenge
-                    )
-                    container_id = ucc.container_id
-                except UserChallengeContainer.DoesNotExist:
-                    g_logger.warning("No previous container found, a new one will be created.")
-                    container_id = None
-
+            user = self.request.user
             # Run the container
+            # (the one that exists or a new one if it it does not)
             task_result = run_container_task.delay(
                 user_id=user.id,
                 challenge_id=challenge_id,
