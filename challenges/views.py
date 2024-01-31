@@ -342,7 +342,7 @@ class ChallengeDetailView(generic.DetailView):
                 challenge=challenge
             )
             user_image_name = uci.image_name
-        except UserChallengeContainer.DoesNotExist:
+        except UserChallengeImage.DoesNotExist:
             g_logger.info("No previous saved image found.")
             user_image_name = None
 
