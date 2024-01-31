@@ -548,7 +548,7 @@ class ChallengeDetailView(generic.DetailView):
 
         if ucc.container_id:
             challenge_name = challenge.name.replace('\'', '_').replace(' ', '_')
-            image_name = f"inabox/{user.username}_{challenge_name}"
+            image_name = f"inabox/{user.username}_{challenge_name}".lower()
 
             res = commit_container_task.delay(
                 container_id=ucc.container_id,

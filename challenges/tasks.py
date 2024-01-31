@@ -204,7 +204,7 @@ def run_container_task(
 
     # Could not start the container.
     g_logger.warning(
-      "Couldn't create (or reuse) container for challenge [%d] asked by user [%d]",
+      "Couldn't create (or reuse) container for challenge [%s] asked by user [%s]",
             challenge_id, user_id)
     return None
 
@@ -212,6 +212,8 @@ def run_container_task(
 def commit_container_task(task, container_id, image_name):
     """ Saves container as a new image """
     container = Container(container_id)
+
+    g_logger.info("Saving container [%s] as [%s]", container_id, image_name)
     return container.commit(image_name)
 
 @celery_app.task

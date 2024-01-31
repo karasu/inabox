@@ -93,6 +93,7 @@ class Container():
         if self._container:
             # container already exists, let's simply start it
             self.start()
+            g_logger.info("container already exists, let's simply start it")
             return self.get_info()
 
         # Ok, container does not exist, we need to create it from image_name
@@ -128,9 +129,9 @@ class Container():
         except docker.errors.APIError as exc:
             g_logger.warning("Error running a container from image %s: %s", image_name, exc)
 
-        g_logger.warning(
-            "Port %d of started container %s with ID [%s] is CLOSED :(",
-            self._port, cname, cid)
+        #g_logger.warning(
+        #    "Port %d of started container %s with ID [%s] is CLOSED :(",
+        #    self._port, cname, cid)
 
         return None
 
