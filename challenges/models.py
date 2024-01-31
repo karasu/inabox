@@ -152,7 +152,7 @@ class DockerImage(models.Model):
     """ Store a docker image information """
     # This name is what will be shown to the user
     # (it can be different from the real docker image name)
-    name = models.CharField(
+    verbose_name = models.CharField(
         max_length=64, unique=True)
     # data to connect to the docker container
     container_ssh_port = models.IntegerField(
@@ -174,7 +174,7 @@ class DockerImage(models.Model):
     # docker file used to generate this docker image
     docker_file = models.FileField(
         upload_to=dockerimage_directory_path)
-    # docker image name in Docker
+    # real docker image name in Docker
     docker_name = models.CharField(max_length=64)
     # optional docker parameters
     optional_docker_ports = models.CharField(
@@ -183,7 +183,7 @@ class DockerImage(models.Model):
         blank=True, default='')
 
     def __str__(self):
-        return str(self.name)
+        return str(self.verbose_name)
 
 
 class Area(models.Model):

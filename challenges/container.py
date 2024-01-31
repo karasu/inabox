@@ -117,21 +117,21 @@ class Container():
             cid = self.get_id()
 
             # wait for container external port
-            if self._wait_for_open_port(port=self._port):
+            if self._port and self._wait_for_open_port(port=self._port):
                 g_logger.info(
                     "Port %d of started container [%s] with ID [%s] is OPEN :)",
                     self._port, cname, cid)
                 return self.get_info()
+
+            g_logger.warning(
+                "Port %d of started container %s with ID [%s] is CLOSED :(",
+                self._port, cname, cid)
         except docker.errors.ContainerError:
             g_logger.warning("Coudn't start a new container from image %s", image_name)
         except docker.errors.ImageNotFound:
             g_logger.warning("Docker image %s does not exist", image_name)
         except docker.errors.APIError as exc:
             g_logger.warning("Error running a container from image %s: %s", image_name, exc)
-
-        #g_logger.warning(
-        #    "Port %d of started container %s with ID [%s] is CLOSED :(",
-        #    self._port, cname, cid)
 
         return None
 

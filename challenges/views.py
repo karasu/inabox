@@ -332,7 +332,7 @@ class ChallengeDetailView(generic.DetailView):
     def prepare_container(self, challenge):
         """ Gets the docker container ready """
         user = self.request.user
-        image_name = challenge.docker_image.name
+        image_name = challenge.docker_image.docker_name
 
         # Check if user has a previous saved image for this challenge
         # in UserChallengeImage
