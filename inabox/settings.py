@@ -26,10 +26,10 @@ SECRET_KEY = os.environ.get(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
 
-if DEBUG != 'False':
+if DEBUG:
     ALLOWED_HOSTS = []
 else:
-    ALLOWED_HOSTS = [ 'inabox1.ies-sabadell.cat']
+    ALLOWED_HOSTS = [ 'inabox1.ies-sabadell.cat' ]
     CSRF_COOKIE_SECURE = True
     SECURE_HSTS_SECONDS = 60
     SECURE_SSL_REDIRECT = True
@@ -97,7 +97,14 @@ WSGI_APPLICATION = 'inabox.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-if DEBUG != 'False':
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'inabox.sqlite3',
+        }
+    }
+else:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
@@ -106,13 +113,6 @@ if DEBUG != 'False':
             "PASSWORD": "development",
             "HOST": "127.0.0.1",
             "PORT": "5432",
-        }
-    }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'inabox.sqlite3',
         }
     }
 
