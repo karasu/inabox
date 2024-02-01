@@ -18,7 +18,7 @@ sleep 4s
 #./build-all
 #cd ..
 
-echo "Now run Celery and Django (development)..."
+echo "Now run Celery and Daphne services..."
 
 CELERY_CMD="celery -A inabox worker --loglevel=INFO"
 DJANGO_CMD="python manage.py runserver"

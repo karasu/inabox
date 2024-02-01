@@ -1,0 +1,6 @@
+#!/bin/sh
+docker-compose stop
+docker-compose create
+docker-compose start
+
+
