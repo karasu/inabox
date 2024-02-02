@@ -319,3 +319,21 @@ class QuestChallenge(models.Model):
 
     def __str__(self):
         return f"{self.quest} - {self.challenge}"
+
+# https://djangocentral.com/creating-comments-system-with-django/
+class Comment(models.Model):
+    challenge = models.ForeignKey(
+        Challenge,
+        on_delete=models.CASCADE,
+        related_name='comments')
+    name = models.CharField(max_length=80)
+    email = models.EmailField()
+    body = models.TextField()
+    created_on = models.DateTimeField(auto_now_add=True)
+    active = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['created_on']
+
+    def __str__(self):
+        return 'Comment {} by {}'.format(self.body, self.name)
