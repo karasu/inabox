@@ -2,45 +2,121 @@
 {% load django_bootstrap5 %}
 {% block title %}{{ _("About") }}{% endblock %}
 {% block content %}
-Five Stages of Skill Acquisition
+<p>Inabox ("En una caixa") és una plataforma per practicar comandes Linux, un repositori
+de problemes, i una plataforma per córrer concursos de sistemes. És 100% open source.
+Va néixer com un jutge en línia per ajudar telemàticament a l'ensenyament de sistemes
+a l'Institut Sabadell arran de l'èxit de la plataforma Inabox, plataforma dedicada a
+programació i en la que es basa inabox.</p>
 
-Novice
+<p>També com Inabox, erò està obert a totes les institucions educatives ia gent que vulgui
+aprendre les comandes de gestió de sistemes operatius pel seu compte. Recopilem problemes
+de diverses competicions de sistemes, així com centenars de problemes bàsics d'aprenentatge
+per ensenyar conceptes i fer servir exercicis a classe.</p>
 
-    Operate by using context-free features and rules
-    Do not understand that rules are contextually based; context-free rules need to occasionally be violated given the context or situation presented
-    Do not assume responsibility for the consequences – “As a consequence, they [novices] feel little responsibility for the outcome of their acts. Assuming that they have made no mistakes, an unfortunate outcomes is viewed as the result of inadequately specified elements or rules (p. 26).” Thus the desire to create a protocol or a set of concrete rules results.
-    Follows rules
-Advanced Beginner
+<p>Demanem als usuaris que es llegeixin les normes de participació abans de participar al
+sistema de comentaris.</p>
+<hr />
+<h2 class="my-4">Què és Inabox?</h2>
 
-    Achieved after considerable experience
-    More sophisticated rules that are situational
-    Develops the idea that the idea of developing skill is a much larger conception  “Through practical experience in concrete situations with meaningful elements, which neither an instructor nor the learner can define in terms of objectively recognizable context-free features, the advanced beginner starts to recognize those elements when they are present (p.22).”
-    The advanced beginner begins to ask the question – how? How does one (fill in the blank)?
-    Can set goals but can’t set them reasonably
-Competent
+<h4 class="mt-4 mb-3">Jutge online</h4>
 
-    More experience
-    Possesses a sense of importance and is able to prioritize behaviors based on levels of importance. Behavior is determined by importance and not by context-free rules or merely situational rules
-    Possess a hierarchical procedure for making decisions
-    Requires organization and the creation of a plan
-    Accepts responsibility for choices because they recognize they made choices; they are emotionally invested in their decision-making “The competent performer, on the other hand, after wrestling with the question of the choice of a plan, feels responsible for, and thus emotionally involved in, the product of his choice (p. 26).”
-    Problem-solving indicates competence
-    Slow and detached reasoning (problem-solving)
-    Makes decisions
-Proficient
+<p>Inabox és un Jutge Online. Un Jutge Online bàsicament t'ofereix problemes de sistemes,
+els resols, i te'ls corregeix automàticament. Després et dóna punts pel que fa a la
+dificultat del problema.</p>
 
-    Uses intuition based on enough past experience
-    Intuition is “...the product of deep situational involvement and recognition of similarity (p. 29).”
-    Intuitive-based cognition coupled with detached decision-making. The proficient person recognizes intuitively but responds by more calculative decisions. Being proficient means attributing success to the calculative aspects of the success and ignoring the even more brilliant intuition that occurred first.
-Expert
+<p>Hi ha una taula de puntuacions amb què pots competir amb altres usuaris o contra els
+alumnes del teu institut.
+</p>
 
-    Functions or responds as a result of “mature and practiced understanding”
-    Loss of awareness of intuition and decision-making – operates simply because he does; knowledge becomes tacit
-    “When things are proceeding normally, experts don’t solve problems and don’t make decisions; they do what normally works (pp. 30-31).”
-    Experts “see” but sometimes don’t recognize that they “see”
-    Experts perform without reflecting on every behavior, but experts do reflect and will consider alternatives when presented with time and critical outcomes. When experts reflect, they engage in critical reflection of their own assumptions.
-    They possess: “An immense library of distinguishable situations is built up on the basis of experience (p. 32).”
-    Actions are unconscious operating out of intuition and tacit knowledge
-    Performance is fluid
-    “But when time permits and much is at stake, detached deliberative rationality of the type described can enhance the performance of even the intuitive expert (p. 40).”
+<h4 class="mt-4 mb-3">Educatiu</h4>
+
+<p>Inabox, a diferència dels altres jutges, és un jutge educatiu. Els problemes són en
+general més fàcils, tenen un etiquetatge perquè sàpigues quins coneixements necessites
+per resoldre'ls, si el programa no executa correctament et diu on i perquè en comptes
+de dir-te només que ho has fet malament, i té un sistema de pistes on pots demanar al
+sistema que et digui quin és el cas que t'està fallant. Cada problema té el sistema de
+comentaris on pots parlar amb altres usuaris per comentar el problema o demanar/donar
+pistes.</p>
+
+<p>Els problemes del Inabox, en comptes de valorar-se amb un 0 o un 1, donen també una nota
+parcial respecte dels casos de prova que has superat, per no desanimar els alumnes que
+intenten problemes difícils i no compleixen tots els casos.</p>
+
+<h4 class="mt-4 mb-3">Lliure</h4>
+
+<p>Inabox és un sistema lliure. No només el codi és totalment obert, sinó que la idea és
+que qualsevol persona i no només els administradors puguin crear problemes. Qualsevol usuari
+amb una mica d'experiència i que hagi llegit les guies pot demanar permisos per crear
+problemes, fer problemes nous, i després d'una comprovació, veure'ls penjats a Inabox 
+mb la seva autoria. La totalitat dels casos de prova es poden veure per part d'un compte
+de professor, ja que així poden ajudar els alumnes a resoldre problemes encallats,
+de manera que els problemes també són de codi obert, en contrapartida de la resta de
+jutges competitius, en què els casos de prova són un secret gelosament guardat.</p>
+
+<hr />
+<h2 class="mt-4 mb-3">Què NO és Inabox?</h2>
+
+<p>Inabox NO és un jutge competitiu. Tot i tenir problemes competitius, intentem que la
+meitat dels nostres problemes siguin problemes senzills d'aprenentatge.</p>
+
+<p>Inabox NO és un jutge amb 100.000 casos de prova per problema. Els problemes de Inabox
+tenen uns 20-25 casos de prova, que cobreixin els casos extrems i més proclius a fallar,
+però no n'hi ha més. El sistema de pistes i donar la nota parcial fa que el jutge sigui
+més lent que un jutge normal i per tant no volem sobrecarregar-lo.</p>
+
+<p>Inabox NO és un jutge estricte amb el Timelimit. Per descomptat tenim problemes de
+Timelimit i en gairebé tots els problemes les solucions de força bruta fallaran,
+però no forçarem problemes que només puguin resoldre a C++ ni obligar els usuaris
+a utilitzar llibreries específiques d'input/output. Això pot fer que problemes amb
+solucions no òptimes siguin acceptats.</p>
+
+<p>Inabox NO és perfecte. Tothom pot fer problemes, i de fet molts alumnes ho fan, ja que
+és una gran activitat que ajuda molt a entendre com crear casos de prova i testing efectiu.
+De vegades hi haurà problemes amb enunciats difícils d'entendre, o que accepten solucions
+no òptimes. En algun cas el problema podria tenir un error greu. Tingueu-ho en compte i
+sigueu comprensius si trobeu problemes nous d'usuaris amb pocs problemes fets. Es pot
+informar de qualsevol error que tingui un problema mitjançant el sistema de tiquets.</p>
+
+<hr />
+<h2 class="mt-4 mb-3">No entenc el missatge que em torna el jutge.
+
+<p>Estan tots explicats a La pàgina de respostes del jutge.</p>
+
+<hr />
+<h2 class="mt-4 mb-3">El Jutge m'ha dit "Internal Error"
+<p>
+Això és un problema del jutge i no teu o del teu enviament. S'envia un correu automàticament
+als desenvolupadors quan passa així que no cal que avisis.</p>
+
+Fins que no s'arregli no facis més enviaments perquè seguiran sense funcionar.
+
+<hr />
+<h2 class="mt-4 mb-3">Hi ha pocs problemes en la meva llengua</h2>
+
+La majoria de problemes són fets per professors d'instituts catalans i per tant estan
+redactats en català.</p>
+
+Si tens la interfície amb un altre idioma, només podràs veure els problemes que estiguin
+en l'idioma seleccionat.</p>
+
+<hr />
+<h2 class="mt-4 mb-3">M'interessa Inabox. Com puc unir la meva institució educativa?</h2>
+
+Si ets professor envia'm un correu a malbareda -arroba- ies-sabadell.cat. Et crearem una
+organització per tenir els teus alumnes agrupats i un compte de professor amb què podràs
+veure els enviaments dels teus alumnes.</p>
+
+Pots consultar la guia de professors aquí</p>
+
+Qui hi ha darrere d'això i com em poso en contacte?
+
+Inabox està desenvolupat pel Gustau, que és professor d'FP a l'Institut sabadell.
+Pots posar-te en contacte amb mi amb un correu a gcastel9 -arroba- ies-sabadell.cat</p>
+
+Com puc col·laborar amb Inabox?
+
+Principalment creant problemes. Llegeix la guia del Creador de Problemes TOT i posa't
+en contacte amb un administrador perquè et doni permisos.</p>
+
+També pots reportar o arreglar bugs. Fes-ho des de les "Issues" del Github d'Inabox</p>
 {% endblock %}
