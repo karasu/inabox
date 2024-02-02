@@ -220,16 +220,19 @@ def commit_container_task(task, container_id, image_name):
 def prune_dead_containers():
     """ This task removes all stoped containers """
 
-    ucc = UserChallengeContainer.objects.all()
+    uccs = UserChallengeContainer.objects.all()
 
     g_logger.info(
         "Prunning all stoped containers references in UserChallengeContainer table...")
 
-    for instance in ucc:
-        container = DockerContainer(container_id=ucc.container_id)
+    for ucc in uccs:
+        container_id = ucc.container_id
+        container = Container(container_id=container_id)
         if container.status() != "running":
-            instance.delete()
-
+            g_logger.info("Removing container [%s] reference from database", container_id)
+            ucc.delete()
+            g_logger.info("Removing container [%s] from Docker", container_id)
+            container.remove()
 
 @celery_app.on_after_finalize.connect
 def setup_periodic_tasks(sender, **kwargs):

@@ -16,5 +16,6 @@ python-redis
 celery
 python-celery
 django-celery-results
+django-celery-beat
 celery-progress
 python-dateutil

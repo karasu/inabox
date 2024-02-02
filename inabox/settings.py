@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'admin_interface',
     'colorfield',
     'django_bootstrap5',
+    'django_celery_beat',
     'django_celery_results',
     'celery_progress',
     'challenges.apps.ChallengesConfig',

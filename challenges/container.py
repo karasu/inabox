@@ -201,3 +201,18 @@ class Container():
         except docker.errors.APIError as exc:
             g_logger.warning(exc)
             return False
+
+    def remove(self, v=True, link=False, force=False):
+        """ Remove this container. Similar to the docker rm command. """
+        # Parameters:
+        # v (bool) – Remove the volumes associated with the container
+        # link (bool) – Remove the specified link and not the underlying container
+        # force (bool) – Force the removal of a running container (uses SIGKILL)
+
+        try:
+            if self._client and self._container:
+                self._container.remove(v=v, link=link, force=force)
+                return True
+        except docker.errors.APIError as exc:
+            g_logger.warning(exc)
+        return False
