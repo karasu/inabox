@@ -3,7 +3,7 @@
 from django import forms
 from django.contrib.auth.models import User
 
-from .models import Challenge, ProposedSolution
+from .models import Challenge, ProposedSolution, Comment
 
 class ChallengeSSHForm(forms.Form):
     """ Form with ssh connection data """
@@ -72,3 +72,8 @@ class NewChallengeForm(forms.ModelForm):
         if user_id:
             self.fields['creator'].queryset = User.objects.filter(id=user_id)
             self.fields['creator'].empty_label = None
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ('name', 'email', 'body')

@@ -253,6 +253,9 @@ class ChallengeDetailView(generic.DetailView):
             except ProposedSolution.MultipleObjectsReturned:
                 g_logger.error("Multiple entries in ProposedSolution table!")
 
+            # Get challenge's comments
+            context['comments'] = context['challenge'].comments.filter(active=True)
+
         return context
 
     def load_host_keys(self, path):

@@ -151,6 +151,13 @@
 </div>
 {% endif %}
 </div>
+
+<div>
+  {% for comment in comments %}
+  {{ comment }}
+  {% endfor %}
+</div>
+
 {% endblock %}
 
 {% block javascript %}

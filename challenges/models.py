@@ -320,7 +320,6 @@ class QuestChallenge(models.Model):
     def __str__(self):
         return f"{self.quest} - {self.challenge}"
 
-# https://djangocentral.com/creating-comments-system-with-django/
 class Comment(models.Model):
     challenge = models.ForeignKey(
         Challenge,

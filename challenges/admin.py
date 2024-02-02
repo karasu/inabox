@@ -16,6 +16,7 @@ from .models import Profile
 from .models import ProposedSolution
 from .models import Team
 from .models import Organization
+from .models import Comment
 
 admin.site.register(Challenge)
 admin.site.register(Quest)
@@ -26,6 +27,15 @@ admin.site.register(ProposedSolution)
 admin.site.register(Team)
 admin.site.register(Organization)
 
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ('name', 'body', 'post', 'created_on', 'active')
+    list_filter = ('active', 'created_on')
+    search_fields = ('name', 'email', 'body')
+    actions = ['approve_comments']
+
+    def approve_comments(self, request, queryset):
+        queryset.update(active=True)
+admin.site.register(Comment, CommentAdmin)
 
 class ProfileInline(admin.StackedInline):
     """ Define an inline admin descriptor for Profile model
