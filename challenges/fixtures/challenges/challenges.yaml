@@ -168,8 +168,7 @@
   pk: 1
   fields:
     challenge: 1
-    name: John Doe
-    email: johndoe@ies-sabadell.cat
-    body: "This is a comment!"
+    user: 2
+    body: "This is the body of the comment"
     active: True
     created_on: 2024-02-05 08:35

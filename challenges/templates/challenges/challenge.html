@@ -75,9 +75,10 @@
           {% csrf_token %}
           {{ ssh_data }}
           <button id="term-btn" type="submit" class="btn btn-primary">{{ _("Let's try to solve it!") }}</button>
-          <a class="btn btn-secondary" href="{% url 'challenges:challenges' %}" >{{ _("Go back") }}</a>
+          <button id="start-again" type="submit" class="btn btn-danger">{{ _("Start again") }}</button>
+          <a class="btn btn-secondary" href="{% url 'challenges:challenges' %}" >{{ _("Go back") }}</a>            
         </form>
-      
+
         <h5 class="mt-2" id="status" style="color: red;"></h5>
         <div class="mt-2">
           <div id="terminal"></div>
@@ -91,11 +92,11 @@
         {% endif %}
       </div>
     </div>
-
+    <!-- show challenge's comments -->
     {% for comment in comments %}
     <div class="card my-sm-4" id="comment">
       <div class="card-header">
-        <h5 class="card-title">{{ comment }} <h6>{{ comment.created_on }}</h6></h5>
+        <h5 class="card-title">{{ comment }} <small class="text-muted float-end">{{ comment.created_on }}</small></h5>
       </div>
       <div class="card-body">
         {{ comment.body }}
@@ -139,15 +140,15 @@
           {{ e }}
         </div>
         {% endfor %}
-        <button id="upload-solution" type="submit" class="btn btn-success">
-          {{ _("Let's check your solution!") }}</button>
+        <button id="upload-solution" type="submit" class="btn btn-success">{{ _("Let's check your solution!") }}</button>
         </form>
       </div>
     </div>
+
     <!-- save container form -->
     <div class="card mt-sm-3" id="save-container-card" hidden>
       <div class="card-header">
-        <h5 class="card-title">{{ _("This test image") }}</h5>
+        <h5 class="card-title">{{ _("This test session") }}</h5>
       </div>
       <div class="card-body">
         <form class="mt-2" id="connect" action="{% url 'challenges:challenge' challenge.id %}"
@@ -159,6 +160,31 @@
         </form>
       </div>
     </div>
+
+    <!-- Add new comment form -->
+    <div class="card mt-sm-3" id="new-comment-card">
+      <div class="card-header">
+        <h5 class="card-title">{{ _("New comment") }}</h5>
+      </div>
+      <div class="card-body">
+        <form class="mt-2" id="comment" action="{% url 'challenges:challenge' challenge.id %}"
+        method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <input type="hidden" name="form_name" value="CommentForm">
+          <input type="hidden" name="challenge_id" value="{{ challenge.id }}">
+
+          {% for e in comment_form.visible_fields %}
+          <div class="form-group mb-3">
+            {{ e.label_tag }}
+            {{ e }}
+          </div>
+          {% endfor %}
+
+          <button id="save-image-btn" type="submit" class="btn btn-success">{{ _("Add comment") }}</button>
+        </form>
+      </div>
+    </div>
+
   </div>
   {% endif %}
 </div>

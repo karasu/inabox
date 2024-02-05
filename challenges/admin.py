@@ -29,9 +29,9 @@ admin.site.register(Organization)
 
 class CommentAdmin(admin.ModelAdmin):
     """ Admin challenge's comments """
-    list_display = ('name', 'body', 'challenge', 'created_on', 'active')
+    list_display = ('user', 'body', 'challenge', 'created_on', 'active')
     list_filter = ('active', 'created_on')
-    search_fields = ('name', 'email', 'body')
+    search_fields = ('user', 'email', 'body')
     actions = ['approve_comments']
 
     def approve_comments(self, request, queryset):

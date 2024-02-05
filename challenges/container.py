@@ -135,7 +135,7 @@ class Container():
             self._container = self._client.containers.run(
                 image=image_name, **options)
 
-            self.wait_for_running()
+            #self.wait_for_running()
 
             cname = self.get_name()
             cid = self.get_id()
@@ -210,7 +210,7 @@ class Container():
             self._container.reload()
             continue
 
-    def commit(self, image_name, overwrite=True):
+    def commit(self, image_name):
         """ Commit a container to create an image called 'name' from its contents """
         # commit(repository=None, tag=None, **kwargs)
         # Commit a container to an image. Similar to the docker commit command.
@@ -226,7 +226,7 @@ class Container():
         # Raises:
         # docker.errors.APIError – If the server returns an error.
 
-        # TODO: Delete image if already exists
+        # Note: Overwrites image if it already exists
         try:
             self._container.stop()
             self._container.wait()

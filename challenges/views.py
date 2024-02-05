@@ -28,11 +28,11 @@ from .privatekey import InvalidValueError
 from .worker import Worker, recycle_worker, clients
 
 from .models import Challenge, Area, Profile, ProposedSolution, Quest, QuestChallenge
-from .models import ClassGroup, Team, Organization
+from .models import ClassGroup, Team, Organization, Comment
 #from .models import DockerImage
 from .models import UserChallengeContainer, UserChallengeImage
 from .models import LEVELS, ROLES
-from .forms import ChallengeSSHForm, NewChallengeForm, UploadSolutionForm, SearchForm
+from .forms import ChallengeSSHForm, CommentForm, NewChallengeForm, UploadSolutionForm, SearchForm
 
 # Celery task to check if a proposed solution is valid or not
 from .tasks import validate_solution_task
@@ -223,6 +223,9 @@ class ChallengeDetailView(generic.DetailView):
 
             print(docker_image.docker_name)
 
+            # Get docker image and container id from db (if exist)
+            cinfo = self.get_container_info(context['challenge'])
+
             # Get data for the SSH connection form
             data = {
                 "hostname": "localhost",
@@ -234,8 +237,9 @@ class ChallengeDetailView(generic.DetailView):
                 "totp": 0,
                 "term": "xterm-256color",
                 "challenge_id": context['challenge'].id,
+                'image_name': cinfo['image_name'],
+                'container_id': cinfo['container_id'],
             }
-
             context['ssh_data'] = ChallengeSSHForm(data)
 
             context['upload_solution_form'] = UploadSolutionForm(
@@ -254,6 +258,10 @@ class ChallengeDetailView(generic.DetailView):
                     tries=0)
             except ProposedSolution.MultipleObjectsReturned:
                 g_logger.error("Multiple entries in ProposedSolution table!")
+
+            context['comment_form'] = CommentForm(
+                user_id = self.request.user.id,
+                challenge_id = context['challenge'].id)
 
         # Get challenge's comments (even when user is not logged in)
         context['comments'] = context['challenge'].comments.filter(active=True)
@@ -334,8 +342,8 @@ class ChallengeDetailView(generic.DetailView):
             port = request.META.get('REMOTE_PORT')
         return (ip_address, port)
 
-    def prepare_container(self, challenge):
-        """ Gets the docker container ready """
+    def get_container_info(self, challenge):
+        """ Gets the docker container info stored in db """
         user = self.request.user
         image_name = challenge.docker_image.docker_name
 
@@ -366,7 +374,7 @@ class ChallengeDetailView(generic.DetailView):
             except UserChallengeContainer.DoesNotExist:
                 g_logger.warning("No previous container found, a new one will be created.")
                 container_id = None
-        return image_name, container_id
+        return {'image_name': image_name, 'container_id': container_id }
 
 
     def challenge_ssh_form(self, request):
@@ -375,12 +383,16 @@ class ChallengeDetailView(generic.DetailView):
         form_data = request.POST
         form = ChallengeSSHForm(form_data)
 
+        print(request)
+
         if form.is_valid():
             challenge_id = form_data.get('challenge_id')
             challenge = Challenge.objects.get(id=challenge_id)
 
             # Get docker image and container id (if exist)
-            image_name, container_id = self.prepare_container(challenge)
+            #image_name, container_id = self.prepare_container(challenge)
+            image_name = form_data.get('image_name', None)
+            container_id = form_data.get('container_id', None)
 
             user = self.request.user
             # Run the container
@@ -586,6 +598,19 @@ class ChallengeDetailView(generic.DetailView):
                     "title": _("Error saving changes. Check the error(s) below:"),
                     "errors": "Not implemented"})
 
+    def add_comment(self, request, *args, **kwargs):
+        """ Adds new comment to challenge """
+        user = request.user
+        challenge_id = request.POST['challenge_id']
+        challenge = Challenge.objects.get(id=challenge_id)
+
+        # set active to True by default, if this causes problems, comments will have to be moderated
+        comment = Comment(user=user, challenge=challenge, body=request.POST['body'], active=True)
+        comment.save()
+
+        context = self.get_context_data(**kwargs)
+        return self.render_to_response(context=context)
+
     def post(self, request, *args, **kwargs):
         """ Deal with post data """
         # assign the object to the view
@@ -603,6 +628,9 @@ class ChallengeDetailView(generic.DetailView):
 
         if request.POST.get("form_name") == "SaveContainerForm":
             return self.save_container(request)
+
+        if request.POST.get("form_name") == "CommentForm":
+            return self.add_comment(request)
 
         return HttpResponseBadRequest()
 

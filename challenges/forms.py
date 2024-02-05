@@ -16,6 +16,8 @@ class ChallengeSSHForm(forms.Form):
     totp = forms.CharField(widget=forms.HiddenInput(), required=False)
     term = forms.CharField(widget=forms.HiddenInput())
     challenge_id = forms.IntegerField(widget=forms.HiddenInput())
+    image_name = forms.CharField(widget=forms.HiddenInput(), required=False)
+    container_id = forms.CharField(widget=forms.HiddenInput(), required=False)
 
 
 class UploadSolutionForm(forms.ModelForm):
@@ -74,6 +76,26 @@ class NewChallengeForm(forms.ModelForm):
             self.fields['creator'].empty_label = None
 
 class CommentForm(forms.ModelForm):
+    """ Form to add a new comment to a challenge """
     class Meta:
         model = Comment
-        fields = ('name', 'email', 'body')
+        fields = ['challenge', 'user', 'body']
+
+    def __init__(self, *args, **kwargs):
+        user_id = kwargs.pop('user_id', None)
+        challenge_id = kwargs.pop('challenge_id', None)
+        super().__init__(*args, **kwargs)
+
+        # Add form-control class to all form widgets
+        for field in self.visible_fields():
+            field.field.widget.attrs.update({'class': 'form-control'})
+
+        if user_id:
+            # set the creator field to the current user (and remove the rest)
+            self.fields['user'].queryset = User.objects.filter(id=user_id)
+            self.fields['user'].empty_label = None
+
+        if challenge_id:
+            # set the challenge field to the current challenge (and remove the rest)
+            self.fields['challenge'].queryset = Challenge.objects.filter(id=challenge_id)
+            self.fields['challenge'].empty_label = None

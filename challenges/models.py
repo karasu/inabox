@@ -270,6 +270,7 @@ class UserChallengeImage(models.Model):
         User, on_delete=models.CASCADE)
 
     class Meta:
+        """ Model meta class """
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'challenge'],
@@ -332,14 +333,18 @@ class Comment(models.Model):
         Challenge,
         on_delete=models.CASCADE,
         related_name='comments')
-    name = models.CharField(max_length=80)
-    email = models.EmailField()
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE)
     body = models.TextField()
     created_on = models.DateTimeField(auto_now_add=True)
     active = models.BooleanField(default=False)
 
     class Meta:
+        """ Model meta class """
         ordering = ['created_on']
 
     def __str__(self):
-        return f"Comment by {self.name}"
+        if self.user.last_name:
+            return f"Comment by {self.user.first_name} {self.user.last_name}"
+        return f"Comment by {self.user.username}"
