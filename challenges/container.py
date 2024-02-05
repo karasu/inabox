@@ -10,6 +10,28 @@ from .logger import g_logger
 # connection url to the docker service
 URL = "unix://var/run/docker.sock"
 
+class Image():
+    """ Represents a docker image """
+    def __init__(self, name=None):
+        self._image = None
+        self._client = docker.DockerClient(base_url=URL)
+        if not self._client:
+            g_logger.error("Cannot connect to docker service. Is it running?")
+        elif name:
+            try:
+                self._image = self._client.images.get(name)
+            except docker.errors.ImageNotFound:
+                self._image = None
+                g_logger.warning("Could not find docker image named %s", name)
+            except docker.errors.APIError as exc:
+                g_logger.warning(exc)
+
+    def is_ok(self):
+        """ Returns True if a docker image has been loaded """
+        if self._image:
+            return True
+        return False
+
 class Container():
     """ Represents a docker container """
 
@@ -113,6 +135,8 @@ class Container():
             self._container = self._client.containers.run(
                 image=image_name, **options)
 
+            self.wait_for_running()
+
             cname = self.get_name()
             cid = self.get_id()
 
@@ -175,6 +199,17 @@ class Container():
             time.sleep(step)
         return False
 
+    def wait_for_running(self):
+        """ waits until container status is running or until times out"""
+        timeout = 120
+        stop_time = 3
+        elapsed_time = 0
+        while self._container.status != 'running' and elapsed_time < timeout:
+            time.sleep(stop_time)
+            elapsed_time += stop_time
+            self._container.reload()
+            continue
+
     def commit(self, image_name, overwrite=True):
         """ Commit a container to create an image called 'name' from its contents """
         # commit(repository=None, tag=None, **kwargs)
@@ -193,6 +228,7 @@ class Container():
 
         # TODO: Delete image if already exists
         try:
+            self._container.stop()
             self._container.wait()
             self._container.commit(repository=image_name, tag="latest")
             g_logger.info("Container commited as %s", image_name)

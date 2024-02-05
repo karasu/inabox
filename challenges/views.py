@@ -40,6 +40,8 @@ from .tasks import run_container_task, commit_container_task
 
 from .logger import g_logger
 
+from .container import Image as DockerImage
+
 @register.filter
 def get_item(dictionary, key):
     """ Filter to get dict item in a loop """
@@ -349,7 +351,7 @@ class ChallengeDetailView(generic.DetailView):
             g_logger.info("No previous saved image found.")
             user_image_name = None
 
-        if user_image_name:
+        if user_image_name and DockerImage(user_image_name).is_ok():
             image_name = user_image_name
             container_id = None
         else:

@@ -170,15 +170,15 @@ class ValidateSolution():
         return True, _("Task complete")
 
 @shared_task(bind=True)
-def validate_solution_task(task, proposed_solution_id):
+def validate_solution_task(self, proposed_solution_id):
     """ Check if proposed solution is right or wrong """
 
-    return ValidateSolution(task, proposed_solution_id).run()
+    return ValidateSolution(self, proposed_solution_id).run()
 
 
 @shared_task(bind=True)
 def run_container_task(
-    task, user_id, challenge_id, image_name, container_id=None):
+    self, user_id, challenge_id, image_name, container_id=None):
     """ Runs docker container """
 
     if container_id is None:
@@ -209,7 +209,7 @@ def run_container_task(
     return None
 
 @shared_task(bind=True)
-def commit_container_task(task, container_id, image_name):
+def commit_container_task(self, container_id, image_name):
     """ Saves container as a new image """
     container = Container(container_id)
 
@@ -218,25 +218,25 @@ def commit_container_task(task, container_id, image_name):
 
 @celery_app.task
 def prune_dead_containers():
-    """ This task removes all stoped containers """
-
-    uccs = UserChallengeContainer.objects.all()
+    """ This task removes all stoped containers!!! """
 
     g_logger.info(
         "Prunning all stoped containers references in UserChallengeContainer table...")
 
+    uccs = UserChallengeContainer.objects.all()
+
     for ucc in uccs:
-        container_id = ucc.container_id
-        container = Container(container_id=container_id)
+        cid = ucc.container_id
+        container = Container(container_id=cid)
         if container.status() != "running":
-            g_logger.info("Removing container [%s] reference from database", container_id)
             ucc.delete()
-            g_logger.info("Removing container [%s] from Docker", container_id)
+            g_logger.warning("Container [%s] reference has been removed from database", cid)
             container.remove()
+            g_logger.warning("Container [%s] has been removed from Docker", cid)
 
 @celery_app.on_after_finalize.connect
 def setup_periodic_tasks(sender, **kwargs):
     """ Put periodic tasks here """
 
-    # Calls prune_dead_containers every minute.
-    sender.add_periodic_task(60.0, prune_dead_containers)
+    # Calls prune_dead_containers every two minutes.
+    sender.add_periodic_task(2*60.0, prune_dead_containers)

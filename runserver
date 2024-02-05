@@ -11,7 +11,7 @@ docker rm -f inabox-redis
 docker run --name inabox-redis -p 6379:6379 -d redis:5
 
 echo Waiting for containers to start...
-sleep 4s
+sleep 3s
 
 ## Build all images
 #cd docker-images
