@@ -66,18 +66,32 @@
           {% endif %}
         </div>
         {% endif %}
-        <div id="waiter" style="display: none"> Connecting ... </div>
+        <div id="waiter" style="display: none">Connecting...</div>
       
         {% if user.is_authenticated %}
-        <form class="mt-2" id="connect" action="{% url 'challenges:challenge' challenge.id %}"
-          method="post" enctype="multipart/form-data">
-          <input type="hidden" name="form_name" value="ChallengeSSHForm">
-          {% csrf_token %}
-          {{ ssh_data }}
-          <button id="term-btn" type="submit" class="btn btn-primary">{{ _("Let's try to solve it!") }}</button>
-          <button id="start-again" type="submit" class="btn btn-danger">{{ _("Start again") }}</button>
-          <a class="btn btn-secondary" href="{% url 'challenges:challenges' %}" >{{ _("Go back") }}</a>            
-        </form>
+       
+        <div class="mt-2">
+        <div class="btn-group" role="group" aria-label="Basic example">
+            <form id="connect" action="{% url 'challenges:challenge' challenge.id %}"
+              method="post" enctype="multipart/form-data">
+              <input type="hidden" name="form_name" value="ChallengeSSHForm">
+              {% csrf_token %}
+              {{ ssh_data }}
+              <button type="submit" name="term-btn" class="btn btn-primary">{{ _("Let's try to solve it!") }}</button>    
+            </form>
+          
+            <form class="ms-2" id="start-again" action="{% url 'challenges:challenge' challenge.id %}" method="post">
+              <input type="hidden" name="form_name" value="start-again">
+              {% csrf_token %}
+              {{ start_again_data }}
+              <button type="submit" name="start-again" class="btn btn-danger">{{ _("Start again") }}</button>
+            </form>
+          
+            <form>
+            <a class="btn btn-secondary ms-2" href="{% url 'challenges:challenges' %}">{{ _("Go back") }}</a>
+            </form>
+          </div>
+        </div>
 
         <h5 class="mt-2" id="status" style="color: red;"></h5>
         <div class="mt-2">
@@ -151,7 +165,7 @@
         <h5 class="card-title">{{ _("This test session") }}</h5>
       </div>
       <div class="card-body">
-        <form class="mt-2" id="connect" action="{% url 'challenges:challenge' challenge.id %}"
+        <form class="mt-2" id="save-container-form" action="{% url 'challenges:challenge' challenge.id %}"
         method="post" enctype="multipart/form-data">
           {% csrf_token %}
           <input type="hidden" name="form_name" value="SaveContainerForm">

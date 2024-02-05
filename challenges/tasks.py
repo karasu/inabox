@@ -16,7 +16,7 @@ from inabox.celery import app as celery_app
 from .models import Challenge, ProposedSolution
 from .models import UserChallengeContainer
 
-from .container import Container
+from .container import Container, Image
 
 g_logger = get_task_logger(__name__)
 
@@ -208,6 +208,29 @@ def run_container_task(
             challenge_id, user_id)
     return None
 
+
+@shared_task(bind=True)
+def remove_container_task(self, container_id):
+    """ Removes docker container """
+
+    container = Container(container_id)
+    container.stop()
+    container.wait()
+    container.remove()
+
+    g_logger.warning("Container [%s] removed", container_id)
+
+
+@shared_task(bind=True)
+def remove_image_task(self, image_name):
+    """ Removes docker image """
+
+    image = Image(image_name)
+    if image.is_ok():
+        image.remove()
+        g_logger.warning("Docker image [%s] removed", image_name)
+
+
 @shared_task(bind=True)
 def commit_container_task(self, container_id, image_name):
     """ Saves container as a new image """
@@ -215,6 +238,7 @@ def commit_container_task(self, container_id, image_name):
 
     g_logger.info("Saving container [%s] as [%s]", container_id, image_name)
     return container.commit(image_name)
+
 
 @celery_app.task
 def prune_dead_containers():
@@ -233,6 +257,7 @@ def prune_dead_containers():
             g_logger.warning("Container [%s] reference has been removed from database", cid)
             container.remove()
             g_logger.warning("Container [%s] has been removed from Docker", cid)
+
 
 @celery_app.on_after_finalize.connect
 def setup_periodic_tasks(sender, **kwargs):

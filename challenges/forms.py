@@ -19,6 +19,11 @@ class ChallengeSSHForm(forms.Form):
     image_name = forms.CharField(widget=forms.HiddenInput(), required=False)
     container_id = forms.CharField(widget=forms.HiddenInput(), required=False)
 
+class StartAgainForm(forms.Form):
+    """ Form with challenge and container info """
+    challenge_id = forms.IntegerField(widget=forms.HiddenInput())
+    image_name = forms.CharField(widget=forms.HiddenInput(), required=False)
+    container_id = forms.CharField(widget=forms.HiddenInput(), required=False)
 
 class UploadSolutionForm(forms.ModelForm):
     """ This form is used to upload a challenge solution """

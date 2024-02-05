@@ -14,10 +14,12 @@ class Image():
     """ Represents a docker image """
     def __init__(self, name=None):
         self._image = None
+        self._name = None
         self._client = docker.DockerClient(base_url=URL)
         if not self._client:
             g_logger.error("Cannot connect to docker service. Is it running?")
         elif name:
+            self._name = name
             try:
                 self._image = self._client.images.get(name)
             except docker.errors.ImageNotFound:
@@ -31,6 +33,16 @@ class Image():
         if self._image:
             return True
         return False
+
+    def remove(self, name=None, force=True, noprune=True):
+        """ Removes an image """
+        if self._image:
+            if name is None:
+                name = self._name
+            self._client.images.remove(image=name, force=force, noprune=noprune)
+            self._image = None
+            self._name = None
+
 
 class Container():
     """ Represents a docker container """
@@ -78,6 +90,11 @@ class Container():
         """ Stop container """
         if self._container:
             self._container.stop()
+
+    def wait(self):
+        """ Wait for container to stop """
+        if self._container:
+            self._container.wait()
 
     def get_instance(self):
         """ returns container instance """

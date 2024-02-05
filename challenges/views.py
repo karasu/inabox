@@ -32,11 +32,11 @@ from .models import ClassGroup, Team, Organization, Comment
 #from .models import DockerImage
 from .models import UserChallengeContainer, UserChallengeImage
 from .models import LEVELS, ROLES
-from .forms import ChallengeSSHForm, CommentForm, NewChallengeForm, UploadSolutionForm, SearchForm
+from .forms import ChallengeSSHForm, CommentForm, NewChallengeForm, UploadSolutionForm, SearchForm, StartAgainForm
 
 # Celery task to check if a proposed solution is valid or not
 from .tasks import validate_solution_task
-from .tasks import run_container_task, commit_container_task
+from .tasks import run_container_task, commit_container_task, remove_container_task, remove_image_task
 
 from .logger import g_logger
 
@@ -220,8 +220,7 @@ class ChallengeDetailView(generic.DetailView):
 
             # Get the docker image of this challenge
             docker_image = context['challenge'].docker_image
-
-            print(docker_image.docker_name)
+            #print(docker_image.docker_name)
 
             # Get docker image and container id from db (if exist)
             cinfo = self.get_container_info(context['challenge'])
@@ -241,6 +240,13 @@ class ChallengeDetailView(generic.DetailView):
                 'container_id': cinfo['container_id'],
             }
             context['ssh_data'] = ChallengeSSHForm(data)
+
+            data = {
+                "challenge_id": context['challenge'].id,
+                'image_name': cinfo['image_name'],
+                'container_id': cinfo['container_id'],
+            }
+            context['start_again_data'] = StartAgainForm(data)
 
             context['upload_solution_form'] = UploadSolutionForm(
                 user_id = self.request.user.id,
@@ -376,14 +382,54 @@ class ChallengeDetailView(generic.DetailView):
                 container_id = None
         return {'image_name': image_name, 'container_id': container_id }
 
+    def start_again(self, request):
+        """ User wants to discard all container changes and start anew """
+
+        form_data = request.POST
+        form = StartAgainForm(form_data)
+
+        if form.is_valid():
+            user = self.request.user
+            challenge_id = form_data.get('challenge_id')
+            challenge = Challenge.objects.get(id=challenge_id)
+            image_name = form_data.get('image_name', None)
+            container_id = form_data.get('container_id', None)
+            print(image_name)
+            print(container_id)
+
+            # Delete container and image (if image is different from the base one)
+            if container_id:
+                # delete container
+                remove_container_task.delay(container_id=container_id)
+
+            if image_name and image_name != challenge.docker_image.docker_name:
+                remove_image_task.delay(image_name=image_name)
+
+            # Delete container and image references from db
+            uci = UserChallengeImage.objects.get(
+                user=user,
+                challenge=challenge)
+            uci.delete()
+
+            ucc = UserChallengeContainer.objects.get(
+                user=user,
+                challenge=challenge)                   
+            ucc.delete()
+
+        return render(
+            request,
+            template_name="challenges/form_error.html",
+            context={
+                "title": _("Error trying to clean previous container data"),
+                "errors": "Please ask help to an administrator",
+                }
+            )
 
     def challenge_ssh_form(self, request):
         """ Create a form instance and populate it with data from the request: """
 
         form_data = request.POST
         form = ChallengeSSHForm(form_data)
-
-        print(request)
 
         if form.is_valid():
             challenge_id = form_data.get('challenge_id')
@@ -535,7 +581,7 @@ class ChallengeDetailView(generic.DetailView):
             # Get task id
             #task_id = validate_solution_task.task_id
             task_id = res.id
-            print(res.id, res.status)
+            #print(res.id, res.status)
             #context = super().get_context_data(**kwargs)
             context = self.get_context_data(**kwargs)
             context['task_id'] = task_id
@@ -631,6 +677,9 @@ class ChallengeDetailView(generic.DetailView):
 
         if request.POST.get("form_name") == "CommentForm":
             return self.add_comment(request)
+        
+        if request.POST.get("form_name") == "start-again":
+            return self.start_again(request)
 
         return HttpResponseBadRequest()
 
