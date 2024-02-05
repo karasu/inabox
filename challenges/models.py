@@ -37,6 +37,36 @@ ROLES = [
     ("S", _("Student")),
 ]
 
+# Static paths
+def avatar(num):
+    """ returns avatar's static path """
+    return f"challenges/images/avatars/256x256/{num}.jpg"
+
+def user_directory_path(instance, filename):
+    """ file will be uploaded to MEDIA_ROOT/users/<username>/<filename> """
+    return f"users/{instance.user.username}/{filename}"
+
+def teams_directory_path(instance, filename):
+    """ returns teams directory """
+    return f"teams/{instance.name}/{filename}"
+
+def organizations_directory_path(instance, filename):
+    """ returns organizations directory """
+    return f"organizations/{instance.name}/{filename}"
+
+def dockerimage_directory_path(instance, filename):
+    """ # file will be uploaded to MEDIA_ROOT/dockerimages/<dockerimagename>/<filename> """
+    return f"dockerimages/{instance.name}/{filename}"
+
+def challenge_directory_path(instance, filename):
+    """ file will be uploaded to MEDIA_ROOT/challenges/<challengetitle>/<filename> """
+    return f"challenges/{instance.title}/{filename}"
+
+def user_solutions_path(instance, filename):
+    """ file will be uploaded to MEDIA_ROOT/solutions/<username>/<challengetitle> """
+    return f"solutions/{instance.user.username}/{instance.challenge.title}/{filename}"
+
+
 def to_str(bstr, encoding='utf-8'):
     """ Converts bytes to string """
     if isinstance(bstr, bytes):
@@ -48,7 +78,6 @@ def to_bytes(ustr, encoding='utf-8'):
     if isinstance(ustr, UnicodeType):
         return ustr.encode(encoding)
     return ustr
-
 
 class RSAUtil():
     """ RSA helper class """
@@ -65,10 +94,6 @@ class RSAUtil():
         return rsa_key.publickey().exportKey()
 
 
-def user_directory_path(instance, filename):
-    """ file will be uploaded to MEDIA_ROOT/users/<username>/<filename> """
-    return f"users/{instance.user.username}/{filename}"
-
 class ClassGroup(models.Model):
     """ Store class here """
     name = models.CharField(max_length=64)
@@ -78,32 +103,24 @@ class ClassGroup(models.Model):
         return str(self.name)
 
 
-def teams_directory_path(instance, filename):
-    """ returns teams directory """
-    return f"teams/{instance.name}/{filename}"
-
 class Team(models.Model):
     """ Store player team """
     name = models.CharField(max_length=128, unique=True)
     image = models.ImageField(
         upload_to=teams_directory_path,
-        default="challenges/images/avatars/256x256/028.jpg")
+        default=avatar("028"))
     description = models.TextField()
 
     def __str__(self):
         return str(self.name)
 
 
-def organizations_directory_path(instance, filename):
-    """ returns organizations directory """
-    return f"organizations/{instance.name}/{filename}"
-
 class Organization(models.Model):
     """ Store the organization to which the player belongs to """
     name = models.CharField(max_length=128, unique=True)
     image = models.ImageField(
         upload_to=organizations_directory_path,
-        default="challenges/images/avatars/256x256/029.jpg")
+        default=avatar("029"))
     description = models.TextField()
 
     def __str__(self):
@@ -122,7 +139,7 @@ class Profile(models.Model):
         verbose_name=_("Teacher"))
     avatar = models.ImageField(
         upload_to=user_directory_path,
-        default="challenges/images/avatars/256x256/021.jpg")
+        default=avatar("021"))
     private_key = models.TextField(
         default=RSAUtil.create_rsa_private_key())
     language = models.CharField(
@@ -142,11 +159,6 @@ class Profile(models.Model):
     def __str__(self):
         return f"{self.user.username}'s profile"
 
-
-# file will be uploaded to MEDIA_ROOT/dockerimages/<dockerimagename>/<filename>
-def dockerimage_directory_path(instance, filename):
-    """ get dockerimage directory """
-    return f"dockerimages/{instance.name}/{filename}"
 
 class DockerImage(models.Model):
     """ Store a docker image information """
@@ -195,10 +207,6 @@ class Area(models.Model):
         return str(self.name)
 
 
-def challenge_directory_path(instance, filename):
-    """ file will be uploaded to MEDIA_ROOT/challenges/<challengetitle>/<filename> """
-    return f"challenges/{instance.title}/{filename}"
-
 class Challenge(models.Model):
     """ Store challenge """
     title = models.CharField(max_length=256, unique=True)
@@ -246,6 +254,7 @@ class UserChallengeContainer(models.Model):
                 name='unique_container_user_challenge_combination'
             )
         ]
+
     def __str__(self):
         return str(self.container_id)
 
@@ -267,13 +276,10 @@ class UserChallengeImage(models.Model):
                 name='unique_image_user_challenge_combination'
             )
         ]
+
     def __str__(self):
         return str(self.image_name)
 
-
-def user_solutions_path(instance, filename):
-    """ file will be uploaded to MEDIA_ROOT/solutions/<username>/<challengetitle> """
-    return f"solutions/{instance.user.username}/{instance.challenge.title}/{filename}"
 
 class ProposedSolution(models.Model):
     """ Stores each user's solution to each challenge """
@@ -321,6 +327,7 @@ class QuestChallenge(models.Model):
         return f"{self.quest} - {self.challenge}"
 
 class Comment(models.Model):
+    """ Challenge comments """
     challenge = models.ForeignKey(
         Challenge,
         on_delete=models.CASCADE,
@@ -335,4 +342,4 @@ class Comment(models.Model):
         ordering = ['created_on']
 
     def __str__(self):
-        return 'Comment {} by {}'.format(self.body, self.name)
+        return f"Comment by {self.name}"

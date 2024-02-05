@@ -194,9 +194,8 @@ class Container():
         # TODO: Delete image if already exists
         try:
             self._container.wait()
-            self._container.commit(
-                repository=image_name,
-                tag="latest")
+            self._container.commit(repository=image_name, tag="latest")
+            g_logger.info("Container commited as %s", image_name)
             return True
         except docker.errors.APIError as exc:
             g_logger.warning(exc)
