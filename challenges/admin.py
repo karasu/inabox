@@ -28,12 +28,14 @@ admin.site.register(Team)
 admin.site.register(Organization)
 
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ('name', 'body', 'post', 'created_on', 'active')
+    """ Admin challenge's comments """
+    list_display = ('name', 'body', 'challenge', 'created_on', 'active')
     list_filter = ('active', 'created_on')
     search_fields = ('name', 'email', 'body')
     actions = ['approve_comments']
 
     def approve_comments(self, request, queryset):
+        """ Set active to True to approve comment """
         queryset.update(active=True)
 admin.site.register(Comment, CommentAdmin)
 

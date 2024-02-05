@@ -253,8 +253,8 @@ class ChallengeDetailView(generic.DetailView):
             except ProposedSolution.MultipleObjectsReturned:
                 g_logger.error("Multiple entries in ProposedSolution table!")
 
-            # Get challenge's comments
-            context['comments'] = context['challenge'].comments.filter(active=True)
+        # Get challenge's comments (even when user is not logged in)
+        context['comments'] = context['challenge'].comments.filter(active=True)
 
         return context
 
@@ -550,8 +550,8 @@ class ChallengeDetailView(generic.DetailView):
         ucc = UserChallengeContainer.objects.get(user=user, challenge=challenge)
 
         if ucc.container_id:
-            challenge_name = challenge.name.replace('\'', '_').replace(' ', '_')
-            image_name = f"inabox/{user.username}_{challenge_name}".lower()
+            challenge_title = challenge.title.replace('\'', '_').replace(' ', '_')
+            image_name = f"inabox_{user.username}_{challenge_title}".lower()
 
             res = commit_container_task.delay(
                 container_id=ucc.container_id,
