@@ -1,6 +1,5 @@
 """ ssh connection worker """
 
-import logging
 import asyncio
 import errno
 
@@ -12,7 +11,9 @@ except ImportError:
 from uuid import uuid4
 
 from channels.layers import get_channel_layer
-channel_layer = get_channel_layer()
+from .logger import g_logger
+
+g_channel_layer = get_channel_layer()
 
 # These constants were originally based on constants from the
 # epoll module.
@@ -43,7 +44,7 @@ def recycle_worker(worker):
     """ reuses a worker """
     if worker.handler:
         return
-    logging.warning("Recycling worker %d", worker.id)
+    g_logger.warning("Recycling worker %s", worker.id)
     worker.close(reason='worker recycled')
 
 
@@ -88,45 +89,45 @@ class Worker():
 
     def read(self, consumer):
         """ read data and send it to the consumer """
-        logging.debug("worker %d on read", self.id)
+        g_logger.debug("worker %s on read", self.id)
         try:
             data = self.chan.recv(BUF_SIZE)
         except (OSError, IOError) as exc:
-            logging.error(exc)
+            g_logger.error(exc)
             if self.chan.closed or exc.errno == errno.ECONNRESET:
                 self.close(reason='chan error on reading')
         else:
-            logging.debug("%s from %s:%d", data, self.dst_addr[0], self.dst_addr[1])
+            # g_logger.debug("%s from %s:%d", data, self.dst_addr[0], self.dst_addr[1])
             if not data:
                 self.close(reason='chan closed')
                 return
 
-            logging.debug("%s to %s:%d",
-                           data, self.handler.src_addr[0], self.handler.src_addr[1])
+            #g_logger.debug("%s to %s:%d",
+            #               data, self.handler.src_addr[0], self.handler.src_addr[1])
             try:
                 # send a bytes frame to the consumer
                 loop = asyncio.get_event_loop()
                 channel_name = consumer().channel_name
-                loop.create_task(channel_layer.send(channel_name, {
-                    "type": "send.message", 
-                    "data": data}))
+                loop.create_task(g_channel_layer.send(
+                    channel_name,
+                    {"type": "send.message", "data": data}))
             except Exception:
                 self.close(reason='websocket closed')
 
     def write(self, consumer):
         """ write data """
-        logging.debug("worker %d on write", self.id)
+        g_logger.debug("worker %d on write", self.id)
 
         if not self.data_to_dst:
             return
 
         data = ''.join(self.data_to_dst)
-        logging.debug("%s to %s:%d", data, self.dst_addr[0], self.dst_addr[1])
+        g_logger.debug("%s to %s:%d", data, self.dst_addr[0], self.dst_addr[1])
 
         try:
             sent = self.chan.send(data)
         except (OSError, IOError) as exc:
-            logging.error(exc)
+            g_logger.error(exc)
             if self.chan.closed or exc.errno == errno.ECONNRESET:
                 self.close(reason='chan error on writing')
             else:
@@ -146,8 +147,8 @@ class Worker():
             return
         self.closed = True
 
-        logging.info(
-            "Closing worker %d with reason: %s", self.id, reason)
+        g_logger.info(
+            "Closing worker %s with reason: %s", self.id, reason)
 
         if self.handler:
             # TODO: Fix this! remove_handler
@@ -155,8 +156,8 @@ class Worker():
             self.handler.close()
         self.chan.close()
         self.ssh.close()
-        logging.info(
+        g_logger.info(
             "Connection to %s:%d lost", self.dst_addr[0], self.dst_addr[1])
 
         clear_worker(self)
-        logging.debug(clients)
+        g_logger.debug(clients)

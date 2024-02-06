@@ -220,7 +220,6 @@ class ChallengeDetailView(generic.DetailView):
 
             # Get the docker image of this challenge
             docker_image = context['challenge'].docker_image
-            #print(docker_image.docker_name)
 
             # Get docker image and container id from db (if exist)
             cinfo = self.get_container_info(context['challenge'])
@@ -241,6 +240,7 @@ class ChallengeDetailView(generic.DetailView):
             }
             context['ssh_data'] = ChallengeSSHForm(data)
 
+            # Get data for the start again form
             data = {
                 "challenge_id": context['challenge'].id,
                 'image_name': cinfo['image_name'],
@@ -248,16 +248,18 @@ class ChallengeDetailView(generic.DetailView):
             }
             context['start_again_data'] = StartAgainForm(data)
 
+            # Get data for the upload solution form
             context['upload_solution_form'] = UploadSolutionForm(
                 user_id = self.request.user.id,
                 challenge_id = context['challenge'].id)
 
+            # Get proposed solution data
             try:
                 context['proposed'] = ProposedSolution.objects.get(
                     user=self.request.user,
                     challenge=context['challenge'])
             except ProposedSolution.DoesNotExist:
-                # it does not exist, create it
+                # entry does not exist, create it
                 context['proposed'] = ProposedSolution.objects.create(
                     user=self.request.user,
                     challenge=context['challenge'],
@@ -265,11 +267,12 @@ class ChallengeDetailView(generic.DetailView):
             except ProposedSolution.MultipleObjectsReturned:
                 g_logger.error("Multiple entries in ProposedSolution table!")
 
+            # Get data for comment form
             context['comment_form'] = CommentForm(
                 user_id = self.request.user.id,
                 challenge_id = context['challenge'].id)
 
-        # Get challenge's comments (even when user is not logged in)
+        # Get active challenge's comments (even when user is not logged in)
         context['comments'] = context['challenge'].comments.filter(active=True)
 
         return context
@@ -362,7 +365,7 @@ class ChallengeDetailView(generic.DetailView):
             )
             user_image_name = uci.image_name
         except UserChallengeImage.DoesNotExist:
-            g_logger.info("No previous saved image found.")
+            g_logger.debug("No previous saved image found.")
             user_image_name = None
 
         if user_image_name and DockerImage(user_image_name).is_ok():
@@ -370,7 +373,7 @@ class ChallengeDetailView(generic.DetailView):
             container_id = None
         else:
             # No previous image found. Let's try a previous container.
-            # If there is none, a new container will be created
+            # If there is none, a new container will be created later
             try:
                 ucc = UserChallengeContainer.objects.get(
                     user=user,
@@ -378,11 +381,11 @@ class ChallengeDetailView(generic.DetailView):
                 )
                 container_id = ucc.container_id
             except UserChallengeContainer.DoesNotExist:
-                g_logger.warning("No previous container found, a new one will be created.")
+                g_logger.debug("No previous container found.")
                 container_id = None
         return {'image_name': image_name, 'container_id': container_id }
 
-    def start_again(self, request):
+    def start_again(self, request, *args, **kwargs):
         """ User wants to discard all container changes and start anew """
 
         form_data = request.POST
@@ -394,8 +397,27 @@ class ChallengeDetailView(generic.DetailView):
             challenge = Challenge.objects.get(id=challenge_id)
             image_name = form_data.get('image_name', None)
             container_id = form_data.get('container_id', None)
-            print(image_name)
-            print(container_id)
+
+            # Delete saved docker image and container references from db
+            try:
+                uci = UserChallengeImage.objects.get(
+                    user=user,
+                    challenge=challenge)
+                uci.delete()
+                g_logger.debug("Docker image reference has been removed from db. That's ok.")
+            except UserChallengeImage.DoesNotExist:
+                g_logger.debug(
+                    "Did not find any docker image reference to remove from db. That's ok.")
+
+            try:
+                ucc = UserChallengeContainer.objects.get(
+                    user=user,
+                    challenge=challenge)
+                ucc.delete()
+                g_logger.debug("Docker container reference has been removed from db. That's ok")
+            except UserChallengeContainer.DoesNotExist:
+                g_logger.debug(
+                    "Did not find any docker container reference to remove in db. That's ok")
 
             # Delete container and image (if image is different from the base one)
             if container_id:
@@ -405,16 +427,8 @@ class ChallengeDetailView(generic.DetailView):
             if image_name and image_name != challenge.docker_image.docker_name:
                 remove_image_task.delay(image_name=image_name)
 
-            # Delete container and image references from db
-            uci = UserChallengeImage.objects.get(
-                user=user,
-                challenge=challenge)
-            uci.delete()
-
-            ucc = UserChallengeContainer.objects.get(
-                user=user,
-                challenge=challenge)                   
-            ucc.delete()
+            context = self.get_context_data(**kwargs)
+            return self.render_to_response(context=context)
 
         return render(
             request,
@@ -451,10 +465,10 @@ class ChallengeDetailView(generic.DetailView):
 
             # TODO: waiting for an async task as soon as submitting
             # defeats the purpose of Celery.
-            container_info = task_result.get()
+            cinfo = task_result.get()
             #print(container_info)
 
-            if container_info is None or container_info['port'] is None:
+            if cinfo is None or cinfo['port'] is None:
                 result = {
                     'workerid': None,
                     'status': _("Could not run the container! Please ask help to an administrator"),
@@ -467,16 +481,17 @@ class ChallengeDetailView(generic.DetailView):
                 ucc = UserChallengeContainer.objects.get(
                     challenge=challenge,
                     user=user)
-                ucc.container_id = container_info['id']
-                ucc.port = container_info['port']
+                ucc.container_id = cinfo['id']
+                ucc.port = cinfo['port']
                 ucc.save(update_fields=['container_id', 'port'])
             except UserChallengeContainer.DoesNotExist:
                 ucc = UserChallengeContainer(
-                    container_id=container_info['id'],
+                    container_id=cinfo['id'],
                     challenge=challenge,
                     user=user,
-                    port=container_info['port'])
+                    port=cinfo['port'])
                 ucc.save()
+            g_logger.info("db udpated with container's id and port")
 
             # Prepare SSH connection
 
@@ -503,7 +518,7 @@ class ChallengeDetailView(generic.DetailView):
             try:
                 _args = Args(
                     request,
-                    container_info['port'],
+                    cinfo['port'],
                     self.ssh_client.get_host_keys(),
                     self.ssh_client.get_system_host_keys()).get_args()
             except InvalidValueError as exc:

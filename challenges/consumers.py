@@ -24,6 +24,8 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from .worker import clients
 from .privatekey import InvalidValueError
 
+from .logger import g_logger
+
 # WsockHandler
 class SshConsumer(AsyncWebsocketConsumer):
     """ Consumer ssh websocket """
@@ -40,13 +42,13 @@ class SshConsumer(AsyncWebsocketConsumer):
         self.src_addr = self.scope['client']
         src_ip = self.src_addr[0]
 
-        logging.debug('Connected from %s', src_ip)
+        g_logger.debug('Connected from %s', src_ip)
 
         workers = clients.get(src_ip, None)
 
         if not workers:
-            logging.debug("Worker not found")
-            logging.warning('Websocket authentication failed.')
+            g_logger.debug("Worker not found")
+            g_logger.warning('Websocket authentication failed.')
             await self.close()
             return
 
@@ -58,7 +60,7 @@ class SshConsumer(AsyncWebsocketConsumer):
         except (KeyError, InvalidValueError):
             await self.close()
         else:
-            # logging.debug("worker_id)
+            # g_logger.debug("worker_id)
 
             worker = workers.get(worker_id)
             if worker:
@@ -83,30 +85,30 @@ class SshConsumer(AsyncWebsocketConsumer):
 
                 await self.accept()
             else:
-                logging.debug("Worker not found")
-                logging.warning('Websocket authentication failed.')
+                g_logger.debug("Worker not found")
+                g_logger.warning('Websocket authentication failed.')
                 await self.close()
 
     async def disconnect(self, code):
         # Called when the socket closes
-        print("SOCKET CLOSED!")
+        g_logger.warning("Connection closed.")
 
     # Receive message from WebSocket
     async def receive(self, text_data=None, bytes_data=None):
-        logging.debug('%s from %s:%d', text_data, self.src_addr[0], self.src_addr[1])
+        g_logger.debug('%s from %s:%d', text_data, self.src_addr[0], self.src_addr[1])
 
         worker = self.worker_ref()
         if not worker:
             # The worker has likely been closed. Do not process.
-            logging.debug(
+            g_logger.debug(
                 "Received message to closed worker from %s:%d",
                 self.src_addr[0], self.src_addr[1])
-            logging.debug('No worker found')
+            g_logger.debug('No worker found')
             self.close()
             return
 
         if worker.closed:
-            logging.debug('Worker closed')
+            g_logger.debug('Worker closed')
             self.close()
             return
 
@@ -123,7 +125,7 @@ class SshConsumer(AsyncWebsocketConsumer):
             try:
                 worker.chan.resize_pty(*resize)
             except (TypeError, struct.error, paramiko.SSHException) as err:
-                logging.debug(err)
+                g_logger.debug(err)
 
         data = msg.get('data')
         if data and isinstance(data, UnicodeType):

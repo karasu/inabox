@@ -7,6 +7,7 @@ import paramiko
 
 from .utils import to_bytes
 
+from .logger import g_logger
 
 class InvalidValueError(Exception):
     """ Exception class used in ssh code """
@@ -57,9 +58,9 @@ class PrivateKey():
     def get_specific_pkey(self, name, offset, password):
         """ gets specific private key """
         self.iostr.seek(offset)
-        logging.debug("Reset offset to %d", offset)
+        g_logger.debug("Reset offset to %d", offset)
 
-        logging.debug("Try parsing it as %s type key", name)
+        g_logger.debug("Try parsing it as %s type key", name)
         pkeycls = getattr(paramiko, name+'Key')
         pkey = None
 
@@ -69,13 +70,13 @@ class PrivateKey():
             raise InvalidValueError('Need a passphrase to decrypt the key.') from exc
         except (paramiko.SSHException, ValueError) as exc:
             self.last_exception = exc
-            logging.debug(str(exc))
+            g_logger.debug(str(exc))
 
         return pkey
 
     def get_pkey_obj(self):
         """ Gets private key object """
-        logging.info("Parsing private key %s", self.filename)
+        g_logger.info("Parsing private key %s", self.filename)
         name, length = self.parse_name(self.iostr, self.tag_to_name)
         if not name:
             raise InvalidValueError(f"Invalid key {self.filename}.")
@@ -93,7 +94,7 @@ class PrivateKey():
         if pkey:
             return pkey
 
-        logging.error(str(self.last_exception))
+        g_logger.error(str(self.last_exception))
 
         msg = 'Invalid key'
 

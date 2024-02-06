@@ -214,12 +214,11 @@ def remove_container_task(self, container_id):
     """ Removes docker container """
 
     container = Container(container_id)
-    container.stop()
-    container.wait()
-    container.remove()
-
-    g_logger.warning("Container [%s] removed", container_id)
-
+    if container.exists():
+        container.remove()
+        g_logger.warning("Container [%s] removed", container_id)
+    else:
+        g_logger.warning("Could not remove [%s] container", container_id)
 
 @shared_task(bind=True)
 def remove_image_task(self, image_name):

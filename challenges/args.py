@@ -1,7 +1,6 @@
 """ Store ssh configuration here """
 
 import base64
-import logging
 
 from django.core.exceptions import PermissionDenied
 
@@ -11,6 +10,7 @@ from .utils import (
     is_valid_ip_address, is_valid_port, is_valid_hostname, to_int
 )
 
+from .logger import g_logger
 
 DEFAULT_PORT=22
 
@@ -124,6 +124,6 @@ class Args():
 
         # self.ssh_client.totp = totp
         args = (hostname, port, username, password, pkey)
-        logging.debug(args)
+        g_logger.debug(args)
 
         return args

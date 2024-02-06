@@ -1,7 +1,8 @@
 """ SSH Client module """
 
-import logging
 import paramiko
+
+from .logger import g_logger
 
 class SSHClient(paramiko.SSHClient):
     """ Paramiko SSH Client class """
@@ -50,7 +51,7 @@ class SSHClient(paramiko.SSHClient):
         two_factor_types = {'keyboard-interactive', 'password'}
 
         if pkey is not None:
-            logging.info('Trying publickey authentication')
+            g_logger.info('Trying publickey authentication')
             try:
                 allowed_types = set(
                     self._transport.auth_publickey(username, pkey)
@@ -62,11 +63,11 @@ class SSHClient(paramiko.SSHClient):
                 saved_exception = exc
 
         if two_factor:
-            logging.info('Trying publickey 2fa')
+            g_logger.info('Trying publickey 2fa')
             return self.auth_interactive(username, self.handler)
 
         if password is not None:
-            logging.info('Trying password authentication')
+            g_logger.info('Trying password authentication')
             try:
                 self._transport.auth_password(username, password)
                 return None
@@ -76,7 +77,7 @@ class SSHClient(paramiko.SSHClient):
                 two_factor = allowed_types & two_factor_types
 
         if two_factor:
-            logging.info('Trying password 2fa')
+            g_logger.info('Trying password 2fa')
             return self.auth_interactive(username, self.handler)
 
         assert saved_exception is not None
