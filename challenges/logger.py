@@ -34,7 +34,7 @@ def setup_logger(level=logging.DEBUG):
     """ Setup logger """
 
     # Log to a file
-    handler = logging.FileHandler("/tmp/inabox.log")
+    handler = logging.FileHandler("inabox.log")
     handler.setFormatter(CustomFormatter())
     g_logger.addHandler(handler)
 
