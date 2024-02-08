@@ -1,0 +1,13 @@
+@font-face {
+    font-family: 'Eraser';
+    src: url('EraserRegular.eot');
+    src: local('Eraser Regular'), local('EraserRegular'),
+        url('EraserRegular.eot?#iefix') format('embedded-opentype'),
+        url('EraserRegular.woff2') format('woff2'),
+        url('EraserRegular.woff') format('woff'),
+        url('EraserRegular.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+

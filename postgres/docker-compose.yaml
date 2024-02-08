@@ -8,6 +8,9 @@ services:
     restart: always
     environment:
       POSTGRES_PASSWORD: development
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - inabox:/var/lib/postgresql/data
     ports:
       - 5432:5432
 
@@ -17,3 +20,5 @@ services:
     ports:
       - 8080:8080
 
+volumes:
+  inabox:

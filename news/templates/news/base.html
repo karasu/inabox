@@ -7,17 +7,20 @@
 {% bootstrap_css %}
 {% bootstrap_javascript %}{% bootstrap_messages %}
 {% load static %}
-<link rel="stylesheet" href="{% static 'news/css/style.css' %}">
-<link rel="icon" type="image/x-icon" href="{% static '/challenges/images/favicon.png' %}">
+<link rel="icon" type="image/x-icon" href="{% static '/challenges/images/favicon.png' %}" />
+<link rel="stylesheet" href="{% static 'news/css/style.css' %}"  type="text/css" />
+<link rel="stylesheet" href="{% static 'challenges/fonts/eraser/stylesheet.css' %}" type="text/css" />
 {% block css %}{% endblock %}
 <title>In a box</title>
 </head>
-<body>{% include 'news/navbar.html' %}{% block bootstrap5_content %}
+<body class="bgimage" style="background-image: url('{% static '/challenges/images/background.png' %}');">
+    {% include 'news/navbar.html' %}{% block bootstrap5_content %}
     <div class="container-lg">
-        <h1 class="my-4">{% block title %}(no title){% endblock %}</h1>
+        <h1 class="my-4" style="font-family: Eraser;">{% block title %}(no title){% endblock %}</h1>
         {% autoescape off %}{% bootstrap_messages %}{% endautoescape %}
         {% block content %}(no content){% endblock %}
-    </div>{% endblock %}
+    </div>
+    {% endblock %}
     {% block javascript %}{% endblock %}
 </body>
 </html>
