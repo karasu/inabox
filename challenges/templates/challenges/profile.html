@@ -27,6 +27,7 @@
   <h2>{{ _("Profile") }}</h2><hr />
   <div class="row">
     <form class="form-horizontal col-sm-6" action="#" role="form">
+    {% csrf_token %}
     {% for e in user_data %}
     <div class="form-group mb-3 row">
         <label for="{{ e.name }}" class="control-label col-sm-4 mt-2">{{ e.label }}</label>
@@ -39,6 +40,7 @@
 
     <form class="form-horizontal col-sm-6" action="#" role="form">
     {% for e in profile_data %}
+      {% csrf_token %}
       <div class="form-group mb-3 ms-sm-4 row">
         <label for="{{ e.name }}" class="control-label col-sm-4 mt-2">{{ e.label }}</label>
         <div class="col-sm-8">

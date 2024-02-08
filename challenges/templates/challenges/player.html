@@ -4,9 +4,11 @@
 {% block content %}
 {% load i18n %}
 {% load static %}
+<div class="card">
+  <div class="card-body">
 <div class="row">
   <div class="col-sm-4">
-    <div class="mb-3">
+    <div class="my-3">
       <img class="img-thumbnail"
       src="{% static player.profile.avatar.url %}" alt="avatar" width="256">
     </div>
@@ -19,8 +21,8 @@
     </h1>
   </div>
 
-  <div class="col-sm-8">
-    <div class="form-group mb-3 row">
+  <div class="col-sm-8 ">
+    <div class="form-group my-3 row">
       <label for="organization" class="control-label col-sm-2 mt-2">{{ _("Organization") }}</label>
       <div class="col-sm-4">
           <a href="{% url 'challenges:organization' pk=player.profile.organization.id %}"
@@ -58,6 +60,7 @@
       <div class="col-sm-6"></div>
     </div>
 
+</div></div>
   </div>
 </div>
 <!--

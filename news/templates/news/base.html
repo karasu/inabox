@@ -16,7 +16,7 @@
 <body class="bgimage" style="background-image: url('{% static '/challenges/images/background.png' %}');">
     {% include 'news/navbar.html' %}{% block bootstrap5_content %}
     <div class="container-lg">
-        <h1 class="my-4" style="font-family: Eraser;">{% block title %}(no title){% endblock %}</h1>
+        <h1 class="my-4" style="font-family: Eraser;">{% block title %}{% endblock %}</h1>
         {% autoescape off %}{% bootstrap_messages %}{% endautoescape %}
         {% block content %}(no content){% endblock %}
     </div>
