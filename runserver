@@ -3,11 +3,11 @@
 echo "" > known_hosts
 
 # start rabbitmq docker for switchboard and celery
-docker rm -f inabox-rabbitmq
+#docker rm -f inabox-rabbitmq
 docker run --name inabox-rabbitmq -p 5672:5672 -d rabbitmq
 
 # start redis docker for django-channels messaging
-docker rm -f inabox-redis
+#docker rm -f inabox-redis
 docker run --name inabox-redis -p 6379:6379 -d redis:5
 
 echo Waiting for containers to start...
@@ -18,18 +18,22 @@ sleep 3s
 #./build-all
 #cd ..
 
-echo "Now run Celery and Daphne services..."
-
+echo "Now run Celery, Postgres and Daphne services..."
+POSTGRES_CMD="docker-compose up"
 CELERY_WORKER_CMD="celery -A inabox worker -l INFO"
 CELERY_BEAT_CMD="celery -A inabox beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler"
 DJANGO_CMD="python manage.py runserver"
 
+PWD=`pwd`
+
 if [ "${XDG_SESSION_TYPE}" == "tty" ]; then
+  cd postgres && ${POSTGRES_CMD} &!
+  cd ${PWD}
   ${CELERY_WORKER_CMD} &!
   ${CELERY_BEAT_CMD} &!
   ${DJANGO_CMD}
-else
-  PWD=`pwd`
+else  
+  kitty --detach --title "Postgres" --directory ${PWD}/postgres ${POSTGRES_CMD}
   kitty --detach --title "Celery worker" --directory ${PWD} ${CELERY_WORKER_CMD}
   kitty --detach --title "Celery beat" --directory ${PWD} ${CELERY_BEAT_CMD}
   kitty --detach --title Daphne --directory ${PWD} ${DJANGO_CMD}
