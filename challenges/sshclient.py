@@ -24,7 +24,7 @@ class SSHClient(paramiko.SSHClient):
         """ returns stored system host keys """
         return self._system_host_keys
 
-    def handler(self, title, instructions, prompt_list):
+    def handler(self, _title, _instructions, prompt_list):
         """ handles connection """
         answers = []
         for prompt_, _ in prompt_list:
@@ -43,7 +43,7 @@ class SSHClient(paramiko.SSHClient):
             raise ValueError('Need a verification code for 2fa.')
         self._transport.auth_interactive(username, handler)
 
-    def _auth(self, username, password, pkey, *args):
+    def _auth(self, username, password, pkey, *_args):
         self.password = password
         saved_exception = None
         two_factor = False
@@ -71,9 +71,9 @@ class SSHClient(paramiko.SSHClient):
             try:
                 self._transport.auth_password(username, password)
                 return None
-            except paramiko.SSHException as e:
-                saved_exception = e
-                allowed_types = set(getattr(e, 'allowed_types', []))
+            except paramiko.SSHException as exc:
+                saved_exception = exc
+                allowed_types = set(getattr(exc, 'allowed_types', []))
                 two_factor = allowed_types & two_factor_types
 
         if two_factor:

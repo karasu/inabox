@@ -1,7 +1,6 @@
 """ Manage private key for ssh connection """
 
 import io
-import logging
 
 import paramiko
 

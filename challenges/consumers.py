@@ -1,7 +1,6 @@
 """ Channels consumers """
 
 import json
-import logging
 import struct
 import weakref
 import asyncio

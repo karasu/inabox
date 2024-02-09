@@ -12,4 +12,4 @@ class ChallengesConfig(AppConfig):
 
     def ready(self):
         """ startup code goes here """
-        setup_logger() 
+        setup_logger()

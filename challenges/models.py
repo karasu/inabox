@@ -9,16 +9,13 @@ from django.contrib.auth.models import User
 # Get available languages
 from django.conf import settings
 
+from .utils import to_str, to_bytes
+
 try:
     from Crypto.PublicKey import RSA
 except ModuleNotFoundError:
     # Debian
     from Cryptodome.PublicKey import RSA
-
-try:
-    from types import UnicodeType
-except ImportError:
-    UnicodeType = str
 
 # Create your models here.
 
@@ -65,19 +62,6 @@ def challenge_directory_path(instance, filename):
 def user_solutions_path(instance, filename):
     """ file will be uploaded to MEDIA_ROOT/solutions/<username>/<challengetitle> """
     return f"solutions/{instance.user.username}/{instance.challenge.title}/{filename}"
-
-
-def to_str(bstr, encoding='utf-8'):
-    """ Converts bytes to string """
-    if isinstance(bstr, bytes):
-        return bstr.decode(encoding)
-    return bstr
-
-def to_bytes(ustr, encoding='utf-8'):
-    """ Converts string to bytes """
-    if isinstance(ustr, UnicodeType):
-        return ustr.encode(encoding)
-    return ustr
 
 class RSAUtil():
     """ RSA helper class """

@@ -31,8 +31,8 @@ def clear_worker(worker):
     """ removes worker """
     ip_address = worker.src_addr[0]
     workers = clients.get(ip_address)
-    assert worker.id in workers
-    workers.pop(worker.id)
+    assert worker.gid in workers
+    workers.pop(worker.gid)
 
     if not workers:
         clients.pop(ip_address)
@@ -44,7 +44,7 @@ def recycle_worker(worker):
     """ reuses a worker """
     if worker.handler:
         return
-    g_logger.warning("Recycling worker %s", worker.id)
+    g_logger.warning("Recycling worker %s", worker.gid)
     worker.close(reason='worker recycled')
 
 
@@ -57,7 +57,7 @@ class Worker():
         self.src_addr = None
         self.dst_addr = dst_addr
         self.file_desc = chan.fileno()
-        self.id = self.gen_id()
+        self.gid = self.gen_id()
         self.data_to_dst = []
         self.handler = None
         self.mode = IOLOOP_READ
@@ -89,7 +89,7 @@ class Worker():
 
     def read(self, consumer):
         """ read data and send it to the consumer """
-        g_logger.debug("worker %s on read", self.id)
+        g_logger.debug("worker %s on read", self.gid)
         try:
             data = self.chan.recv(BUF_SIZE)
         except (OSError, IOError) as exc:
@@ -114,9 +114,9 @@ class Worker():
             except Exception:
                 self.close(reason='websocket closed')
 
-    def write(self, consumer):
+    def write(self, _consumer):
         """ write data """
-        g_logger.debug("worker %d on write", self.id)
+        g_logger.debug("worker %d on write", self.gid)
 
         if not self.data_to_dst:
             return
@@ -148,7 +148,7 @@ class Worker():
         self.closed = True
 
         g_logger.info(
-            "Closing worker %s with reason: %s", self.id, reason)
+            "Closing worker %s with reason: %s", self.gid, reason)
 
         if self.handler:
             # TODO: Fix this! remove_handler

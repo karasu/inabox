@@ -112,7 +112,8 @@ class Args():
         privatekey, filename = self.get_privatekey()
         passphrase = self.post.get('passphrase', '')
 
-        totp = self.post.get('totp', '')
+        # Not used
+        _totp = self.post.get('totp', '')
 
         #if isinstance(self.policy, paramiko.RejectPolicy):
         #    self.lookup_hostname(hostname, port)

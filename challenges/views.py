@@ -32,11 +32,13 @@ from .models import ClassGroup, Team, Organization, Comment
 #from .models import DockerImage
 from .models import UserChallengeContainer, UserChallengeImage
 from .models import LEVELS, ROLES
-from .forms import ChallengeSSHForm, CommentForm, NewChallengeForm, UploadSolutionForm, SearchForm, StartAgainForm
+from .forms import ChallengeSSHForm, CommentForm, NewChallengeForm
+from .forms import UploadSolutionForm, SearchForm, StartAgainForm
 
 # Celery task to check if a proposed solution is valid or not
 from .tasks import validate_solution_task
-from .tasks import run_container_task, commit_container_task, remove_container_task, remove_image_task
+from .tasks import run_container_task, commit_container_task
+from .tasks import remove_container_task, remove_image_task
 
 from .logger import g_logger
 
@@ -385,7 +387,7 @@ class ChallengeDetailView(generic.DetailView):
                 container_id = None
         return {'image_name': image_name, 'container_id': container_id }
 
-    def start_again(self, request, *args, **kwargs):
+    def start_again(self, request, *_args, **kwargs):
         """ User wants to discard all container changes and start anew """
 
         form_data = request.POST
@@ -442,17 +444,16 @@ class ChallengeDetailView(generic.DetailView):
     def challenge_ssh_form(self, request):
         """ Create a form instance and populate it with data from the request: """
 
-        form_data = request.POST
-        form = ChallengeSSHForm(form_data)
+        form = ChallengeSSHForm(request.POST)
 
         if form.is_valid():
-            challenge_id = form_data.get('challenge_id')
+            challenge_id = request.POST.get('challenge_id')
             challenge = Challenge.objects.get(id=challenge_id)
 
             # Get docker image and container id (if exist)
             #image_name, container_id = self.prepare_container(challenge)
-            image_name = form_data.get('image_name', None)
-            container_id = form_data.get('container_id', None)
+            image_name = request.POST.get('image_name', None)
+            container_id = request.POST.get('container_id', None)
 
             user = self.request.user
             # Run the container
@@ -536,12 +537,12 @@ class ChallengeDetailView(generic.DetailView):
                 if not workers:
                     clients[src_ip] = workers
                 worker.src_addr = (src_ip, src_port)
-                workers[worker.id] = worker
+                workers[worker.gid] = worker
                 self.loop.call_later(
                     RECYLE_WORKER_DELAY, recycle_worker, worker)
 
                 result.update(
-                    workerid=worker.id, status='', encoding=worker.encoding)
+                    workerid=worker.gid, status='', encoding=worker.encoding)
 
             return JsonResponse(result)
 
@@ -556,7 +557,7 @@ class ChallengeDetailView(generic.DetailView):
                 }
             )
 
-    def upload_solution_form(self, request, *args, **kwargs):
+    def upload_solution_form(self, request, *_args, **kwargs):
         """ We need to check if user has already tried and update the ProposedSolution
         if not just save this as the first one """
 
@@ -614,7 +615,7 @@ class ChallengeDetailView(generic.DetailView):
                 }
             )
 
-    def save_container(self, request, *args, **kwargs):
+    def save_container(self, request, *_args, **kwargs):
         """ save current container as a new image """
 
         user = request.user
@@ -650,16 +651,16 @@ class ChallengeDetailView(generic.DetailView):
                 context = self.get_context_data(**kwargs)
                 return self.render_to_response(context=context)
 
-            # Could not save container
-            g_logger.warning("Error trying to commit container [%s]", ucc.container_id)
-            return render(
-                request,
-                template_name="challenges/form_error.html",
-                context={
-                    "title": _("Error saving changes. Check the error(s) below:"),
-                    "errors": "Not implemented"})
+        # Could not save container
+        g_logger.warning("Error trying to commit container [%s]", ucc.container_id)
+        return render(
+            request,
+            template_name="challenges/form_error.html",
+            context={
+                "title": _("Error saving changes. Check the error(s) below:"),
+                "errors": "Not implemented"})
 
-    def add_comment(self, request, *args, **kwargs):
+    def add_comment(self, request, *_args, **kwargs):
         """ Adds new comment to challenge """
         user = request.user
         challenge_id = request.POST['challenge_id']
@@ -672,7 +673,7 @@ class ChallengeDetailView(generic.DetailView):
         context = self.get_context_data(**kwargs)
         return self.render_to_response(context=context)
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, *_args, **_kwargs):
         """ Deal with post data """
         # assign the object to the view
         self.object = self.get_object()
@@ -692,7 +693,7 @@ class ChallengeDetailView(generic.DetailView):
 
         if request.POST.get("form_name") == "CommentForm":
             return self.add_comment(request)
-        
+
         if request.POST.get("form_name") == "start-again":
             return self.start_again(request)
 

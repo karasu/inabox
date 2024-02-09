@@ -178,7 +178,7 @@ def validate_solution_task(self, proposed_solution_id):
 
 @shared_task(bind=True)
 def run_container_task(
-    self, user_id, challenge_id, image_name, container_id=None):
+    _self, user_id, challenge_id, image_name, container_id=None):
     """ Runs docker container """
 
     if container_id is None:
@@ -210,7 +210,7 @@ def run_container_task(
 
 
 @shared_task(bind=True)
-def remove_container_task(self, container_id):
+def remove_container_task(_self, container_id):
     """ Removes docker container """
 
     container = Container(container_id)
@@ -221,7 +221,7 @@ def remove_container_task(self, container_id):
         g_logger.warning("Could not remove [%s] container", container_id)
 
 @shared_task(bind=True)
-def remove_image_task(self, image_name):
+def remove_image_task(_self, image_name):
     """ Removes docker image """
 
     image = Image(image_name)
@@ -231,7 +231,7 @@ def remove_image_task(self, image_name):
 
 
 @shared_task(bind=True)
-def commit_container_task(self, container_id, image_name):
+def commit_container_task(_self, container_id, image_name):
     """ Saves container as a new image """
     container = Container(container_id)
 
@@ -259,7 +259,7 @@ def prune_dead_containers():
 
 
 @celery_app.on_after_finalize.connect
-def setup_periodic_tasks(sender, **kwargs):
+def setup_periodic_tasks(sender, **_kwargs):
     """ Put periodic tasks here """
 
     # Calls prune_dead_containers every two minutes.
