@@ -4,7 +4,7 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'challenges/css/xterm.css' %}" />
 {% endblock %}
-{% block title %}&nbsp;{% endblock %}
+{% block title %}{{ _("Challenge") }}{% endblock %}
 {% block content %}
 
 {% if user.is_authenticated %}

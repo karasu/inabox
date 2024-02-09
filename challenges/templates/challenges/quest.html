@@ -40,11 +40,10 @@
     </div>
     <div class="card-body">
       <p class="card-text pt-2">{{ quest.summary }}</p>
-    </div>
-  </div>
+
 
   {% if challenge_list %}
-    <ul class="list-group">
+    <ul>
       {% for challenge in challenge_list %}
       <li class="list-group-item mb-2">
       <div class="row">
@@ -86,5 +85,6 @@
         {{ _("No challenges available in this quest.") }}</p>{% endif %}
     </div>
   </div>
-  
+</div>
+</div>
 {% endblock %}
