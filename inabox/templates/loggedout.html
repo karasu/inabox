@@ -3,10 +3,14 @@
 {% block title %}{{ _("Logged out") }}{% endblock %}
 {% block content %}
 
-{% if user.is_authenticated %}
-{{ _("mmmm... something has failed.") }}
-{% else %}
-{{ _("You've been logged out successfully.") }}<br />
-<a class="btn btn-success mt-4" href="/">{{ _("Return to main page") }}</a>
-{% endif %}
+<div class="card w-25 p-3">
+    <div class="card-body">
+    {% if user.is_authenticated %}
+    {{ _("mmmm... something has failed.") }}
+    {% else %}
+    {{ _("You've been logged out successfully.") }}<br />
+    <a class="btn btn-success mt-4" href="/">{{ _("Return to main page") }}</a>
+    {% endif %}
+    </div>
+</div>
 {% endblock %}
