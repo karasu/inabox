@@ -1,0 +1,38 @@
+version: '3.1'
+
+services:
+  guacamole-db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: guacamole
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - guacamole:/var/lib/postgresql/data
+    ports:
+      - 5433:5432
+
+  guacd:
+    image: guacamole/guacd
+    restart: always
+    environment:
+      GUACD_LOG_LEVEL: debug
+    ports:
+      - 4822:4822
+
+  guacamole:
+    image: guacamole/guacamole
+    restart: always
+    environment:
+      POSTGRESQL_HOSTNAME: guacamole-db
+      POSTGRESQL_DATABASE: guacamole
+      POSTGRESQL_USER: guacamole_user
+      POSTGRESQL_PASSWORD: guacamole
+      POSTGRESQL_PORT: 5433
+      GUACD_HOSTNAME: guacd
+      GUACD_PORT: 4822
+    ports:
+      - 8080:8080
+
+volumes:
+  guacamole:
