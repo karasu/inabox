@@ -1,4 +1,17 @@
 li a {
     color: green;
 }
-.card { background-color: rgba(0, 0, 0, 0.7); }
+.card { background-color: rgba(0, 0, 0, 0.4); }
+
+#bimage {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    image-orientation: from-image;
+    background-repeat: no-repeat;
+    background-position: left;
+    background-size: contain;
+    z-index: -1;
+}
