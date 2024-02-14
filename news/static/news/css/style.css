@@ -1,7 +1,12 @@
 li a {
     color: green;
 }
+
 .card { background-color: rgba(0, 0, 0, 0.4); }
+
+table tr td, table tr th {
+     background-color: rgba(0, 0, 0, 0.4) !important;
+}
 
 #bimage {
     position: fixed;

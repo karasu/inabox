@@ -13,7 +13,19 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 import os
 
+from django_auth_ldap.config import LDAPSearch
+import ldap
+
 from .bootstrap5 import BOOTSTRAP5
+
+AUTH_LDAP_BIND_DN = ""
+AUTH_LDAP_BIND_PASSWORD = ""
+AUTH_LDAP_USER_SEARCH = LDAPSearch(
+    "ou=users,dc=inabox,dc=ies-sabadell,dc=cat",
+    ldap.SCOPE_SUBTREE,
+    "(uid=%(user)s)"
+)
+AUTH_LDAP_START_TLS = True
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -76,6 +88,11 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     #'django.middleware.cache.FetchFromCacheMiddleware',
 
+]
+
+AUTHENTICATION_BACKENDS = [
+    "django_auth_ldap.backend.LDAPBackend",
+    "django.contrib.auth.backends.ModelBackend",
 ]
 
 ROOT_URLCONF = 'inabox.urls'

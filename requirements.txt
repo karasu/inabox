@@ -5,6 +5,7 @@ channels_redis
 daphne
 django
 django-admin-interface
+django-auth-ldap
 django-bootstrap5
 django-celery-beat
 django-celery-results
