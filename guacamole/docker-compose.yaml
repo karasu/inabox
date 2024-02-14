@@ -14,6 +14,8 @@ services:
       - ./guacamole.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - 5432:5432
+    networks:
+      - backend
 
   guacd:
     image: guacamole/guacd
@@ -22,6 +24,8 @@ services:
       GUACD_LOG_LEVEL: debug
     ports:
       - 4822:4822
+    networks:
+      - backend
 
   guacamole:
     image: guacamole/guacamole
@@ -35,8 +39,19 @@ services:
       GUACD_HOSTNAME: guacd
       GUACD_PORT: 4822
     ports:
-      - 8080:8080
+      - 8001:8080
+    networks:
+      - backend
+      - frontend
 
 volumes:
   guacamole:
   guacamole.sql:
+
+networks:
+  backend:
+    driver: bridge
+    internal: true
+  frontend:
+    driver: bridge
+
