@@ -11,3 +11,8 @@ services:
     ports:
         - 389:389
         - 636:636
+  lam:
+    image: ghcr.io/ldapaccountmanager/lam:stable
+    container_name: lam
+    ports:
+      - 8003:80

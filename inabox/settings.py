@@ -25,7 +25,7 @@ AUTH_LDAP_USER_SEARCH = LDAPSearch(
     ldap.SCOPE_SUBTREE,
     "(uid=%(user)s)"
 )
-AUTH_LDAP_START_TLS = True
+AUTH_LDAP_START_TLS = False
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

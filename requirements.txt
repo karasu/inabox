@@ -17,6 +17,7 @@ paramiko
 psycopg2
 pycryptodome
 python-dateutil
+python-ldap
 pyyaml
 redis
 slugify
