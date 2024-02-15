@@ -88,7 +88,13 @@
             </form>
           
             <form>
-            <a class="btn btn-secondary ms-2" href="{% url 'challenges:challenges' %}">{{ _("Go back") }}</a>
+            {% if quest %}
+            <a class="btn btn-secondary ms-2"
+              href="{% url 'challenges:quest' pk=quest %}">{{ _("Go back to quest") }}</a>
+            {% else %}
+            <a class="btn btn-secondary ms-2"
+              href="{% url 'challenges:challenges' %}">{{ _("Go back") }}</a>
+            {% endif %}
             </form>
           </div>
         </div>
@@ -101,7 +107,13 @@
         <div class="my-2" style="color: red;">
           {{ _("You need to be logged in to try a challenge. Please log in!")}}</div>
         <div>
-        <a class="btn btn-secondary" href="{% url 'challenges:challenges' %}" >{{ _("Go back") }}</a>
+        {% if quest %}
+        <a class="btn btn-secondary"
+          href="{% url 'challenges:quest' pk=quest %}">{{ _("Go back to quest") }}</a>
+        {% else %}
+        <a class="btn btn-secondary"
+          href="{% url 'challenges:challenges' %}" >{{ _("Go back") }}</a>
+        {% endif %}
         </div>
         {% endif %}
       </div>

@@ -48,7 +48,7 @@
       <li class="list-group-item mb-2">
       <div class="row">
         <div class="col-6">
-            <a href="{% url 'challenges:challenge' pk=challenge.id %}" class="btn btn-outline-primary">
+            <a href="{% url 'challenges:challenge' pk=challenge.id %}?quest={{ quest.id }}" class="btn btn-outline-primary">
             {{ challenge.title }} {{ _("by") }}
             {% if challenge.creator.first_name %}
                 {{ challenge.creator.first_name }} {{ challenge.creator.last_name }}

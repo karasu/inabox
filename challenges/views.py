@@ -213,9 +213,13 @@ class ChallengeDetailView(generic.DetailView):
     template_name = "challenges/challenge.html"
     executor = ThreadPoolExecutor(max_workers=os.cpu_count()*5)
     loop = None
+    quest = None
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        if self.quest:
+            context['quest'] = self.quest
 
         if self.request.user.is_authenticated:
             # Add forms to our context so we can put them in the template
@@ -278,6 +282,12 @@ class ChallengeDetailView(generic.DetailView):
         context['comments'] = context['challenge'].comments.filter(active=True)
 
         return context
+
+    def get(self, request, *args, **kwargs):
+        """ Check get data """
+        self.quest = request.GET.get("quest", 0)
+        return super().get(request, args, kwargs)
+
 
     def load_host_keys(self, path):
         """ Get host keys """
