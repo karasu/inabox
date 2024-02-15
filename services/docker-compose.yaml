@@ -3,18 +3,20 @@ services:
   ldap:
     image: osixia/openldap:1.5.0
     container_name: inabox-ldap
+    restart: always
     environment:
-        - LDAP_ORGANISATION=inabox
-        - LDAP_DOMAIN=inabox.ies-sabadell.cat
-        - "LDAP_BASE_DN=dc=inabox,dc=ies-sabadell,dc=cat"
-        - LDAP_ADMIN_PASSWORD=inabox
+      - LDAP_ORGANISATION=inabox
+      - LDAP_DOMAIN=inabox.ies-sabadell.cat
+      - "LDAP_BASE_DN=dc=inabox,dc=ies-sabadell,dc=cat"
+      - LDAP_ADMIN_PASSWORD=inabox
     ports:
-        - 389:389
-        - 636:636
+      - 389:389
+      - 636:636
 
   lam:
     image: ghcr.io/ldapaccountmanager/lam:stable
     container_name: inabox-lam
+    restart: always
     ports:
       - 8003:80
 
@@ -26,7 +28,7 @@ services:
       POSTGRES_PASSWORD: development
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - inabox:/var/lib/postgresql/data
+      - inabox-db:/var/lib/postgresql/data
     ports:
       - 5432:5432
 
@@ -46,8 +48,36 @@ services:
   redis:
     image: redis:5
     container_name: inabox-redis
+    restart: always
     ports:
       - 6379:6379
 
+  guacd:
+    image: guacamole/guacd
+    container_name: inabox-guacd
+    restart: always
+    environment:
+      GUACD_LOG_LEVEL: debug
+    ports:
+      - 4822:4822
+
+
+  guacamole:
+    image: guacamole/guacamole
+    container_name: inabox-guacamole
+    restart: always
+    environment:
+      POSTGRESQL_HOSTNAME: postgres
+      POSTGRESQL_DATABASE: guacamole_db
+      POSTGRESQL_USER: postgres
+      POSTGRESQL_PASSWORD: development
+      POSTGRESQL_PORT: 5432
+      GUACD_HOSTNAME: guacd
+      GUACD_PORT: 4822
+    ports:
+      - 8001:8080
+
+
 volumes:
-  inabox:
+  inabox-db:
+  guacamole.sql:
