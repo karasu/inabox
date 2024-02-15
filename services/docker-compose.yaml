@@ -1,0 +1,53 @@
+version: '2'
+services:
+  ldap:
+    image: osixia/openldap:1.5.0
+    container_name: inabox-ldap
+    environment:
+        - LDAP_ORGANISATION=inabox
+        - LDAP_DOMAIN=inabox.ies-sabadell.cat
+        - "LDAP_BASE_DN=dc=inabox,dc=ies-sabadell,dc=cat"
+        - LDAP_ADMIN_PASSWORD=inabox
+    ports:
+        - 389:389
+        - 636:636
+
+  lam:
+    image: ghcr.io/ldapaccountmanager/lam:stable
+    container_name: inabox-lam
+    ports:
+      - 8003:80
+
+  postgres:
+    image: postgres
+    container_name: inabox-postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: development
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - inabox:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
+  adminer:
+    image: adminer
+    container_name: inabox-adminer
+    restart: always
+    ports:
+      - 8002:8080
+
+  rabbitmq:
+    image: rabbitmq
+    container_name: inabox-rabbitmq
+    ports:
+      - 5672:5672
+
+  redis:
+    image: redis:5
+    container_name: inabox-redis
+    ports:
+      - 6379:6379
+
+volumes:
+  inabox:
