@@ -1,14 +1,28 @@
-version: '2'
+version: '3.1'
 services:
+  coredns:
+    image: coredns/coredns
+    container_name: 'dns.inabox.ies-sabadell.cat'
+    restart: always
+    expose:
+      - '53'
+      - '53/udp'
+    ports:
+      - '53:53'
+      - '53:53/udp'
+    volumes:
+      - './coredns:/etc/coredns'
+    command: -conf /etc/coredns/Corefile
+
   nginx:
     image: nginxproxy/nginx-proxy
-    container_name: nginx-proxy.inabox.ies-sabadell.cat
+    container_name: inabox1.inabox.ies-sabadell.cat
     restart: always
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
     ports:
-      - 80:80
-      - 443:443
+      - '80:80'
+      - '443:443'
 
   ldap:
     image: osixia/openldap:1.5.0
@@ -17,7 +31,7 @@ services:
     environment:
       - LDAP_ORGANISATION=inabox
       - LDAP_DOMAIN=inabox.ies-sabadell.cat
-      - "LDAP_BASE_DN=dc=inabox,dc=ies-sabadell,dc=cat"
+      - LDAP_BASE_DN='dc=inabox,dc=ies-sabadell,dc=cat'
       - LDAP_ADMIN_PASSWORD=inabox
     ports:
       - 389:389
@@ -29,15 +43,15 @@ services:
     restart: always
     environment:
       - LDAP_DOMAIN=inabox.ies-sabadell.cat
-      - "LDAP_BASE_DN=dc=inabox,dc=ies-sabadell,dc=cat"
+      - LDAP_BASE_DN='dc=inabox,dc=ies-sabadell,dc=cat'
       - LAM_PASSWORD=inabox
-      - LDAP_ORGANISATION="Inabox Institut Sabadell"
+      - LDAP_ORGANISATION='Inabox Institut Sabadell'
       - LDAP_ADMIN_PASSWORD=inabox
       - LDAP_READONLY_PASSWORD=inabox
-      - VIRTUAL_HOST=lam.inabox.ies-sabadell.cat
+      - VIRTUAL_HOST='lam.inabox.ies-sabadell.cat'
       - VIRTUAL_PORT=80
     expose:
-      - 80
+      - '80'
 
   postgres:
     image: postgres
@@ -49,30 +63,30 @@ services:
     volumes:
       - inabox-db:/var/lib/postgresql/data
     ports:
-      - 5432:5432
+      - '5432:5432'
 
   adminer:
     image: adminer
     container_name: adminer.inabox.ies-sabadell.cat
     restart: always
     environment:
-      - VIRTUAL_HOST=adminer.inabox.ies-sabadell.cat
+      - VIRTUAL_HOST='adminer.inabox.ies-sabadell.cat'
       - VIRTUAL_PORT=80
     expose:
-      - 8080
+      - '8080'
 
   rabbitmq:
     image: rabbitmq
     container_name: rabbitmq.inabox.ies-sabadell.cat
     ports:
-      - 5672:5672
+      - '5672:5672'
 
   redis:
     image: redis:5
     container_name: redis.inabox.ies-sabadell.cat
     restart: always
     ports:
-      - 6379:6379
+      - '6379:6379'
 
   guacd:
     image: guacamole/guacd
@@ -81,7 +95,7 @@ services:
     environment:
       - GUACD_LOG_LEVEL=debug
     ports:
-      - 4822:4822
+      - '4822:4822'
 
   guacamole:
     image: guacamole/guacamole
@@ -98,7 +112,7 @@ services:
       - VIRTUAL_HOST=guacamole.inabox.ies-sabadell.cat
       - VIRTUAL_PORT=80
     expose:
-      - 8080
+      - '8080'
 
 volumes:
   inabox-db:
