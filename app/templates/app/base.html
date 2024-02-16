@@ -7,7 +7,7 @@
 {% bootstrap_css %}
 {% bootstrap_javascript %}{% bootstrap_messages %}
 {% load static %}
-<link rel="icon" type="image/x-icon" href="{% static '/app/images/favicon.png' %}" />
+<link rel="icon" type="image/x-icon" href="{% static 'app/images/favicon.png' %}" />
 <link rel="stylesheet" href="{% static 'app/css/style.css' %}"  type="text/css" />
 <link rel="stylesheet" href="{% static 'app/fonts/eraser/stylesheet.css' %}" type="text/css" />
 {% block css %}{% endblock %}
@@ -15,7 +15,7 @@
 </head>
 <body>
 
-    {% include 'news/navbar.html' %}{% block bootstrap5_content %}
+    {% include 'app/navbar.html' %}{% block bootstrap5_content %}
     <div id="bimage" style="background-image: url('{% static '/app/images/bg-hero.svg' %}');">
     </div>
     <div class="container-lg">
