@@ -16,7 +16,7 @@ services:
 
   nginx:
     image: nginxproxy/nginx-proxy
-    container_name: inabox1.inabox.ies-sabadell.cat
+    container_name: 'www.inabox.ies-sabadell.cat'
     restart: always
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
@@ -26,7 +26,7 @@ services:
 
   ldap:
     image: osixia/openldap:1.5.0
-    container_name: ldap.inabox.ies-sabadell.cat
+    container_name: 'ldap.inabox.ies-sabadell.cat'
     restart: always
     environment:
       - LDAP_ORGANISATION=inabox
@@ -39,10 +39,10 @@ services:
 
   lam:
     image: ghcr.io/ldapaccountmanager/lam:stable
-    container_name: lam.inabox.ies-sabadell.cat
+    container_name: 'lam.inabox.ies-sabadell.cat'
     restart: always
     environment:
-      - LDAP_DOMAIN=inabox.ies-sabadell.cat
+      - LDAP_DOMAIN='inabox.ies-sabadell.cat'
       - LDAP_BASE_DN='dc=inabox,dc=ies-sabadell,dc=cat'
       - LAM_PASSWORD=inabox
       - LDAP_ORGANISATION='Inabox Institut Sabadell'
@@ -55,7 +55,7 @@ services:
 
   postgres:
     image: postgres
-    container_name: postgres.inabox.ies-sabadell.cat
+    container_name: 'postgres.inabox.ies-sabadell.cat'
     restart: always
     environment:
       - POSTGRES_PASSWORD=development
@@ -67,7 +67,7 @@ services:
 
   adminer:
     image: adminer
-    container_name: adminer.inabox.ies-sabadell.cat
+    container_name: 'adminer.inabox.ies-sabadell.cat'
     restart: always
     environment:
       - VIRTUAL_HOST='adminer.inabox.ies-sabadell.cat'
@@ -77,20 +77,20 @@ services:
 
   rabbitmq:
     image: rabbitmq
-    container_name: rabbitmq.inabox.ies-sabadell.cat
+    container_name: 'rabbitmq.inabox.ies-sabadell.cat'
     ports:
       - '5672:5672'
 
   redis:
     image: redis:5
-    container_name: redis.inabox.ies-sabadell.cat
+    container_name: 'redis.inabox.ies-sabadell.cat'
     restart: always
     ports:
       - '6379:6379'
 
   guacd:
     image: guacamole/guacd
-    container_name: guacd.inabox.ies-sabadell.cat
+    container_name: 'guacd.inabox.ies-sabadell.cat'
     restart: always
     environment:
       - GUACD_LOG_LEVEL=debug
@@ -99,7 +99,7 @@ services:
 
   guacamole:
     image: guacamole/guacamole
-    container_name: guacamole.inabox.ies-sabadell.cat
+    container_name: 'guacamole.inabox.ies-sabadell.cat'
     restart: always
     environment:
       - POSTGRESQL_HOSTNAME=postgres
@@ -109,7 +109,7 @@ services:
       - POSTGRESQL_PORT=5432
       - GUACD_HOSTNAME=guacd
       - GUACD_PORT=4822
-      - VIRTUAL_HOST=guacamole.inabox.ies-sabadell.cat
+      - VIRTUAL_HOST='guacamole.inabox.ies-sabadell.cat'
       - VIRTUAL_PORT=80
     expose:
       - '8080'
