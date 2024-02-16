@@ -1,0 +1,72 @@
+{% extends 'app/base.html' %}
+{% load django_bootstrap5 %}
+{% block title %}
+{% endblock %}
+{% block content %}
+
+{% if user.is_authenticated %}
+{% load static %}
+<div class="row">
+  <div class="col-ms-3">
+    <div class="card" style="width: 18rem;">
+      <img src="{% static user.profile.avatar.url %}" alt="avatar" width="256" class="card-img-top">
+      <div class="card-body">
+        <h5 class="card-title">
+          {% if user.first_name and user.last_name %}
+          {{ user.first_name }} {{ user.last_name }}
+          {% else %}
+          {{ user.username }}
+          {% endif %} 
+        </h5>
+        {% if user.profile.bio %}
+        <p class="card-text">{{ user.profile.bio }}</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-ms-9">
+    {% if user_data and profile_data %}
+    <div class="card px-3">
+      <div class="card-body">
+        <h2>{{ _("Profile") }}</h2><hr />
+        <div class="row">
+          <form class="form-horizontal col-sm-6" action="#" role="form">
+          {% csrf_token %}
+          {% for e in user_data %}
+          <div class="form-group mb-3 row">
+              <label for="{{ e.name }}" class="control-label col-sm-4 mt-2">{{ e.label }}</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" id="{{ e.name }}" value="{{ e.value }}" disabled>
+              </div>
+            </div>
+          {% endfor %}
+          </form>
+
+          <form class="form-horizontal col-sm-6" action="#" role="form">
+          {% for e in profile_data %}
+            {% csrf_token %}
+            <div class="form-group mb-3 ms-sm-4 row">
+              <label for="{{ e.name }}" class="control-label col-sm-4 mt-2">{{ e.label }}</label>
+              <div class="col-sm-8">
+                {% if e.name == "organization" %}
+                <a href="{% url 'app:organization' pk=e.value.id %}"
+                  class="btn btn-secondary form-control text-start">{{ e.value }}</a>
+                {% elif e.name == "team" %}
+                <a href="{% url 'app:team' pk=e.value.id %}"
+                  class="btn btn-secondary form-control text-start">{{ e.value }}</a>
+                {% else %}
+                <input type="text" class="form-control" id="{{ e.name }}" value="{{ e.value }}" disabled>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+          </form>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+

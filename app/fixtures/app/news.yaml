@@ -1,0 +1,18 @@
+- model: app.newsentry
+  pk: 1
+  fields:
+    title: Benvinguts!
+    text: És important tenir cura del pacient, ser seguit pel pacient, però passarà en un moment que hi hagi molta feina i dolor. Perquè, fins al més mínim detall, ningú no hauria de practicar cap mena de treball a no ser que en tregui algun benefici. No t'enfadis amb el dolor en la reprimenda en el plaer que vol ser un pèl del dolor amb l'esperança que no hi hagi cria. Si no són encegats per la luxúria, no surten; són culpables els que abandonen els seus deures i suavitzen els seus cors, és a dir, els seus treballs.
+    language: ca
+- model: app.newsentry
+  pk: 2
+  fields:
+    title: About this site...
+    text: It is important to take care of the patient, to be followed by the patient, but it will happen at such a time that there is a lot of work and pain. For to come to the smallest detail, no one should practice any kind of work unless he derives some benefit from it. Do not be angry with the pain in the reprimand in the pleasure he wants to be a hair from the pain in the hope that there is no breeding. Unless they are blinded by lust, they do not come forth; they are in fault who abandon their duties and soften their hearts, that is, their labors.
+    language: en
+- model: app.newsentry
+  pk: 3
+  fields:
+    title: Song of Solomon
+    text: "Behold, thou art fair, my love; behold, thou art fair; thou hast doves' eyes within thy locks: thy hair is as a flock of goats, that appear from mount Gilead. Thy teeth are like a flock of sheep that are even shorn, which came up from the washing; whereof every one bear twins, and none is barren among them. Thy lips are like a thread of scarlet, and thy speech is comely: thy temples are like a piece of a pome-granate within thy locks. Thy neck is like the tower of David builded for an armoury, whereon there hang a thousand bucklers, all shields of mighty men."
+    language: en

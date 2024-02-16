@@ -1,0 +1,98 @@
+{% extends 'app/base.html' %}
+{% load django_bootstrap5 %}
+{% block title %}{{ _("Quests") }}{% endblock %}
+{% block content %}
+{% load i18n %}
+<div class="row">
+  <div class="col-lg-10">
+    {% if quest_list %}
+    {% for quest in quest_list %}
+    <div class="card mb-3">
+      <div class="card-header">
+        <div class="row pt-2">
+          <div class="col-sm-6">
+            <h5 class="card-title">
+              <a href="{% url 'app:quest' pk=quest.id %}" class="btn btn-primary">
+                {{ quest.title }} {{ _("by") }}
+                {% if quest.creator.first_name %}
+                  {{ quest.creator.first_name }} {{ quest.creator.last_name }}
+                {% else %}
+                  {{ quest.creator.username }}
+                {% endif %}
+              </a> 
+            </h5>
+          </div>
+          <div class="col-sm-6">
+            <span class="float-end">        
+              <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>{{ quest.get_level_display }}</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>
+                {{ _("Tries") }}
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                {{ quest.total_tries }}
+                </span>
+              </button>
+              <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>
+                {{ _("Solved") }}
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                {{ quest.solved }}
+                </span>
+              </button>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p class="card-text pt-2">{{ quest.summary }}</p>
+      </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <p>{{ _("No quests available. Check your filter settings.") }}</p>
+    {% endif %}
+  </div>
+  
+  <!-- Filter form -->
+  <div class="col-lg-2">
+    <div class="card">
+      <div class="card-header">
+        {{ _("Filter settings") }}
+      </div>
+      <div class="card-body">
+        <form method="get" action="{% url 'app:quests' %}">
+          {% csrf_token %}
+          <select name="creator" class="form-control dropdown-toggle mb-2" href="#" id="creator" role="button" data-bs-toggle="dropdown" aira-expanded="false">
+            <option value="all">{{ _("All creators") }}</option>
+            <option disabled>──────────</option>
+            {% for creator in creators %}
+            <option value="{{ creator }}" {% if screator == creator %} selected{% endif %}>{{ creator }}</option>
+            {% endfor %}
+          </select>
+          <select name="level" class="form-control dropdown-toggle mb-2" href="#" id="level" role="button" data-bs-toggle="dropdown" aira-expanded="false">
+            <option value="all">{{ _("All levels") }}</option>
+            <option disabled>──────────</option>
+            {% for level in levels %}
+            <option value="{{ level.0 }}"{% if slevel == level.0 %} selected{% endif %}>{{ level.1 }}</option>
+            {% endfor %}
+          </select>
+          <select name="order" class="form-control dropdown-toggle mb-2" href="#" id="order" role="button" data-bs-toggle="dropdown"
+            aira-expanded="false">
+            <option value="newest"{% if sorder == order %} selected{% endif %}>{{ _("Newest first") }}</option>
+            <option value="oldest"{% if sorder == order %} selected{% endif %}>{{ _("Oldest first") }}</option>
+          </select>
+          <button type="submit" class="btn btn-outline-success float-end" value="{{ _("Filter") }}">{{ _("Filter") }}</button>
+        </form>
+      </div>
+    </div>
+    {% if user.is_staff %}
+    <div class="card mt-sm-4">
+      <div class="card-header">
+        {{ _("Administration") }}
+      </div>
+      <div class="card-body text-center">
+        <a class="btn btn-secondary" href="{% url 'admin:challenges_quest_add' %}">{{ _("New quest") }}</a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

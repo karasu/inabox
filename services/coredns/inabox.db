@@ -1,5 +1,5 @@
 inabox.ies-sabadell.cat.        IN  SOA ns1.inabox.ies-sabadell.cat. ns2.inabox.ies-sabadell.cat. 2015082541 7200 3600 1209600 3600
-inabox1.inabox.ies-sabadell.cat.    IN  A   10.1.81.10
+inabox1.inabox.ies-sabadell.cat.    IN  A   10.27.27.18
 dns.inabox.ies-sabadell.cat IN CNAME inabox1
 www.inabox.ies-sabadell.cat IN CNAME inabox1
 ldap.inabox.ies-sabadell.cat IN CNAME inabox1

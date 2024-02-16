@@ -1,0 +1,30 @@
+{% extends 'app/base.html' %}
+{% load django_bootstrap5 %}
+{% block title %}{{ _("Team") }} "{{ team.name }}"{% endblock %}
+{% block content %}
+{% load i18n %}
+{% load static %}
+<div class="card">
+  <div class="card-body">
+<div class="row">
+  <div class="col-sm-2 mb-3">
+    <img class="img-thumbnail"
+      src="{% static team.image.url %}" alt="avatar" width="256">
+  </div>
+  <div class="col-sm-10 mb-3">
+    {{ team.description }}
+  </div>
+</div>
+
+<h2>{{ _("Members:") }}</h2>
+{% for member in members %}
+<a class="btn btn-secondary" href="{% url 'app:player' pk=member.id %}">
+{% if member.first_name and member.last_name %}
+{{ member.first_name }} {{ member.last_name }}
+{% else %}
+{{ member.username }}
+{% endif %}
+</a>
+{% endfor %}
+</div></div>
+{% endblock %}

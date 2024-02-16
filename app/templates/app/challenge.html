@@ -1,0 +1,236 @@
+{% extends 'app/base.html' %}
+{% load django_bootstrap5 %}
+{% block css %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'app/css/xterm.css' %}" />
+{% endblock %}
+{% block title %}{{ _("Challenge") }}{% endblock %}
+{% block content %}
+
+{% if user.is_authenticated %}
+<div class="row">
+  <div class="col-lg-9">
+  {% endif %}
+    <div class="card">
+      <div class="card-header">
+        <div class="row pt-2">
+          <div class="col-sm-6">
+            <h5 class="card-title">{{ challenge.title }}</h5>
+          </div>
+          <div class="col-sm-6">
+            <span class="float-end">
+              <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>
+                {{ challenge.area }}</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>
+                {{ challenge.get_level_display }}</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>
+                {{ challenge.get_language_display }}</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>
+                {{ _("Total tries") }}
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                {{ challenge.total_tries }}
+                </span>
+              </button>
+              <button type="button" class="btn btn-outline-secondary btn-sm position-relative me-2 mb-2" disabled>
+                {{ _("Solved") }}
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                {{ challenge.solved }}
+                </span>
+              </button>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p class="card-text pt-3">{{ challenge.summary }}</p>
+        <p class="card-text">{{ challenge.full_description }}</p>
+        {{ _("Challenge created by") }}
+        {% if challenge.creator.first_name %}
+        {{ challenge.creator.first_name }} {{ challenge.creator.last_name }}
+        {% else %}
+        {{ challenge.creator.username }}
+        {% endif %}
+
+        {% if user.is_authenticated and proposed.tries > 0 %}
+        <div class="my-2">
+          {{ _("Your stats:") }}
+          <button type="button"
+            class="btn btn-outline-secondary btn-sm position-relative mx-2 mb-2" disabled>
+            {{ proposed.tries }} {{ _("tries") }}</button>
+          {% if proposed.is_solved %}    
+          <button type="button" class="btn btn-outline-success btn-sm position-relative me-2 mb-2" disabled>
+            {{ _("already solved") }}</button>
+          {% else %}
+          <button type="button" class="btn btn-outline-danger btn-sm position-relative me-2 mb-2" disabled>
+            {{ _("not solved, yet") }}</button>
+          {% endif %}
+        </div>
+        {% endif %}
+        <div id="waiter" style="display: none">Connecting...</div>
+      
+        {% if user.is_authenticated %}
+       
+        <div class="mt-2">
+        <div class="btn-group" role="group" aria-label="Basic example">
+            <form id="connect" action="{% url 'app:challenge' challenge.id %}"
+              method="post" enctype="multipart/form-data">
+              <input type="hidden" name="form_name" value="ChallengeSSHForm">
+              {% csrf_token %}
+              {{ ssh_data }}
+              <button type="submit" name="term-btn" class="btn btn-primary">{{ _("Let's try to solve it!") }}</button>    
+            </form>
+          
+            <form class="ms-2" id="start-again" action="{% url 'app:challenge' challenge.id %}" method="post">
+              <input type="hidden" name="form_name" value="start-again">
+              {% csrf_token %}
+              {{ start_again_data }}
+              <button type="submit" name="start-again" class="btn btn-danger">{{ _("Start again") }}</button>
+            </form>
+          
+            <form>
+            {% if quest %}
+            <a class="btn btn-secondary ms-2"
+              href="{% url 'app:quest' pk=quest %}">{{ _("Go back to quest") }}</a>
+            {% else %}
+            <a class="btn btn-secondary ms-2"
+              href="{% url 'app:challenges' %}">{{ _("Go back") }}</a>
+            {% endif %}
+            </form>
+          </div>
+        </div>
+
+        <h5 class="mt-2" id="status" style="color: red;"></h5>
+        <div class="mt-2">
+          <div id="terminal"></div>
+        </div>
+        {% else %}
+        <div class="my-2" style="color: red;">
+          {{ _("You need to be logged in to try a challenge. Please log in!")}}</div>
+        <div>
+        {% if quest %}
+        <a class="btn btn-secondary"
+          href="{% url 'app:quest' pk=quest %}">{{ _("Go back to quest") }}</a>
+        {% else %}
+        <a class="btn btn-secondary"
+          href="{% url 'app:challenges' %}" >{{ _("Go back") }}</a>
+        {% endif %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    <!-- show challenge's comments -->
+    {% for comment in comments %}
+    <div class="card my-sm-4" id="comment">
+      <div class="card-header">
+        <h5 class="card-title">{{ comment }} <small class="text-muted float-end">{{ comment.created_on }}</small></h5>
+      </div>
+      <div class="card-body">
+        {{ comment.body }}
+      </div>
+    </div>
+    {% endfor %}
+
+    {% if user.is_authenticated %}
+    <!-- Progress bar used when checking user's proposed solution -->
+    <div style="height: 120px;">
+      <div style="font-size: 14px">
+        <div id="progress-bar-message">
+        </div>
+      </div>
+      <div class='progress-wrapper' style="padding-top: 10px;">
+        <div id='progress-bar' class='progress-bar progress-bar-striped'
+          role='progressbar' style="height:30px; width: 0%; border-radius: 5px">&nbsp;</div>
+      </div>
+      <div id="celery-result">
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  {% if user.is_authenticated %}
+  <!-- Your solution form -->
+  <div class="col-lg-3">
+    <!-- test proposed solution script form -->
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title">{{ _("Your solution") }}</h5>
+      </div>
+      <div class="card-body">
+        <form id="solution" action="{% url 'app:challenge' challenge.id %}"
+          method="post" role="form" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="form_name" value="UploadSolutionForm">
+        {% for e in upload_solution_form.visible_fields %}
+        <div class="form-group mb-3">
+          {{ e.label_tag }}
+          {{ e }}
+        </div>
+        {% endfor %}
+        <button id="upload-solution" type="submit" class="btn btn-success">{{ _("Let's check your solution!") }}</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- save container form -->
+    <div class="card mt-sm-3" id="save-container-card" hidden>
+      <div class="card-header">
+        <h5 class="card-title">{{ _("This test session") }}</h5>
+      </div>
+      <div class="card-body">
+        <form class="mt-2" id="save-container-form" action="{% url 'app:challenge' challenge.id %}"
+        method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <input type="hidden" name="form_name" value="SaveContainerForm">
+          <input type="hidden" name="challenge_id" value="{{ challenge.id }}">
+          <button id="save-image-btn" type="submit" class="btn btn-primary">{{ _("Save changes") }}</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Add new comment form -->
+    <div class="card mt-sm-3" id="new-comment-card">
+      <div class="card-header">
+        <h5 class="card-title">{{ _("New comment") }}</h5>
+      </div>
+      <div class="card-body">
+        <form class="mt-2" id="comment" action="{% url 'app:challenge' challenge.id %}"
+        method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <input type="hidden" name="form_name" value="CommentForm">
+          <input type="hidden" name="challenge_id" value="{{ challenge.id }}">
+
+          {% for e in comment_form.visible_fields %}
+          <div class="form-group mb-3">
+            {{ e.label_tag }}
+            {{ e }}
+          </div>
+          {% endfor %}
+
+          <button id="save-image-btn" type="submit" class="btn btn-success">{{ _("Add comment") }}</button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block javascript %}
+  <script type="text/javascript" src="{% static 'app/js/jquery.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'app/js/popper.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'app/js/addon-fit.js' %}"></script>
+  <script type="text/javascript" src="{% static 'app/js/xterm.js' %}"></script>
+  <script type="text/javascript" src="{% static 'app/js/webssh.js' %}"></script>
+  <!-- Celery Progress -->
+  <script type="text/javascript" src="{% static 'celery_progress/celery_progress.js' %}"></script>
+  {% if task_id %}
+  <script type="text/javascript">
+    // Progress Bar (JQuery)
+    $(function () {
+      var progressUrl = "{% url 'celery_progress:task_status' task_id %}";
+      CeleryProgressBar.initProgressBar(progressUrl, {})
+    });
+  </script>
+  {% endif %}
+{% endblock %}

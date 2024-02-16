@@ -1,0 +1,90 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-12-27 17:23+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: app/models.py:72 app/models.py:82
+msgid "Teacher"
+msgstr ""
+
+#: app/models.py:73
+msgid "Student"
+msgstr ""
+
+#: app/models.py:139
+msgid "Novice"
+msgstr ""
+
+#: app/models.py:140
+msgid "Advanced Beginner"
+msgstr ""
+
+#: app/models.py:141
+msgid "Competent"
+msgstr ""
+
+#: app/models.py:142
+msgid "Proficient"
+msgstr ""
+
+#: app/models.py:143
+msgid "Expert"
+msgstr ""
+
+#: app/models.py:149
+msgid "Date"
+msgstr ""
+
+#: app/models.py:154
+msgid "Script"
+msgstr ""
+
+#: app/templates/app/challenge.html:21
+msgid "Let's try to solve it!"
+msgstr "Intenta-ho!"
+
+#: app/templates/app/challenge.html:22
+msgid "Go back"
+msgstr ""
+
+#: app/templates/app/challenges.html:3
+msgid "Challenges"
+msgstr ""
+
+#: app/templates/app/challenges.html:20
+msgid "No challenges are available."
+msgstr ""
+
+#: app/views.py:122
+msgid "Unable to connect to {}:{}"
+msgstr ""
+
+#: app/views.py:124
+msgid "Bad authentication type."
+msgstr ""
+
+#: app/views.py:126
+msgid "Authentication failed."
+msgstr ""
+
+#: app/views.py:128
+msgid "Bad host key."
+msgstr ""
+
+#: app/views.py:179
+msgid "Too many live connections."
+msgstr ""
