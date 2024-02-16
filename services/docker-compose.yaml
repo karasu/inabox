@@ -8,6 +8,7 @@ services:
       - /var/run/docker.sock:/tmp/docker.sock:ro
     ports:
       - 80:80
+      - 443:443
 
   ldap:
     image: osixia/openldap:1.5.0
@@ -43,8 +44,8 @@ services:
     container_name: postgres.inabox.ies-sabadell.cat
     restart: always
     environment:
-      POSTGRES_PASSWORD: development
-      PGDATA: /var/lib/postgresql/data/pgdata
+      - POSTGRES_PASSWORD=development
+      - PGDATA=/var/lib/postgresql/data/pgdata
     volumes:
       - inabox-db:/var/lib/postgresql/data
     ports:
@@ -57,8 +58,8 @@ services:
     environment:
       - VIRTUAL_HOST=adminer.inabox.ies-sabadell.cat
       - VIRTUAL_PORT=80
-    ports:
-      - 8002:8080
+    expose:
+      - 8080
 
   rabbitmq:
     image: rabbitmq
@@ -78,7 +79,7 @@ services:
     container_name: guacd.inabox.ies-sabadell.cat
     restart: always
     environment:
-      GUACD_LOG_LEVEL: debug
+      - GUACD_LOG_LEVEL=debug
     ports:
       - 4822:4822
 
@@ -87,15 +88,17 @@ services:
     container_name: guacamole.inabox.ies-sabadell.cat
     restart: always
     environment:
-      POSTGRESQL_HOSTNAME: postgres
-      POSTGRESQL_DATABASE: guacamole_db
-      POSTGRESQL_USER: postgres
-      POSTGRESQL_PASSWORD: development
-      POSTGRESQL_PORT: 5432
-      GUACD_HOSTNAME: guacd
-      GUACD_PORT: 4822
-    ports:
-      - 8001:8080
+      - POSTGRESQL_HOSTNAME=postgres
+      - POSTGRESQL_DATABASE=guacamole_db
+      - POSTGRESQL_USER=postgres
+      - POSTGRESQL_PASSWORD=development
+      - POSTGRESQL_PORT=5432
+      - GUACD_HOSTNAME=guacd
+      - GUACD_PORT=4822
+      - VIRTUAL_HOST=guacamole.inabox.ies-sabadell.cat
+      - VIRTUAL_PORT=80
+    expose:
+      - 8080
 
 volumes:
   inabox-db:
