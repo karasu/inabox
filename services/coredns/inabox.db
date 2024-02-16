@@ -1,13 +1,13 @@
 inabox.ies-sabadell.cat.        IN  SOA ns1.inabox.ies-sabadell.cat. ns2.inabox.ies-sabadell.cat. 2015082541 7200 3600 1209600 3600
 inabox1.inabox.ies-sabadell.cat.    IN  A   10.1.81.10
-dns.inabox.ies-sabadell.cat IN CNAME inabox1.inabox.ies-sabadell.cat
-www.inabox.ies-sabadell.cat IN CNAME inabox1.inabox.ies-sabadell.cat
-ldap.inabox.ies-sabadell.cat IN CNAME inabox1.inabox.ies-sabadell.cat
-lam.inabox.ies-sabadell.cat IN CNAME inabox1.inabox.ies-sabadell.cat
-postgres.inabox.ies-sabadell.cat IN CNAME inabox1.inabox.ies-sabadell.cat
-adminer.inabox.ies-sabadell.cat IN CNAME inabox1.inabox.ies-sabadell.cat
-rabbitmq.inabox.ies-sabadell.cat IN CNAME inabox1.inabox.ies-sabadell.cat
-redis.inabox.ies-sabadell.cat IN CNAME inabox1.inabox.ies-sabadell.cat
-guacd.inabox.ies-sabadell.cat IN CNAME inabox1.inabox.ies-sabadell.cat
-guacamole.inabox.ies-sabadell.cat IN CNAME inabox1.inabox.ies-sabadell.cat
+dns.inabox.ies-sabadell.cat IN CNAME inabox1
+www.inabox.ies-sabadell.cat IN CNAME inabox1
+ldap.inabox.ies-sabadell.cat IN CNAME inabox1
+lam.inabox.ies-sabadell.cat IN CNAME inabox1
+postgres.inabox.ies-sabadell.cat IN CNAME inabox1
+adminer.inabox.ies-sabadell.cat IN CNAME inabox1
+rabbitmq.inabox.ies-sabadell.cat IN CNAME inabox1
+redis.inabox.ies-sabadell.cat IN CNAME inabox1
+guacd.inabox.ies-sabadell.cat IN CNAME inabox1
+guacamole.inabox.ies-sabadell.cat IN CNAME inabox1
 

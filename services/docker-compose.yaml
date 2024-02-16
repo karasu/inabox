@@ -31,7 +31,7 @@ services:
     environment:
       - LDAP_ORGANISATION=inabox
       - LDAP_DOMAIN=inabox.ies-sabadell.cat
-      - LDAP_BASE_DN='dc=inabox,dc=ies-sabadell,dc=cat'
+      - "LDAP_BASE_DN=dc=inabox,dc=ies-sabadell,dc=cat"
       - LDAP_ADMIN_PASSWORD=inabox
     ports:
       - 389:389
@@ -42,13 +42,13 @@ services:
     container_name: 'lam.inabox.ies-sabadell.cat'
     restart: always
     environment:
-      - LDAP_DOMAIN='inabox.ies-sabadell.cat'
-      - LDAP_BASE_DN='dc=inabox,dc=ies-sabadell,dc=cat'
+      - LDAP_DOMAIN=inabox.ies-sabadell.cat
+      - "LDAP_BASE_DN=dc=inabox,dc=ies-sabadell,dc=cat"
       - LAM_PASSWORD=inabox
       - LDAP_ORGANISATION='Inabox Institut Sabadell'
       - LDAP_ADMIN_PASSWORD=inabox
       - LDAP_READONLY_PASSWORD=inabox
-      - VIRTUAL_HOST='lam.inabox.ies-sabadell.cat'
+      - VIRTUAL_HOST=lam.inabox.ies-sabadell.cat
       - VIRTUAL_PORT=80
     expose:
       - '80'
@@ -70,7 +70,7 @@ services:
     container_name: 'adminer.inabox.ies-sabadell.cat'
     restart: always
     environment:
-      - VIRTUAL_HOST='adminer.inabox.ies-sabadell.cat'
+      - VIRTUAL_HOST=adminer.inabox.ies-sabadell.cat
       - VIRTUAL_PORT=80
     expose:
       - '8080'
@@ -109,7 +109,7 @@ services:
       - POSTGRESQL_PORT=5432
       - GUACD_HOSTNAME=guacd
       - GUACD_PORT=4822
-      - VIRTUAL_HOST='guacamole.inabox.ies-sabadell.cat'
+      - VIRTUAL_HOST=guacamole.inabox.ies-sabadell.cat
       - VIRTUAL_PORT=80
     expose:
       - '8080'
