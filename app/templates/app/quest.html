@@ -9,7 +9,7 @@
       <div class="row pt-2">
         <div class="col-6">
           <h5 class="card-title">
-            <a href="{% url 'challenges:quest' pk=quest.id %}" class="btn btn-outline-primary">
+            <a href="{% url 'app:quest' pk=quest.id %}" class="btn btn-outline-primary">
               {{ quest.title }} {{ _("by") }}
               {% if quest.creator.first_name %}
                 {{ quest.creator.first_name }} {{ quest.creator.last_name }}
@@ -48,7 +48,7 @@
       <li class="list-group-item mb-2">
       <div class="row">
         <div class="col-6">
-            <a href="{% url 'challenges:challenge' pk=challenge.id %}?quest={{ quest.id }}" class="btn btn-outline-primary">
+            <a href="{% url 'app:challenge' pk=challenge.id %}?quest={{ quest.id }}" class="btn btn-outline-primary">
             {{ challenge.title }} {{ _("by") }}
             {% if challenge.creator.first_name %}
                 {{ challenge.creator.first_name }} {{ challenge.creator.last_name }}
