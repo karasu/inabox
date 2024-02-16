@@ -32,6 +32,8 @@ from .models import ClassGroup, Team, Organization, Comment
 #from .models import DockerImage
 from .models import UserChallengeContainer, UserChallengeImage
 from .models import LEVELS, ROLES
+from .models import NewsEntry
+
 from .forms import ChallengeSSHForm, CommentForm, NewChallengeForm
 from .forms import UploadSolutionForm, SearchForm, StartAgainForm
 
@@ -57,9 +59,35 @@ MAXCONN=20
 # The delay to call recycle_worker
 RECYLE_WORKER_DELAY=3
 
+class NewsIndexView(generic.ListView):
+    """ News view class """
+    template_name = "app/news.html"
+    model = NewsEntry
+    paginate_by = 10
+
+    def get_user_language(self):
+        """ get user's chosen language """
+        if self.request.user.is_authenticated:
+            user_id = self.request.user.id
+            profile = Profile.objects.get(user=user_id)
+            return profile.language
+
+        return get_language()
+
+    #def get_queryset(self):
+    #    """ Return the last five published news in the user's language """
+    #    return NewsEntry.objects.filter(
+    # language=self.get_user_language()).order_by("-pub_date")[:5]
+
+
+class AboutView(generic.base.TemplateView):
+    """ View to show about page """
+    template_name = "app/about.html"
+
+
 class NewChallengeView(LoginRequiredMixin, generic.base.TemplateView):
     """ New challenge view """
-    template_name="challenges/new_challenge.html"
+    template_name="app/new_challenge.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -77,7 +105,7 @@ class NewChallengeView(LoginRequiredMixin, generic.base.TemplateView):
             g_logger.error(form.errors)
             return render(
                 request,
-                template_name="challenges/form_error.html",
+                template_name="app/form_error.html",
                 context={
                     "title": _("Error inserting a new Challenge! Check the error(s) below:"),
                     "errors": form.errors,
@@ -88,7 +116,7 @@ class NewChallengeView(LoginRequiredMixin, generic.base.TemplateView):
 
 class QuestsListView(generic.ListView):
     """ List all quests """
-    template_name = "challenges/quests.html"
+    template_name = "app/quests.html"
     model = Quest
     paginate_by = 10
 
@@ -131,7 +159,7 @@ class QuestsListView(generic.ListView):
 class QuestDetailView(generic.DetailView):
     """ Show quest information """
     model = Quest
-    template_name = "challenges/quest.html"
+    template_name = "app/quest.html"
     # challenge_list
 
     def get_context_data(self, **kwargs):
@@ -144,7 +172,7 @@ class QuestDetailView(generic.DetailView):
 
 class ChallengesListView(generic.ListView):
     """ Lists all challenges """
-    template_name = "challenges/challenges.html"
+    template_name = "app/challenges.html"
     model = Challenge
     paginate_by = 10
     #query_set = Challenge.objects.order_by("-pub_date")
@@ -210,7 +238,7 @@ class ChallengesListView(generic.ListView):
 class ChallengeDetailView(generic.DetailView):
     """ Show challenge class view """
     model = Challenge
-    template_name = "challenges/challenge.html"
+    template_name = "app/challenge.html"
     executor = ThreadPoolExecutor(max_workers=os.cpu_count()*5)
     loop = None
     quest = None
@@ -444,7 +472,7 @@ class ChallengeDetailView(generic.DetailView):
 
         return render(
             request,
-            template_name="challenges/form_error.html",
+            template_name="app/form_error.html",
             context={
                 "title": _("Error trying to clean previous container data"),
                 "errors": "Please ask help to an administrator",
@@ -560,7 +588,7 @@ class ChallengeDetailView(generic.DetailView):
         g_logger.error(form.errors)
         return render(
             request,
-            template_name="challenges/form_error.html",
+            template_name="app/form_error.html",
             context={
                 "title": _("Error form data trying to connect! Check the error(s) below:"),
                 "errors": form.errors,
@@ -618,7 +646,7 @@ class ChallengeDetailView(generic.DetailView):
         g_logger.error(form.errors)
         return render(
             request,
-            template_name="challenges/form_error.html",
+            template_name="app/form_error.html",
             context={
                 "title": _("Error uploading a new solution! Check the error(s) below:"),
                 "errors": form.errors,
@@ -665,7 +693,7 @@ class ChallengeDetailView(generic.DetailView):
         g_logger.warning("Error trying to commit container [%s]", ucc.container_id)
         return render(
             request,
-            template_name="challenges/form_error.html",
+            template_name="app/form_error.html",
             context={
                 "title": _("Error saving changes. Check the error(s) below:"),
                 "errors": "Not implemented"})
@@ -711,7 +739,7 @@ class ChallengeDetailView(generic.DetailView):
 
 class SearchView(generic.base.TemplateView):
     """ search view """
-    template_name = "challenges/search.html"
+    template_name = "app/search.html"
 
     def get(self, request, *args, **kwargs):
         form = SearchForm(request.GET)
@@ -756,7 +784,7 @@ class SearchView(generic.base.TemplateView):
         g_logger.error(form.errors)
         return render(
             request,
-            template_name="challenges/form_error.html",
+            template_name="app/form_error.html",
             context={
                 "title": _("Error in search form. Check the error(s) below:"),
                 "errors": form.errors,
@@ -764,7 +792,7 @@ class SearchView(generic.base.TemplateView):
 
 class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
     """ Show user's profile """
-    template_name = "challenges/profile.html"
+    template_name = "app/profile.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -835,7 +863,7 @@ class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
 
 class PlayersListView(generic.ListView):
     """ Show a list of all players (users) """
-    template_name = "challenges/players.html"
+    template_name = "app/players.html"
     model = User
     paginate_by = 10
 
@@ -843,7 +871,7 @@ class PlayersListView(generic.ListView):
 class PlayerDetailView(generic.DetailView):
     """ Show player's detail info (nothing personal) """
     model = User
-    template_name = "challenges/player.html"
+    template_name = "app/player.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -852,13 +880,13 @@ class PlayerDetailView(generic.DetailView):
 
 class OrganizationsListView(generic.ListView):
     """ List of organizations """
-    template_name = "challenges/organizations.html"
+    template_name = "app/organizations.html"
     model = Organization
     paginate_by = 10
 
 class OrganizationDetailView(generic.DetailView):
     """ Organization details """
-    template_name = "challenges/organization.html"
+    template_name = "app/organization.html"
     model = Organization
 
     def get_context_data(self, **kwargs):
@@ -869,13 +897,13 @@ class OrganizationDetailView(generic.DetailView):
 
 class TeamsListView(generic.ListView):
     """ List of teams """
-    template_name = "challenges/teams.html"
+    template_name = "app/teams.html"
     model = Team
     paginate_by = 10
 
 class TeamDetailView(generic.DetailView):
     """ Team details """
-    template_name = "challenges/team.html"
+    template_name = "app/team.html"
     model = Team
 
     def get_context_data(self, **kwargs):

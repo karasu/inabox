@@ -4,11 +4,10 @@ from django.apps import AppConfig
 
 from .logger import setup_logger
 
-class ChallengesConfig(AppConfig):
-    """ Challenges app class """
+class InaboxAppConfig(AppConfig):
+    """ App app class """
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'challenges'
-    verbose_name = "Challenges"
+    name = 'app'
 
     def ready(self):
         """ startup code goes here """

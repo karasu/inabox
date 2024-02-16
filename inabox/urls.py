@@ -23,9 +23,8 @@ urlpatterns = [
     path("accounts/", include("django.contrib.auth.urls")),
     #path("debug/", include("debug_toolbar.urls")),
     path('i18n/', include("django.conf.urls.i18n")),
-    path('challenges/', include("challenges.urls")),
+    path('', include("app.urls")),
     path("loggedout/", TemplateView.as_view(template_name="loggedout.html"), name="loggedout"),
-    path('', include("news.urls")),
     # Celery progress
 	path('celery-progress/', include('celery_progress.urls')),
 ]

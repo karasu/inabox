@@ -4,7 +4,6 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 
-
 # Register your models here.
 
 from .models import Challenge
@@ -17,6 +16,7 @@ from .models import ProposedSolution
 from .models import Team
 from .models import Organization
 from .models import Comment
+from .models import NewsEntry
 
 admin.site.register(Challenge)
 admin.site.register(Quest)
@@ -26,6 +26,7 @@ admin.site.register(ClassGroup)
 admin.site.register(ProposedSolution)
 admin.site.register(Team)
 admin.site.register(Organization)
+admin.site.register(NewsEntry)
 
 class CommentAdmin(admin.ModelAdmin):
     """ Admin challenge's comments """
