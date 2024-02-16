@@ -1,4 +1,4 @@
-- model: challenges.DockerImage
+- model: app.DockerImage
   pk: 1
   fields:
     verbose_name: Debian (latest)
@@ -9,7 +9,7 @@
     reuse_container: False
     docker_file: Dockerfile
     docker_name: inabox_debian
-- model: challenges.DockerImage
+- model: app.DockerImage
   pk: 2
   fields:
     verbose_name: Ubuntu (latest)
@@ -20,7 +20,7 @@
     reuse_container: False
     docker_file: Dockerfile
     docker_name: inabox_ubuntu
-- model: challenges.DockerImage
+- model: app.DockerImage
   pk: 3
   fields:
     verbose_name: Alpine (latest)
@@ -31,22 +31,22 @@
     reuse_container: False
     docker_file: Dockerfile
     docker_name: inabox_alpine
-- model: challenges.Area
+- model: app.Area
   pk: 1
   fields:
     name: DNS
     description: DNS related issues
-- model: challenges.Area
+- model: app.Area
   pk: 2
   fields:
     name: Other
     description: Uncategorized
-- model: challenges.Area
+- model: app.Area
   pk: 3
   fields:
     name: Files
     description: Files and folders
-- model: challenges.Challenge
+- model: app.Challenge
   pk: 1
   fields:
     title: "Gestió d'usuaris"
@@ -59,7 +59,7 @@
     area: 1
     level: N
     language: ca
-- model: challenges.Challenge
+- model: app.Challenge
   pk: 2
   fields:
     title: Sed ut perspiciatis unde omnis
@@ -73,7 +73,7 @@
     area: 2
     level: A
     language: ca
-- model: challenges.Challenge
+- model: app.Challenge
   pk: 3
   fields:
     title: Titol 3
@@ -86,7 +86,7 @@
     area: 1
     level: C
     language: en
-- model: challenges.Challenge
+- model: app.Challenge
   pk: 4
   fields:
     title: Aquí aniria el títol
@@ -99,7 +99,7 @@
     area: 2
     level: C
     language: ca  
-- model: challenges.Challenge
+- model: app.Challenge
   pk: 5
   fields:
     title: Whispers of the Forgotten
@@ -112,7 +112,7 @@
     area: 2
     level: A
     language: en  
-- model: challenges.Challenge
+- model: app.Challenge
   pk: 6
   fields:
     title: Chronicles of the Celestial Watcher
@@ -125,7 +125,7 @@
     area: 2
     level: C
     language: en  
-- model: challenges.Challenge
+- model: app.Challenge
   pk: 7
   fields:
     title: The Enchanted Locket
@@ -138,7 +138,7 @@
     area: 2
     level: C
     language: en  
-- model: challenges.Challenge
+- model: app.Challenge
   pk: 8
   fields:
     title: Echoes of the Lost Symphony
@@ -151,7 +151,7 @@
     area: 2
     level: C
     language: en 
-- model: challenges.Challenge
+- model: app.Challenge
   pk: 9
   fields:
     title: The Timekeeper's Dilemma
@@ -164,7 +164,7 @@
     area: 2
     level: C
     language: en
-- model: challenges.Comment
+- model: app.Comment
   pk: 1
   fields:
     challenge: 1

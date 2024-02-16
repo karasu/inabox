@@ -1,4 +1,3 @@
 #!/bin/sh
-python manage.py loaddata challenges/classgroups challenges/users challenges/challenges challenges/quests
-python manage.py loaddata news/news
+python manage.py loaddata app/classgroups app/users app/challenges app/quests app/news
 

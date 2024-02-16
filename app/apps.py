@@ -4,7 +4,7 @@ from django.apps import AppConfig
 
 from .logger import setup_logger
 
-class InaboxAppConfig(AppConfig):
+class InaboxConfig(AppConfig):
     """ App app class """
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'app'

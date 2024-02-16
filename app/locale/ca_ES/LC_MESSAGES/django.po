@@ -17,74 +17,74 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: challenges/models.py:72 challenges/models.py:82
+#: app/models.py:72 app/models.py:82
 msgid "Teacher"
 msgstr ""
 
-#: challenges/models.py:73
+#: app/models.py:73
 msgid "Student"
 msgstr ""
 
-#: challenges/models.py:139
+#: app/models.py:139
 msgid "Novice"
 msgstr ""
 
-#: challenges/models.py:140
+#: app/models.py:140
 msgid "Advanced Beginner"
 msgstr ""
 
-#: challenges/models.py:141
+#: app/models.py:141
 msgid "Competent"
 msgstr ""
 
-#: challenges/models.py:142
+#: app/models.py:142
 msgid "Proficient"
 msgstr ""
 
-#: challenges/models.py:143
+#: app/models.py:143
 msgid "Expert"
 msgstr ""
 
-#: challenges/models.py:149
+#: app/models.py:149
 msgid "Date"
 msgstr ""
 
-#: challenges/models.py:154
+#: app/models.py:154
 msgid "Script"
 msgstr ""
 
-#: challenges/templates/challenges/challenge.html:21
+#: app/templates/app/challenge.html:21
 msgid "Let's try to solve it!"
 msgstr "Intenta-ho!"
 
-#: challenges/templates/challenges/challenge.html:22
+#: app/templates/app/challenge.html:22
 msgid "Go back"
 msgstr ""
 
-#: challenges/templates/challenges/challenges.html:3
+#: app/templates/app/challenges.html:3
 msgid "Challenges"
 msgstr ""
 
-#: challenges/templates/challenges/challenges.html:20
+#: app/templates/app/challenges.html:20
 msgid "No challenges are available."
 msgstr ""
 
-#: challenges/views.py:122
+#: app/views.py:122
 msgid "Unable to connect to {}:{}"
 msgstr ""
 
-#: challenges/views.py:124
+#: app/views.py:124
 msgid "Bad authentication type."
 msgstr ""
 
-#: challenges/views.py:126
+#: app/views.py:126
 msgid "Authentication failed."
 msgstr ""
 
-#: challenges/views.py:128
+#: app/views.py:128
 msgid "Bad host key."
 msgstr ""
 
-#: challenges/views.py:179
+#: app/views.py:179
 msgid "Too many live connections."
 msgstr ""

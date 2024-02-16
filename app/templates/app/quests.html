@@ -12,7 +12,7 @@
         <div class="row pt-2">
           <div class="col-sm-6">
             <h5 class="card-title">
-              <a href="{% url 'challenges:quest' pk=quest.id %}" class="btn btn-primary">
+              <a href="{% url 'app:quest' pk=quest.id %}" class="btn btn-primary">
                 {{ quest.title }} {{ _("by") }}
                 {% if quest.creator.first_name %}
                   {{ quest.creator.first_name }} {{ quest.creator.last_name }}
@@ -58,7 +58,7 @@
         {{ _("Filter settings") }}
       </div>
       <div class="card-body">
-        <form method="get" action="{% url 'challenges:quests' %}">
+        <form method="get" action="{% url 'app:quests' %}">
           {% csrf_token %}
           <select name="creator" class="form-control dropdown-toggle mb-2" href="#" id="creator" role="button" data-bs-toggle="dropdown" aira-expanded="false">
             <option value="all">{{ _("All creators") }}</option>

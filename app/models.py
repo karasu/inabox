@@ -37,7 +37,7 @@ ROLES = [
 # Static paths
 def avatar(num):
     """ returns avatar's static path """
-    return f"challenges/images/avatars/256x256/{num}.jpg"
+    return f"app/images/avatars/256x256/{num}.jpg"
 
 def user_directory_path(instance, filename):
     """ file will be uploaded to MEDIA_ROOT/users/<username>/<filename> """

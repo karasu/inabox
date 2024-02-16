@@ -1,16 +1,13 @@
 #!/bin/sh
 
-rm -f challenges/migrations/*.py
-rm -rf challenges/migrations/__pycache__
-rm -f news/migrations/*.py
-rm -rf news/migrations/__pycache__
+rm -f app/migrations/*.py
+rm -rf app/migrations/__pycache__
 
 mv inabox.sqlite3 inabox.sqlite3.bak
 
 echo Running makemigrations step...
 python manage.py makemigrations
-python manage.py makemigrations challenges
-python manage.py makemigrations news
+python manage.py makemigrations app
 
 echo Running migrate step...
 python manage.py migrate

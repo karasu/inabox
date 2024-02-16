@@ -49,10 +49,10 @@
               <label for="{{ e.name }}" class="control-label col-sm-4 mt-2">{{ e.label }}</label>
               <div class="col-sm-8">
                 {% if e.name == "organization" %}
-                <a href="{% url 'challenges:organization' pk=e.value.id %}"
+                <a href="{% url 'app:organization' pk=e.value.id %}"
                   class="btn btn-secondary form-control text-start">{{ e.value }}</a>
                 {% elif e.name == "team" %}
-                <a href="{% url 'challenges:team' pk=e.value.id %}"
+                <a href="{% url 'app:team' pk=e.value.id %}"
                   class="btn btn-secondary form-control text-start">{{ e.value }}</a>
                 {% else %}
                 <input type="text" class="form-control" id="{{ e.name }}" value="{{ e.value }}" disabled>

@@ -20,9 +20,9 @@
         {% for organization in organization_list %}
         <tr class="align-middle">
           <th scope="row">{{ organization.id }}</th>
-          <td><a href="{% url 'challenges:organization' pk=organization.id %}"><img class="img-thumbnail" src="{% static organization.image.url %}"
+          <td><a href="{% url 'app:organization' pk=organization.id %}"><img class="img-thumbnail" src="{% static organization.image.url %}"
           alt="avatar" width="64"></a></td>
-          <td><a href="{% url 'challenges:organization' pk=organization.id %}">{{ organization.name }}</a></td>
+          <td><a href="{% url 'app:organization' pk=organization.id %}">{{ organization.name }}</a></td>
           <td>{{ organization.description|truncatechars:64 }}</td>
         </tr>
         {% endfor %}

@@ -7,16 +7,16 @@
 {% bootstrap_css %}
 {% bootstrap_javascript %}{% bootstrap_messages %}
 {% load static %}
-<link rel="icon" type="image/x-icon" href="{% static '/challenges/images/favicon.png' %}" />
-<link rel="stylesheet" href="{% static 'news/css/style.css' %}"  type="text/css" />
-<link rel="stylesheet" href="{% static 'challenges/fonts/eraser/stylesheet.css' %}" type="text/css" />
+<link rel="icon" type="image/x-icon" href="{% static '/app/images/favicon.png' %}" />
+<link rel="stylesheet" href="{% static 'app/css/style.css' %}"  type="text/css" />
+<link rel="stylesheet" href="{% static 'app/fonts/eraser/stylesheet.css' %}" type="text/css" />
 {% block css %}{% endblock %}
 <title>In a box</title>
 </head>
 <body>
 
     {% include 'news/navbar.html' %}{% block bootstrap5_content %}
-    <div id="bimage" style="background-image: url('{% static '/challenges/images/bg-hero.svg' %}');">
+    <div id="bimage" style="background-image: url('{% static '/app/images/bg-hero.svg' %}');">
     </div>
     <div class="container-lg">
         <h1 class="my-4" style="font-family: Eraser;">{% block title %}{% endblock %}</h1>

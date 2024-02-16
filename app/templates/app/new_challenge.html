@@ -3,7 +3,7 @@
 {% block title %}{{ _("Add a new challenge") }}{% endblock %}
 {% block content %}
 <div class="alert alert-secondary" role="alert">
-<form action="{% url 'challenges:new_challenge' %}" method="post" role="form" enctype="multipart/form-data">
+<form action="{% url 'app:new_challenge' %}" method="post" role="form" enctype="multipart/form-data">
     <h5 class="mb-4">{{ _("Use this form to add a new challenge") }}</h5>
 {% csrf_token %}
 {% for e in new_challenge_form.visible_fields %}
@@ -13,7 +13,7 @@
     </div>
 {% endfor %}
 <button type="submit" class="btn btn-primary mb-4" value="add">{{ _("Add challenge") }}</button>
-<a href="{% url 'challenges:challenges' %}" class="btn btn-danger mb-4">{{ _("Cancel and go to the challenges page") }}</a>
+<a href="{% url 'app:challenges' %}" class="btn btn-danger mb-4">{{ _("Cancel and go to the challenges page") }}</a>
 </form>
 </div>
 

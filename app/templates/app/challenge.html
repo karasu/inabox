@@ -2,7 +2,7 @@
 {% load django_bootstrap5 %}
 {% block css %}
 {% load static %}
-<link rel="stylesheet" href="{% static 'challenges/css/xterm.css' %}" />
+<link rel="stylesheet" href="{% static 'app/css/xterm.css' %}" />
 {% endblock %}
 {% block title %}{{ _("Challenge") }}{% endblock %}
 {% block content %}
@@ -72,7 +72,7 @@
        
         <div class="mt-2">
         <div class="btn-group" role="group" aria-label="Basic example">
-            <form id="connect" action="{% url 'challenges:challenge' challenge.id %}"
+            <form id="connect" action="{% url 'app:challenge' challenge.id %}"
               method="post" enctype="multipart/form-data">
               <input type="hidden" name="form_name" value="ChallengeSSHForm">
               {% csrf_token %}
@@ -80,7 +80,7 @@
               <button type="submit" name="term-btn" class="btn btn-primary">{{ _("Let's try to solve it!") }}</button>    
             </form>
           
-            <form class="ms-2" id="start-again" action="{% url 'challenges:challenge' challenge.id %}" method="post">
+            <form class="ms-2" id="start-again" action="{% url 'app:challenge' challenge.id %}" method="post">
               <input type="hidden" name="form_name" value="start-again">
               {% csrf_token %}
               {{ start_again_data }}
@@ -90,10 +90,10 @@
             <form>
             {% if quest %}
             <a class="btn btn-secondary ms-2"
-              href="{% url 'challenges:quest' pk=quest %}">{{ _("Go back to quest") }}</a>
+              href="{% url 'app:quest' pk=quest %}">{{ _("Go back to quest") }}</a>
             {% else %}
             <a class="btn btn-secondary ms-2"
-              href="{% url 'challenges:challenges' %}">{{ _("Go back") }}</a>
+              href="{% url 'app:challenges' %}">{{ _("Go back") }}</a>
             {% endif %}
             </form>
           </div>
@@ -109,10 +109,10 @@
         <div>
         {% if quest %}
         <a class="btn btn-secondary"
-          href="{% url 'challenges:quest' pk=quest %}">{{ _("Go back to quest") }}</a>
+          href="{% url 'app:quest' pk=quest %}">{{ _("Go back to quest") }}</a>
         {% else %}
         <a class="btn btn-secondary"
-          href="{% url 'challenges:challenges' %}" >{{ _("Go back") }}</a>
+          href="{% url 'app:challenges' %}" >{{ _("Go back") }}</a>
         {% endif %}
         </div>
         {% endif %}
@@ -156,7 +156,7 @@
         <h5 class="card-title">{{ _("Your solution") }}</h5>
       </div>
       <div class="card-body">
-        <form id="solution" action="{% url 'challenges:challenge' challenge.id %}"
+        <form id="solution" action="{% url 'app:challenge' challenge.id %}"
           method="post" role="form" enctype="multipart/form-data">
         {% csrf_token %}
         <input type="hidden" name="form_name" value="UploadSolutionForm">
@@ -177,7 +177,7 @@
         <h5 class="card-title">{{ _("This test session") }}</h5>
       </div>
       <div class="card-body">
-        <form class="mt-2" id="save-container-form" action="{% url 'challenges:challenge' challenge.id %}"
+        <form class="mt-2" id="save-container-form" action="{% url 'app:challenge' challenge.id %}"
         method="post" enctype="multipart/form-data">
           {% csrf_token %}
           <input type="hidden" name="form_name" value="SaveContainerForm">
@@ -193,7 +193,7 @@
         <h5 class="card-title">{{ _("New comment") }}</h5>
       </div>
       <div class="card-body">
-        <form class="mt-2" id="comment" action="{% url 'challenges:challenge' challenge.id %}"
+        <form class="mt-2" id="comment" action="{% url 'app:challenge' challenge.id %}"
         method="post" enctype="multipart/form-data">
           {% csrf_token %}
           <input type="hidden" name="form_name" value="CommentForm">
@@ -217,11 +217,11 @@
 {% endblock %}
 
 {% block javascript %}
-  <script type="text/javascript" src="{% static 'challenges/js/jquery.min.js' %}"></script>
-  <script type="text/javascript" src="{% static 'challenges/js/popper.min.js' %}"></script>
-  <script type="text/javascript" src="{% static 'challenges/js/addon-fit.js' %}"></script>
-  <script type="text/javascript" src="{% static 'challenges/js/xterm.js' %}"></script>
-  <script type="text/javascript" src="{% static 'challenges/js/webssh.js' %}"></script>
+  <script type="text/javascript" src="{% static 'app/js/jquery.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'app/js/popper.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'app/js/addon-fit.js' %}"></script>
+  <script type="text/javascript" src="{% static 'app/js/xterm.js' %}"></script>
+  <script type="text/javascript" src="{% static 'app/js/webssh.js' %}"></script>
   <!-- Celery Progress -->
   <script type="text/javascript" src="{% static 'celery_progress/celery_progress.js' %}"></script>
   {% if task_id %}

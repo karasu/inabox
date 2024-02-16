@@ -1,19 +1,19 @@
-- model: challenges.Team
+- model: app.Team
   pk: 1
   fields:
     name: Lone wolf
     description: This team will contain all users that have no team.
-- model: challenges.Team
+- model: app.Team
   pk: 2
   fields:
     name: The A-Team
     description: Ara, buscats per la policia i el Govern nord-americà, els fugitius es veuen obligats a convertir-se en mercenaris per poder sobreviure econòmicament. 
-- model: challenges.Organization
+- model: app.Organization
   pk: 1
   fields:
     name: Institut Sabadell
     description: Institut Sabadell, de Sabadell
-- model: challenges.Profile
+- model: app.Profile
   pk: 1
   fields:
     user: 1
@@ -32,7 +32,7 @@
     email: jdoe@none.cat
     first_name: John
     last_name: Doe
-- model: challenges.Profile
+- model: app.Profile
   pk: 2
   fields:
     user: 2

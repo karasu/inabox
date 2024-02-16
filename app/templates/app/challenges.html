@@ -12,7 +12,7 @@
         <div class="row pt-2">
           <div class="col-sm-6">
             <h5 class="card-title">
-              <a href="{% url 'challenges:challenge' pk=challenge.id %}" class="btn btn-primary">
+              <a href="{% url 'app:challenge' pk=challenge.id %}" class="btn btn-primary">
                 {{ challenge.title }} {{ _("by") }}
                 {% if challenge.creator.first_name %}
                   {{ challenge.creator.first_name }} {{ challenge.creator.last_name }}
@@ -62,7 +62,7 @@
         {{ _("Filter settings") }}
       </div>
       <div class="card-body">
-        <form method="get" action="{% url 'challenges:challenges' %}">
+        <form method="get" action="{% url 'app:challenges' %}">
           {% csrf_token %}
           <select name="area" class="form-control dropdown-toggle mb-2" href="#" id="area" role="button" data-bs-toggle="dropdown" aira-expanded="false">
             <option value="all">{{ _("All areas") }}</option>
@@ -109,7 +109,7 @@
         {{ _("Administration") }}
       </div>
       <div class="card-body text-center">
-        <a class="btn btn-secondary" href="{% url 'challenges:new_challenge' %}">{{ _("New challenge") }}</a>
+        <a class="btn btn-secondary" href="{% url 'app:new_challenge' %}">{{ _("New challenge") }}</a>
       </div>
     </div>
     {% endif %}

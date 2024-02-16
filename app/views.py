@@ -1,4 +1,4 @@
-""" Challenges app views go here """
+""" app views go here """
 
 import socket
 import os
@@ -100,7 +100,7 @@ class NewChallengeView(LoginRequiredMixin, generic.base.TemplateView):
             form = NewChallengeForm(request.POST, request.FILES)
             if form.is_valid():
                 form.save()
-                return HttpResponseRedirect(reverse("challenges:challenges"))
+                return HttpResponseRedirect(reverse("app:challenges"))
             # form not valid
             g_logger.error(form.errors)
             return render(
