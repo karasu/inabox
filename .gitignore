@@ -161,3 +161,6 @@ cython_debug/
 
 inabox.sqlite3
 inabox.sqlite3.bak
+
+known_hosts
+

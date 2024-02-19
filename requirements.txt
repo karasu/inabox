@@ -3,7 +3,7 @@ celery-progress
 channels
 channels_redis
 daphne
-django
+Django
 django-admin-interface
 django-auth-ldap
 django-bootstrap5
@@ -20,6 +20,5 @@ python-dateutil
 python-ldap
 pyyaml
 redis
-slugify
 twisted
 

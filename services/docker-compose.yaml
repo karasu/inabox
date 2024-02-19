@@ -113,6 +113,11 @@ services:
       - VIRTUAL_PORT=80
     expose:
       - '8080'
-
+  web:
+    build: ./app
+    ports: 
+      - "8000:8000"
+    container_name: 'app.inabox.ies-sabadell.cat'
+    restart: always
 volumes:
   inabox-db:

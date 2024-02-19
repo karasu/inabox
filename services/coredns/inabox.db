@@ -1,13 +1,25 @@
-inabox.ies-sabadell.cat.        IN  SOA ns1.inabox.ies-sabadell.cat. ns2.inabox.ies-sabadell.cat. 2015082541 7200 3600 1209600 3600
-inabox1.inabox.ies-sabadell.cat.    IN  A   10.27.27.18
-dns.inabox.ies-sabadell.cat IN CNAME inabox1
-www.inabox.ies-sabadell.cat IN CNAME inabox1
-ldap.inabox.ies-sabadell.cat IN CNAME inabox1
-lam.inabox.ies-sabadell.cat IN CNAME inabox1
-postgres.inabox.ies-sabadell.cat IN CNAME inabox1
-adminer.inabox.ies-sabadell.cat IN CNAME inabox1
-rabbitmq.inabox.ies-sabadell.cat IN CNAME inabox1
-redis.inabox.ies-sabadell.cat IN CNAME inabox1
-guacd.inabox.ies-sabadell.cat IN CNAME inabox1
-guacamole.inabox.ies-sabadell.cat IN CNAME inabox1
+$ORIGIN inabox.ies-sabadell.cat.
+@	3600 IN	SOA sns.dns.icann.org. noc.dns.icann.org. (
+				2017042745 ; serial
+				7200       ; refresh (2 hours)
+				3600       ; retry (1 hour)
+				1209600    ; expire (2 weeks)
+				3600       ; minimum (1 hour)
+				)
 
+	3600 IN NS a.iana-servers.net.
+	3600 IN NS b.iana-servers.net.
+
+inabox1 IN A     127.0.0.1
+        IN AAAA  ::1
+
+adminer     IN CNAME inabox1
+dns         IN CNAME inabox1
+guacamole   IN CNAME inabox1
+guacd       IN CNAME inabox1
+lam         IN CNAME inabox1
+ldap        IN CNAME inabox1
+postgres    IN CNAME inabox1
+rabbitmq    IN CNAME inabox1
+redis       IN CNAME inabox1
+www         IN CNAME inabox1
