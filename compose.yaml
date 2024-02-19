@@ -28,9 +28,29 @@ services:
     restart: always
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
+      - certs:/etc/nginx/certs 
+      - vhost:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
     ports:
       - '80:80'
       - '443:443'
+
+  proxy-acme:
+    image: nginxproxy/acme-companion
+    container_name: 'proxy-acme.inabox.ies-sabadell.cat'
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - certs:/etc/nginx/certs 
+      - vhost:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - acme:/etc/acme.sh
+    environment:
+      - "DEFAULT_EMAIL=inabox@ies-sabadell.cat"
+      - NGINX_PROXY_CONTAINER=proxy.inabox.ies-sabadell.cat
+    depends_on:
+      proxy:
+        condition: service_started
 
   ldap:
     image: osixia/openldap:1.5.0
@@ -57,6 +77,7 @@ services:
       - LDAP_ADMIN_PASSWORD=inabox
       - LDAP_READONLY_PASSWORD=inabox
       - VIRTUAL_HOST=lam.inabox.ies-sabadell.cat
+      - LETSENCRYPT_HOST=lam.inabox.ies-sabadell.cat
     expose:
       - '80'
     depends_on:
@@ -90,6 +111,7 @@ services:
     restart: always
     environment:
       - VIRTUAL_HOST=adminer.inabox.ies-sabadell.cat
+      - LETSENCRYPT_HOST=adminer.inabox.ies-sabadell.cat      
     expose:
       - '8080'
     depends_on:
@@ -133,6 +155,7 @@ services:
       - GUACD_HOSTNAME=guacd
       - GUACD_PORT=4822
       - VIRTUAL_HOST=guacamole.inabox.ies-sabadell.cat
+      - LETSENCRYPT_HOST=guacamole.inabox.ies-sabadell.cat
     expose:
       - '8080'
     depends_on:
@@ -151,6 +174,7 @@ services:
       - DJANGO_DEBUG=False
       - DJANGO_SECRET_KEY_FILE=/run/secrets/django-secret-key
       - VIRTUAL_HOST=www.inabox.ies-sabadell.cat
+      - LETSENCRYPT_HOST=www.inabox.ies-sabadell.cat
     expose:
       - '8000'
     ports:
@@ -171,6 +195,11 @@ services:
 
 volumes:
   inabox-db:
+  acme:
+  certs: 
+  vhost:
+  html:
+
 secrets:
   db-password:
     file: db-password.txt
