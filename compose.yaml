@@ -57,7 +57,6 @@ services:
       - LDAP_ADMIN_PASSWORD=inabox
       - LDAP_READONLY_PASSWORD=inabox
       - VIRTUAL_HOST=lam.inabox.ies-sabadell.cat
-      - VIRTUAL_PORT=80
     expose:
       - '80'
     depends_on:
@@ -91,7 +90,6 @@ services:
     restart: always
     environment:
       - VIRTUAL_HOST=adminer.inabox.ies-sabadell.cat
-      - VIRTUAL_PORT=80
     expose:
       - '8080'
     depends_on:
@@ -135,7 +133,6 @@ services:
       - GUACD_HOSTNAME=guacd
       - GUACD_PORT=4822
       - VIRTUAL_HOST=guacamole.inabox.ies-sabadell.cat
-      - VIRTUAL_PORT=80
     expose:
       - '8080'
     depends_on:
@@ -145,7 +142,7 @@ services:
         condition: service_started
 
   inabox:
-    container_name: 'inabox.inabox.ies-sabadell.cat'
+    container_name: 'www.inabox.ies-sabadell.cat'
     build:
       context: .
     secrets:
@@ -154,7 +151,6 @@ services:
       - DJANGO_DEBUG=False
       - DJANGO_SECRET_KEY_FILE=/run/secrets/django-secret-key
       - VIRTUAL_HOST=www.inabox.ies-sabadell.cat
-      - VIRTUAL_PORT=80
     expose:
       - '8000'
     ports:
@@ -167,6 +163,10 @@ services:
       ldap:
         condition: service_started
       proxy:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+      redis:
         condition: service_started
 
 volumes:
