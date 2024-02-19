@@ -35,12 +35,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 
-SECRET_KEY_FILE=os.environ.get('SECRET_KEY_FILE', None)
-
+SECRET_KEY_FILE=os.environ.get('DJANGO_SECRET_KEY_FILE', None)
 if SECRET_KEY_FILE:
-
-SECRET_KEY = os.environ.get(
-    'DJANGO_SECRET_KEY','django-insecure-$&50skc3lh+e7+ukdex*5u07o_o%_x93u&xw6#%r5w-60#iw@n')
+    with open(SECRET_KEY_FILE, 'rt', encoding='utf-8') as skf:
+        SECRET_KEY=skf.readline()
+else:
+    SECRET_KEY = os.environ.get(
+        'DJANGO_SECRET_KEY',
+        'django-insecure-$&50skc3lh+e7+ukdex*5u07o_o%_x93u&xw6#%r5w-60#iw@n')
+print(f"SECRET_KEY={SECRET_KEY}")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
