@@ -58,4 +58,4 @@ EXPOSE 8000
 # Run the application.
 CMD python manage.py makemigrations; \
     python manage.py migrate; \
-    python manage.py runserver
+    daphne -b 0.0.0.0 -p 8000 inabox.asgi:application
