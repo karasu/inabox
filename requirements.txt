@@ -14,7 +14,7 @@ django-debug-toolbar
 docker
 msgpack
 paramiko
-psycopg2
+psycopg2-binary
 pycryptodome
 python-dateutil
 python-ldap
