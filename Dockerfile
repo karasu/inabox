@@ -43,11 +43,14 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     --mount=type=bind,source=requirements.txt,target=requirements.txt \
     python -m pip install -r requirements.txt
 
-# Switch to the non-privileged user to run the application.
-USER inabox
-
 # Copy the source code into the container.
 COPY src/. .
+
+# Fix owner
+RUN chown -R inabox:inabox .
+
+# Switch to the non-privileged user to run the application.
+USER inabox
 
 # Expose the port that the application listens on.
 EXPOSE 8000

@@ -44,7 +44,7 @@ print(f"DJANGO_DEBUG={DEBUG}")
 if DEBUG:
     ALLOWED_HOSTS = []
 else:
-    ALLOWED_HOSTS = [ 'inabox1.ies-sabadell.cat' ]
+    ALLOWED_HOSTS = [ 'ies-sabadell.cat' ]
     CSRF_COOKIE_SECURE = True
     SECURE_HSTS_SECONDS = 60
     SECURE_SSL_REDIRECT = True
@@ -123,7 +123,7 @@ DATABASES = {
         "NAME": "postgres",
         "USER": "postgres",
         "PASSWORD": "development",
-        "HOST": "127.0.0.1",
+        "HOST": "postgres.inabox.ies-sabadell.cat",
         "PORT": "5432",
     }
 }
