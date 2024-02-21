@@ -109,6 +109,8 @@ services:
     container_name: 'adminer.inabox.ies-sabadell.cat'
     restart: always
     environment:
+      - ADMINER_DEFAULT_SERVER=postgres
+      - ADMINER_DESIGN=nette
       - VIRTUAL_HOST=adminer.inabox.ies-sabadell.cat
       - VIRTUAL_PORT=8080
       - LETSENCRYPT_HOST=adminer.inabox.ies-sabadell.cat      
