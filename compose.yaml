@@ -55,6 +55,9 @@ services:
       - LDAP_DOMAIN=inabox.ies-sabadell.cat
       - "LDAP_BASE_DN=dc=inabox,dc=ies-sabadell,dc=cat"
       - LDAP_ADMIN_PASSWORD=inabox
+    volumes:
+      - ldap:/var/lib/ldap
+      - slapd.d:/etc/ldap/slapd.d
     ports:
       - 389:389
       - 636:636
@@ -92,7 +95,7 @@ services:
       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
       - PGDATA=/var/lib/postgresql/data/pgdata
     volumes:
-      - inabox-db:/var/lib/postgresql/data
+      - db:/var/lib/postgresql/data
     ports:
       - '5432:5432'
     healthcheck:
@@ -190,11 +193,13 @@ services:
         condition: service_started
 
 volumes:
-  inabox-db:
-  acme:
+  #acme:
+  db:
 #  certs: 
-  vhost:
   html:
+  ldap:
+  slapd.d:
+  vhost:
 
 secrets:
   db-password:
