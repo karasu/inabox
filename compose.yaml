@@ -10,7 +10,7 @@ services:
       - '53:53'
       - '53:53/udp'
     volumes:
-      - './coredns:/etc/coredns'
+      - './services/coredns:/etc/coredns'
     command: -conf /etc/coredns/Corefile
 
   proxy:
@@ -22,10 +22,10 @@ services:
       - ENABLE_IPV6=true
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
-      - ./nginx/certs:/etc/nginx/certs 
-      - ./nginx/vhost:/etc/nginx/vhost.d
-      - ./nginx/html:/usr/share/nginx/html
-      - ./nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./services/nginx/certs:/etc/nginx/certs 
+      - ./services/nginx/vhost:/etc/nginx/vhost.d
+      - ./services/nginx/html:/usr/share/nginx/html
+      - ./services/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf:ro
     ports:
 #      - '80:80'
       - '443:443'
@@ -36,10 +36,10 @@ services:
 #    restart: always
 #    volumes:
 #      - /var/run/docker.sock:/var/run/docker.sock:ro
-#      - certs:/etc/nginx/certs 
-#      - vhost:/etc/nginx/vhost.d
-#      - html:/usr/share/nginx/html
-#      - acme:/etc/acme.sh
+#      - ./services/nginx/certs:/etc/nginx/certs 
+#      - ./services/nginx/vhost:/etc/nginx/vhost.d
+#      - ./services/nginx/html:/usr/share/nginx/html
+#      - ./services/nginx/acme:/etc/acme.sh
 #    environment:
 #      - "DEFAULT_EMAIL=inabox@ies-sabadell.cat"
 #      - NGINX_PROXY_CONTAINER=proxy.inabox.ies-sabadell.cat
@@ -196,9 +196,7 @@ services:
         condition: service_started
 
 volumes:
-  #acme:
   db:
-#  certs: 
   html:
   ldap:
   slapd.d:
