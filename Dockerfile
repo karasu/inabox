@@ -51,7 +51,7 @@ COPY src/. .
 
 # Install supervisord
 RUN apt-get install -y supervisor
-ADD supervisord.conf /etc/supervisor/conf.d/ 
+ADD ./services/supervisord.conf /etc/supervisor/conf.d/ 
 
 # Switch to the non-privileged user to run the application.
 #USER inabox
