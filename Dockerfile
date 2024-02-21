@@ -47,15 +47,22 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 COPY src/. .
 
 # Fix owner
-RUN chown -R inabox:inabox .
+#RUN chown -R inabox:inabox .
+
+# Install supervisord
+RUN apt-get install -y supervisor
+ADD supervisord.conf /etc/supervisor/conf.d/ 
 
 # Switch to the non-privileged user to run the application.
-USER inabox
+#USER inabox
 
 # Expose the port that the application listens on.
 EXPOSE 8000
 
 # Run the application.
-CMD python manage.py makemigrations; \
-    python manage.py migrate; \
-    daphne -b 0.0.0.0 -p 8000 inabox.asgi:application
+#CMD python manage.py makemigrations; \
+#    python manage.py migrate; \
+#    daphne -b 0.0.0.0 -p 8000 inabox.asgi:application
+
+# Run supervisor
+CMD /usr/bin/supervisord
