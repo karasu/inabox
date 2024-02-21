@@ -66,25 +66,25 @@ services:
       - 389:389
       - 636:636
 
-  lam:
-    image: ghcr.io/ldapaccountmanager/lam:stable
-    container_name: 'lam.inabox.ies-sabadell.cat'
-    restart: always
-    environment:
-      - LDAP_DOMAIN=inabox.ies-sabadell.cat
-      - "LDAP_BASE_DN=dc=inabox,dc=ies-sabadell,dc=cat"
-      - LAM_PASSWORD=inabox
-      - LDAP_ORGANISATION='Inabox Institut Sabadell'
-      - LDAP_ADMIN_PASSWORD=inabox
-      - LDAP_READONLY_PASSWORD=inabox
-      - VIRTUAL_HOST=lam.inabox.ies-sabadell.cat
-      - VIRTUAL_PORT=80
-      - LETSENCRYPT_HOST=lam.inabox.ies-sabadell.cat
-    expose:
-      - '80'
-    depends_on:
-      ldap:
-        condition: service_started
+#  lam:
+#    image: ghcr.io/ldapaccountmanager/lam:stable
+#    container_name: 'lam.inabox.ies-sabadell.cat'
+#    restart: always
+#    environment:
+#      - LDAP_DOMAIN=inabox.ies-sabadell.cat
+#      - "LDAP_BASE_DN=dc=inabox,dc=ies-sabadell,dc=cat"
+#      - LAM_PASSWORD=inabox
+#      - LDAP_ORGANISATION='Inabox Institut Sabadell'
+#      - LDAP_ADMIN_PASSWORD=inabox
+#      - LDAP_READONLY_PASSWORD=inabox
+#      - VIRTUAL_HOST=lam.inabox.ies-sabadell.cat
+#      - VIRTUAL_PORT=80
+#      - LETSENCRYPT_HOST=lam.inabox.ies-sabadell.cat
+#    expose:
+#      - '80'
+#    depends_on:
+#      ldap:
+#        condition: service_started
 
   postgres:
     image: postgres
@@ -106,21 +106,21 @@ services:
        timeout: 5s
        retries: 5
 
-  adminer:
-    image: adminer
-    container_name: 'adminer.inabox.ies-sabadell.cat'
-    restart: always
-    environment:
-      - ADMINER_DEFAULT_SERVER=postgres
-      - ADMINER_DESIGN=nette
-      - VIRTUAL_HOST=adminer.inabox.ies-sabadell.cat
-      - VIRTUAL_PORT=8080
-      - LETSENCRYPT_HOST=adminer.inabox.ies-sabadell.cat      
-    expose:
-      - '8080'
-    depends_on:
-      postgres:
-        condition: service_healthy
+#  adminer:
+#    image: adminer
+#    container_name: 'adminer.inabox.ies-sabadell.cat'
+#    restart: always
+#    environment:
+#      - ADMINER_DEFAULT_SERVER=postgres
+#      - ADMINER_DESIGN=nette
+#      - VIRTUAL_HOST=adminer.inabox.ies-sabadell.cat
+#      - VIRTUAL_PORT=8080
+#      - LETSENCRYPT_HOST=adminer.inabox.ies-sabadell.cat      
+#    expose:
+#      - '8080'
+#    depends_on:
+#      postgres:
+#        condition: service_healthy
 
   rabbitmq:
     image: rabbitmq
