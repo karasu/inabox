@@ -22,12 +22,12 @@ services:
       - ENABLE_IPV6=true
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
-      - certs:/etc/nginx/certs 
+      - ./certs:/etc/nginx/certs 
       - vhost:/etc/nginx/vhost.d
       - html:/usr/share/nginx/html
     ports:
-      - '80:80'
-#      - '443:443'
+#      - '80:80'
+      - '443:443'
 
 #  proxy-acme:
 #    image: nginxproxy/acme-companion
@@ -192,7 +192,7 @@ services:
 volumes:
   inabox-db:
   acme:
-  certs: 
+#  certs: 
   vhost:
   html:
 

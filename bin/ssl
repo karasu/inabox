@@ -1,0 +1,12 @@
+#!/bin/sh
+
+FDQN="www.inabox.ies-sabadell.cat"
+
+openssl req -newkey rsa:4096 \
+            -x509 \
+            -sha256 \
+            -days 3650 \
+            -nodes \
+            -out ${FDQN}.crt \
+            -keyout ${FDQN}.key \
+            -subj "/C=ES/ST=Catalunya/L=Sabadell/O=Security/OU=inabox/CN=${FDQN}"
