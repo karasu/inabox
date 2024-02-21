@@ -163,5 +163,3 @@ known_hosts
 db-password.txt
 django-secret-key.txt
 
-*.key
-

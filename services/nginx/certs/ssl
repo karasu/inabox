@@ -1,0 +1,12 @@
+#!/bin/sh
+
+FDQN="$1.inabox.ies-sabadell.cat"
+echo Cretaing self signed certificate for ${FDQN}
+openssl req -newkey rsa:4096 \
+            -x509 \
+            -sha256 \
+            -days 3650 \
+            -nodes \
+            -out ${FDQN}.crt \
+            -keyout ${FDQN}.key \
+            -subj "/C=ES/ST=Catalunya/L=Sabadell/O=Security/OU=inabox/CN=${FDQN}"
