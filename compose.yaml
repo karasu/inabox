@@ -14,7 +14,7 @@ services:
     command: -conf /etc/coredns/Corefile
 
   proxy:
-    image: nginx:alpine
+    image: nginxproxy/nginx-proxy:1.4
     container_name: 'proxy.inabox.ies-sabadell.cat'
     restart: always
     environment:
@@ -25,10 +25,13 @@ services:
       - ./services/nginx/certs:/etc/nginx/certs 
       - ./services/nginx/vhost:/etc/nginx/vhost.d
       - ./services/nginx/html:/usr/share/nginx/html
-      - ./services/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./services/nginx/conf.d:/etc/nginx/conf.d
     ports:
-#      - '80:80'
+      - '80:80'
       - '443:443'
+    depends_on:
+      inabox:
+        condition: service_started
 
 #  proxy-acme:
 #    image: nginxproxy/acme-companion
@@ -82,8 +85,6 @@ services:
     depends_on:
       ldap:
         condition: service_started
-      proxy:
-        condition: service_started
 
   postgres:
     image: postgres
@@ -120,8 +121,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      proxy:
-        condition: service_started
 
   rabbitmq:
     image: rabbitmq
@@ -164,8 +163,6 @@ services:
 #    depends_on:
 #      postgres:
 #        condition: service_healthy
-#      proxy:
-#        condition: service_started
 
   inabox:
     container_name: 'www.inabox.ies-sabadell.cat'
@@ -184,11 +181,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      coredns:
-        condition: service_started
       ldap:
-        condition: service_started
-      proxy:
         condition: service_started
       rabbitmq:
         condition: service_started
