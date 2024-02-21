@@ -50,7 +50,7 @@ COPY src/. .
 #RUN chown -R inabox:inabox .
 
 # Install supervisord
-RUN apt-get install -y supervisor
+RUN apt-get install -y supervisor && mkdir /run/daphne
 ADD ./services/supervisord.conf /etc/supervisor/conf.d/ 
 
 # Switch to the non-privileged user to run the application.
@@ -65,4 +65,6 @@ EXPOSE 8000
 #    daphne -b 0.0.0.0 -p 8000 inabox.asgi:application
 
 # Run supervisor
-CMD /usr/bin/supervisord
+CMD python manage.py makemigrations; \
+    python manage.py migrate; \
+    /usr/bin/supervisord
