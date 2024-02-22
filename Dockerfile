@@ -65,6 +65,7 @@ EXPOSE 8000
 #    daphne -b 0.0.0.0 -p 8000 inabox.asgi:application
 
 # Run supervisor
-CMD python manage.py makemigrations; \
+CMD python manage.py makemigrations app; \
     python manage.py migrate; \
+    python manage.py loaddata app/classgroups app/users app/challenges app/quests app/news; \
     /usr/bin/supervisord

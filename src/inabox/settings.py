@@ -18,6 +18,8 @@ import ldap
 
 from .bootstrap5 import BOOTSTRAP5
 
+ADMINS = [("karasu", "inabox@ies-sabadell.cat")]
+
 AUTH_LDAP_BIND_DN = ""
 AUTH_LDAP_BIND_PASSWORD = ""
 AUTH_LDAP_USER_SEARCH = LDAPSearch(
@@ -43,11 +45,12 @@ else:
     SECRET_KEY = os.environ.get(
         'DJANGO_SECRET_KEY',
         'django-insecure-$&50skc3lh+e7+ukdex*5u07o_o%_x93u&xw6#%r5w-60#iw@n')
-print(f"SECRET_KEY={SECRET_KEY}")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
-print(f"DJANGO_DEBUG={DEBUG}")
+
+if DEBUG:
+    print("DJANGO is running in debug mode")
 
 if DEBUG:
     ALLOWED_HOSTS = []
@@ -129,17 +132,24 @@ WSGI_APPLICATION = 'inabox.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "postgres",
-        "USER": "postgres",
-        "PASSWORD": "development",
-        "HOST": "postgres.inabox.ies-sabadell.cat",
-        "PORT": "5432",
+if DEBUG:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            'NAME': os.path.join(BASE_DIR , 'db.sqlite3'),
+        }
     }
-}
-
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": "postgres",
+            "USER": "postgres",
+            "PASSWORD": "development",
+            "HOST": "postgres.inabox.ies-sabadell.cat",
+            "PORT": "5432",
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

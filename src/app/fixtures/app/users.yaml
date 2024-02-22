@@ -13,6 +13,16 @@
   fields:
     name: Institut Sabadell
     description: Institut Sabadell, de Sabadell
+- model: auth.user
+  pk: 1
+  fields:
+    username: karasu
+    password: 12345
+    email: gcastel9@none.cat
+    first_name: Gustau
+    last_name: Castells
+    is_superuser: True
+    is_staff: True
 - model: app.Profile
   pk: 1
   fields:
