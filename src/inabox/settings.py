@@ -190,10 +190,10 @@ USE_TZ = True
 if DEBUG:
     STATIC_ROOT = '/tmp/static'
 else:
-    STATIC_ROOT = "/app/static"
+    STATIC_ROOT = '/app/static'
 
 # URL to access static files.
-STATIC_URL = '/static/'
+STATIC_URL = 'https://static.inabox.ies-sabadell.cat/static/'
 
 # Uncomment to use hashed filenames with the cache framework.
 #STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'

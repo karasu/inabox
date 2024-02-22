@@ -125,6 +125,7 @@ services:
   rabbitmq:
     image: rabbitmq
     container_name: 'rabbitmq.inabox.ies-sabadell.cat'
+    restart: always
     ports:
       - '5672:5672'
 
@@ -189,6 +190,25 @@ services:
         condition: service_started
       redis:
         condition: service_started
+
+  static:
+    container_name: 'static.inabox.ies-sabadell.cat'
+    image: static
+    restart: always
+    build:
+      context: .
+      dockerfile: services/static/Dockerfile
+    environment:
+      - PORT=80
+      - SERVER_NAME=static.inabox.ies-sabadell.cat
+      - SERVER_ROOT=/var/www/html
+      - CONFIG_FILE=/etc/lighttpd/lighttpd.conf
+      - SKIP_HEALTHCHECK=false
+      - MAX_FDS=1024
+      - VIRTUAL_HOST=static.inabox.ies-sabadell.cat
+      - VIRTUAL_PORT=80
+    expose:
+      - '80'
 
 volumes:
   db:

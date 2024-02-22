@@ -22,4 +22,5 @@ ldap        IN CNAME inabox1
 postgres    IN CNAME inabox1
 rabbitmq    IN CNAME inabox1
 redis       IN CNAME inabox1
+static		IN CNAME inabox1
 www         IN CNAME inabox1
