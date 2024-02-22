@@ -47,10 +47,12 @@ else:
         'django-insecure-$&50skc3lh+e7+ukdex*5u07o_o%_x93u&xw6#%r5w-60#iw@n')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
+DEBUG = os.environ.get('DJANGO_DEBUG')
 
 if DEBUG:
-    print("DJANGO is running in debug mode")
+    print("DJANGO is running in DEBUG mode")
+else:
+    print("DJANGO is running in PRODUCTION mode")
 
 if DEBUG:
     ALLOWED_HOSTS = []
@@ -187,13 +189,13 @@ USE_TZ = True
 # static files DMOJ uses will be collected to.
 # You must configure your webserver to serve this directory as /static/ in production.
 
-if DEBUG:
-    STATIC_ROOT = '/tmp/static'
-else:
-    STATIC_ROOT = '/app/static'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # URL to access static files.
-STATIC_URL = 'https://static.inabox.ies-sabadell.cat/static/'
+if DEBUG:
+    STATIC_URL = '/static/'
+else:
+    STATIC_URL = 'https://static.inabox.ies-sabadell.cat/static/'
 
 # Uncomment to use hashed filenames with the cache framework.
 #STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
@@ -203,11 +205,12 @@ STATIC_URL = 'https://static.inabox.ies-sabadell.cat/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# This needs to be changed in production
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 if DEBUG:
-    MEDIA_ROOT = '/tmp/media'
+    MEDIA_URL = '/media/'
 else:
-    MEDIA_ROOT = '/app/media'
+    MEDIA_URL = 'https://static.inabox.ies-sabadell.cat/media/'
 
 #STATICFILES_FINDERS = [
 #    "compressor.finders.CompressorFinder",

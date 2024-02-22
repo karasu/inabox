@@ -51,6 +51,8 @@ ADD services/inabox/supervisord.conf /etc/supervisor/conf.d/
 # Expose the port that the application listens on.
 EXPOSE 8000
 
+RUN python manage.py collectstatic
+
 # Run supervisor
 CMD python manage.py makemigrations app; \
     python manage.py migrate; \

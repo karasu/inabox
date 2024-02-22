@@ -6,7 +6,7 @@ WORKDIR /var/www/html/static
 COPY src/app/static/. .
 
 # Fix owner
-#RUN chown -R inabox:inabox .
+RUN chown -R www-data:www-data .
 
 # Expose the port that the application listens on.
 EXPOSE 80

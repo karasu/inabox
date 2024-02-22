@@ -199,6 +199,7 @@ services:
       context: .
       dockerfile: services/static/Dockerfile
     environment:
+      - DJANGO_DEBUG=False
       - PORT=80
       - SERVER_NAME=static.inabox.ies-sabadell.cat
       - SERVER_ROOT=/var/www/html
