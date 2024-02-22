@@ -167,7 +167,7 @@ services:
   inabox:
     container_name: 'www.inabox.ies-sabadell.cat'
     build:
-      context: .
+      context: ./services/inabox
     secrets:
       - django-secret-key
     environment:

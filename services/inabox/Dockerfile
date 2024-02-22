@@ -39,30 +39,30 @@ RUN apt-get update && apt-get -y install build-essential python3-dev \
 # Leverage a cache mount to /root/.cache/pip to speed up subsequent builds.
 # Leverage a bind mount to requirements.txt to avoid having to copy them into
 # into this layer.
-RUN --mount=type=cache,target=/root/.cache/pip \
-    --mount=type=bind,source=requirements.txt,target=requirements.txt \
-    python -m pip install -r requirements.txt
+#RUN --mount=type=cache,target=/root/.cache/pip \
+#    --mount=type=bind,source=requirements.txt,target=requirements.txt \
+ADD supervisord.conf /etc/supervisor/conf.d/ 
+RUN python -m pip install -r requirements.txt
 
-# Copy the source code into the container.
-COPY src/. .
+# Copy the app source code into the container.
+COPY ../../src/. .
 
 # Fix owner
 #RUN chown -R inabox:inabox .
 
 # Install supervisord
 RUN apt-get install -y supervisor && mkdir /run/daphne
-ADD ./services/supervisord.conf /etc/supervisor/conf.d/ 
+ADD supervisord.conf /etc/supervisor/conf.d/ 
 
 # Switch to the non-privileged user to run the application.
 #USER inabox
 
+# Static files
+RUN mkdir media static; \
+    python manage.py collectstatic
+
 # Expose the port that the application listens on.
 EXPOSE 8000
-
-# Run the application.
-#CMD python manage.py makemigrations; \
-#    python manage.py migrate; \
-#    daphne -b 0.0.0.0 -p 8000 inabox.asgi:application
 
 # Run supervisor
 CMD python manage.py makemigrations app; \

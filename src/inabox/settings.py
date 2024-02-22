@@ -186,7 +186,11 @@ USE_TZ = True
 # webserver to serve the static files. This is the directory where all the
 # static files DMOJ uses will be collected to.
 # You must configure your webserver to serve this directory as /static/ in production.
-#STATIC_ROOT = '/tmp/static'
+
+if DEBUG:
+    STATIC_ROOT = '/tmp/static'
+else:
+    STATIC_ROOT = "/app/static"
 
 # URL to access static files.
 STATIC_URL = '/static/'
@@ -200,7 +204,10 @@ STATIC_URL = '/static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # This needs to be changed in production
-MEDIA_ROOT = '/tmp'
+if DEBUG:
+    MEDIA_ROOT = '/tmp/media'
+else:
+    MEDIA_ROOT = '/app/media'
 
 #STATICFILES_FINDERS = [
 #    "compressor.finders.CompressorFinder",
