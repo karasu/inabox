@@ -27,7 +27,7 @@ RUN adduser \
 # Python-ldap dependencies
 RUN apt-get update && apt-get -y install build-essential python3-dev \
     libldap2-dev libsasl2-dev slapd ldap-utils tox \
-    lcov valgrind
+    lcov valgrind celery
 
 # Download dependencies as a separate step to take advantage of Docker's caching.
 # Leverage a cache mount to /root/.cache/pip to speed up subsequent builds.
@@ -46,6 +46,8 @@ COPY src/. .
 # Install supervisord
 RUN apt-get install -y supervisor && mkdir /run/daphne
 ADD services/inabox/supervisord.conf /etc/supervisor/conf.d/ 
+ADD services/inabox/celeryd.conf /etc/supervisor/conf.d/ 
+ADD services/inabox/celerybeat.conf /etc/supervisor/conf.d/ 
 
 # Switch to the non-privileged user to run the application.
 #USER inabox

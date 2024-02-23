@@ -318,7 +318,6 @@ class ChallengeDetailView(generic.DetailView):
         self.quest = request.GET.get("quest", 0)
         return super().get(request, args, kwargs)
 
-
     def load_host_keys(self, path):
         """ Get host keys """
         if os.path.exists(path) and os.path.isfile(path):
