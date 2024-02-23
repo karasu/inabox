@@ -1,0 +1,22 @@
+{% extends 'app/base.html' %}
+{% load django_bootstrap5 %}
+{% block title %}{{ _("Sign up") }}{% endblock %}
+{% block content %}
+
+<div class="card w-50 p-2">
+    <div class="card-body">
+    <form action="{% url 'app:signup' %}" method="post" role="form" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% for e in form.visible_fields %}
+        <div class="form-group mb-3">
+        {{ e.label_tag }}
+        {{ e }}
+        </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-primary" value="add">{{ _("Sign up!") }}</button>
+    </form>
+    </div>
+</div>
+    
+{% endblock %}
+    

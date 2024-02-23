@@ -36,6 +36,7 @@ from .models import NewsEntry
 
 from .forms import ChallengeSSHForm, CommentForm, NewChallengeForm
 from .forms import UploadSolutionForm, SearchForm, StartAgainForm
+from .forms import SignUpForm
 
 # Celery task to check if a proposed solution is valid or not
 from .tasks import validate_solution_task
@@ -915,4 +916,27 @@ class TeamDetailView(generic.DetailView):
 class SignUpView(generic.base.TemplateView):
     """ Show user's profile """
     template_name = "app/signup.html"
-    
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = SignUpForm()
+        return context
+
+    def post(self, request, *_args, **_kwargs):
+        """ User wants to sign up """
+        form = SignUpForm(request.POST)
+
+        if form.is_valid():
+
+            return redirect('users:login')
+
+        # Form is not valid
+        g_logger.error(form.errors)
+        return render(
+            request,
+            template_name="app/form_error.html",
+            context={
+                "title": _("Error in sign up form. Check the error(s) below:"),
+                "errors": form.errors,
+                "form_url": "app:signup",
+            })

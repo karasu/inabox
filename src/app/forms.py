@@ -111,3 +111,10 @@ class SignUpForm(UserCreationForm):
     """ Form to register a new user """
     class Meta(UserCreationForm.Meta):
         fields = UserCreationForm.Meta.fields + ("email",)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Add form-control class to all form widgets
+        for field in self.visible_fields():
+            field.field.widget.attrs.update({'class': 'form-control'})
