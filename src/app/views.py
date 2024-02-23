@@ -110,6 +110,7 @@ class NewChallengeView(LoginRequiredMixin, generic.base.TemplateView):
                 context={
                     "title": _("Error inserting a new Challenge! Check the error(s) below:"),
                     "errors": form.errors,
+                    "form_url": "challenges:new",
                 })
 
         raise PermissionDenied()
@@ -927,8 +928,8 @@ class SignUpView(generic.base.TemplateView):
         form = SignUpForm(request.POST)
 
         if form.is_valid():
-
-            return redirect('users:login')
+            form.save()
+            return HttpResponseRedirect(reverse('auth:login'))
 
         # Form is not valid
         g_logger.error(form.errors)
