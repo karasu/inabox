@@ -13,7 +13,7 @@
   fields:
     name: Institut Sabadell
     description: Institut Sabadell, de Sabadell
-- model: app.InaboxUser
+- model: auth.User
   pk: 1
   fields:
     username: karasu
@@ -34,7 +34,7 @@
     language: ca
     team: 1
     organization: 1
-- model: app.InaboxUser
+- model: auth.User
   pk: 2
   fields:
     username: jdoe
