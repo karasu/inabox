@@ -4,6 +4,8 @@ FROM python:${PYTHON_VERSION} as base
 # Prevents Python from writing pyc files.
 ENV PYTHONDONTWRITEBYTECODE=1
 
+ENV DJANGO_DEBUG=False
+
 # Keeps Python from buffering stdout and stderr to avoid situations where
 # the application crashes without emitting any logs due to buffering.
 ENV PYTHONUNBUFFERED=1
@@ -51,7 +53,7 @@ ADD services/inabox/supervisord.conf /etc/supervisor/conf.d/
 # Expose the port that the application listens on.
 EXPOSE 8000
 
-RUN python manage.py collectstatic
+RUN rm -rf static && python manage.py collectstatic
 
 # Run supervisor
 CMD python manage.py makemigrations app; \

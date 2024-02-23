@@ -47,7 +47,11 @@ else:
         'django-insecure-$&50skc3lh+e7+ukdex*5u07o_o%_x93u&xw6#%r5w-60#iw@n')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DJANGO_DEBUG')
+# if DEBUG var does not exist, we assume we're running in debug mode
+DEBUG = os.environ.get('DJANGO_DEBUG', "True")
+
+if DEBUG != "True":
+    DEBUG = None
 
 if DEBUG:
     print("DJANGO is running in DEBUG mode")
@@ -189,11 +193,11 @@ USE_TZ = True
 # static files DMOJ uses will be collected to.
 # You must configure your webserver to serve this directory as /static/ in production.
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = '/tmp/static'
 
 # URL to access static files.
 if DEBUG:
-    STATIC_URL = '/static/'
+    STATIC_URL = '/tmp/static/'
 else:
     STATIC_URL = 'https://static.inabox.ies-sabadell.cat/static/'
 

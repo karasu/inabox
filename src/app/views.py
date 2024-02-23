@@ -911,3 +911,8 @@ class TeamDetailView(generic.DetailView):
         context["members"] = User.objects.filter(
             profile__team__id=context['team'].id)
         return context
+
+class SignUpView(generic.base.TemplateView):
+    """ Show user's profile """
+    template_name = "app/signup.html"
+    

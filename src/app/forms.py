@@ -2,6 +2,7 @@
 
 from django import forms
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
 
 from .models import Challenge, ProposedSolution, Comment
 
@@ -104,3 +105,9 @@ class CommentForm(forms.ModelForm):
             # set the challenge field to the current challenge (and remove the rest)
             self.fields['challenge'].queryset = Challenge.objects.filter(id=challenge_id)
             self.fields['challenge'].empty_label = None
+
+
+class SignUpForm(UserCreationForm):
+    """ Form to register a new user """
+    class Meta(UserCreationForm.Meta):
+        fields = UserCreationForm.Meta.fields + ("email",)

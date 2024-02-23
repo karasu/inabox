@@ -10,6 +10,8 @@ urlpatterns = [
     path("", views.NewsIndexView.as_view(), name="news"),
     path("about/", views.AboutView.as_view(), name="about"),
 
+    path("signup/", views.SignUpView.as_view(), name="signup"),
+
     # /challenges
     path("challenges/", views.ChallengesListView.as_view(),
         name="challenges"),
