@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-#from django.contrib.auth.models import User
+from django.contrib.auth.models import User
 
 # Register your models here.
 
@@ -17,7 +17,6 @@ from .models import Team
 from .models import Organization
 from .models import Comment
 from .models import NewsEntry
-from .models import InaboxUser
 
 admin.site.register(Challenge)
 admin.site.register(Quest)
@@ -36,7 +35,7 @@ class CommentAdmin(admin.ModelAdmin):
     search_fields = ('user', 'email', 'body')
     actions = ['approve_comments']
 
-    def approve_comments(self, request, queryset):
+    def approve_comments(self, _request, queryset):
         """ Set active to True to approve comment """
         queryset.update(active=True)
 admin.site.register(Comment, CommentAdmin)
@@ -54,7 +53,6 @@ class UserAdmin(BaseUserAdmin):
     """ Define a new User admin """
     inlines = [ProfileInline]
 
-
 # Re-register UserAdmin
-#admin.site.unregister(User)
-admin.site.register(InaboxUser, UserAdmin)
+admin.site.unregister(User)
+admin.site.register(User, UserAdmin)

@@ -4,8 +4,7 @@ from django.utils.timezone import now
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.contrib.auth.models import AbstractUser
-from django.contrib.auth.base_user import BaseUserManager
+from django.contrib.auth.models import User
 
 # Get available languages
 from django.conf import settings
@@ -127,59 +126,15 @@ class Organization(models.Model):
         return str(self.name)
 
 
-class InaboxUserManager(BaseUserManager):
-    """ Class to manage inabox users """
-
-    def create_user(self, email, password, **extra_fields):
-        """ when creating a new user... """
-        if not email:
-            raise ValueError(_('The Email must be set'))
-        email = self.normalize_email(email)
-        user = self.model(email=email, **extra_fields)
-        user.set_password(password)
-        user.save()
-        return user
-
-    def create_superuser(self, email, password, **extra_fields):
-        """ when creating a new superuser... """
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
-        extra_fields.setdefault('is_active', True)
-        if extra_fields.get('is_staff') is not True:
-            raise ValueError(_('Superuser must have is_staff=True.'))
-        if extra_fields.get('is_superuser') is not True:
-            raise ValueError(_('Superuser must have is_superuser=True.'))
-        return self.create_user(email, password, **extra_fields)
-
-
-class InaboxUser(AbstractUser):
-    """ User class (use email as login method) """
-
-    username = None
-    email = models.EmailField(_('Email Address'), max_length=50, unique=True)
-    email_is_verified = models.BooleanField(default=False)
-
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
-
-    objects = InaboxUserManager()
-
-    def __str__(self):
-        return self.email
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-
-
 class Profile(models.Model):
     """ Store users' profile """
-    user = models.OneToOneField(InaboxUser, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     class_group = models.ForeignKey(
         ClassGroup, on_delete=models.CASCADE)
     role = models.CharField(
         max_length=1, choices=ROLES, default="S")
     teacher = models.ForeignKey(
-        InaboxUser, on_delete=models.CASCADE, related_name="teacher",
+        User, on_delete=models.CASCADE, related_name="teacher",
         verbose_name=_("Teacher"))
     avatar = models.ImageField(
         upload_to=user_directory_path,
@@ -202,7 +157,7 @@ class Profile(models.Model):
     solved = property(calculate_solved_challenges)
 
     def __str__(self):
-        return f"{self.user.email}'s profile"
+        return f"{self.user.username}'s profile"
 
 
 class DockerImage(models.Model):
@@ -256,7 +211,7 @@ class Challenge(models.Model):
     """ Store challenge """
     title = models.CharField(max_length=256, unique=True)
     creator = models.ForeignKey(
-        InaboxUser, on_delete=models.CASCADE)
+        User, on_delete=models.CASCADE)
     pub_date = models.DateTimeField(
         _("Date"), default=now)
     summary = models.TextField()
@@ -288,7 +243,7 @@ class UserChallengeContainer(models.Model):
     challenge = models.ForeignKey(
         Challenge, on_delete=models.CASCADE)
     user = models.ForeignKey(
-        InaboxUser, on_delete=models.CASCADE)
+        User, on_delete=models.CASCADE)
     # this needs some thinking
     port = models.IntegerField()
 
@@ -312,7 +267,7 @@ class UserChallengeImage(models.Model):
     challenge = models.ForeignKey(
         Challenge, on_delete=models.CASCADE)
     user = models.ForeignKey(
-        InaboxUser, on_delete=models.CASCADE)
+        User, on_delete=models.CASCADE)
 
     class Meta:
         """ Model meta class """
@@ -332,7 +287,7 @@ class ProposedSolution(models.Model):
     challenge = models.ForeignKey(
         Challenge, on_delete=models.CASCADE)
     user = models.ForeignKey(
-        InaboxUser, on_delete=models.CASCADE)
+        User, on_delete=models.CASCADE)
     script = models.FileField(
         upload_to=user_solutions_path,
         verbose_name='Solution script')
@@ -350,7 +305,7 @@ class Quest(models.Model):
     title = models.CharField(max_length=256, unique=True)
     summary = models.TextField()
     creator = models.ForeignKey(
-        InaboxUser, on_delete=models.CASCADE)
+        User, on_delete=models.CASCADE)
     pub_date = models.DateTimeField(
         _("Date"), default=now)
     total_tries = models.IntegerField(default=0)
@@ -379,7 +334,7 @@ class Comment(models.Model):
         on_delete=models.CASCADE,
         related_name='comments')
     user = models.ForeignKey(
-        InaboxUser,
+        User,
         on_delete=models.CASCADE)
     body = models.TextField()
     created_on = models.DateTimeField(auto_now_add=True)
