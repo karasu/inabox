@@ -13,11 +13,11 @@
   fields:
     name: Institut Sabadell
     description: Institut Sabadell, de Sabadell
-- model: auth.user
+- model: app.InaboxUser
   pk: 1
   fields:
     username: karasu
-    password: 12345
+    password: 'pbkdf2_sha256$600000$mCg1IoZRhTBXZA905h31dr$yPSoiJHrEUq3ooXXl22GTE+kACXZh/VE9ew3RpiA1sA='
     email: gcastel9@none.cat
     first_name: Gustau
     last_name: Castells
@@ -34,11 +34,11 @@
     language: ca
     team: 1
     organization: 1
-- model: auth.user
+- model: app.InaboxUser
   pk: 2
   fields:
     username: jdoe
-    password: 12345
+    password: 'pbkdf2_sha256$600000$C9Z1wJn5AGey8yercs18EA$YX0J1CxSayZQT+AlxzZX184mnXeDGTpbLbCjqReogh0='
     email: jdoe@none.cat
     first_name: John
     last_name: Doe
