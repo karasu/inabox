@@ -914,6 +914,7 @@ class TeamDetailView(generic.DetailView):
             profile__team__id=context['team'].id)
         return context
 
+#https://python.plainenglish.io/how-to-send-email-with-verification-link-in-django-efb21eefffe8
 class SignUpView(generic.base.TemplateView):
     """ Show user's profile """
     template_name = "app/signup.html"
