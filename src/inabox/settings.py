@@ -20,6 +20,8 @@ from .bootstrap5 import BOOTSTRAP5
 
 ADMINS = [("karasu", "inabox@ies-sabadell.cat")]
 
+AUTH_USER_MODEL = "app.InaboxUser"
+
 AUTH_LDAP_BIND_DN = ""
 AUTH_LDAP_BIND_PASSWORD = ""
 AUTH_LDAP_USER_SEARCH = LDAPSearch(
