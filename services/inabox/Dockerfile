@@ -35,17 +35,17 @@ RUN apt-get update && apt-get -y install build-essential python3-dev \
 # this layer.
 RUN --mount=type=cache,target=/root/.cache/pip \
     --mount=type=bind,source=../../requirements.txt,target=requirements.txt \
-    python -m pip install -r requirements.txt
+    python -m pip install -r requirements.txt --break-system-packages
 
 # Copy the app source code into the container.
 COPY src/. .
-
+ 
 # Fix owner
 #RUN chown -R inabox:inabox .
 
 # Install supervisord
 RUN apt-get install -y supervisor && mkdir /run/daphne
-ADD services/inabox/supervisord.conf /etc/supervisor/conf.d/ 
+ADD services/inabox/inaboxd.conf /etc/supervisor/conf.d/ 
 ADD services/inabox/celeryd.conf /etc/supervisor/conf.d/ 
 ADD services/inabox/celerybeat.conf /etc/supervisor/conf.d/ 
 
