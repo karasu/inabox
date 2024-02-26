@@ -45,9 +45,10 @@ COPY src/. .
 
 # Install supervisord
 RUN apt-get install -y supervisor && mkdir /run/daphne
+ADD services/inabox/supervisord.conf /etc/supervisor
 ADD services/inabox/inaboxd.conf /etc/supervisor/conf.d/ 
 ADD services/inabox/celeryd.conf /etc/supervisor/conf.d/ 
-ADD services/inabox/celerybeat.conf /etc/supervisor/conf.d/ 
+ADD services/inabox/celerybeatd.conf /etc/supervisor/conf.d/ 
 
 # Switch to the non-privileged user to run the application.
 #USER inabox
