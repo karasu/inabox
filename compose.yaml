@@ -179,6 +179,8 @@ services:
       - VIRTUAL_HOST=www.inabox.ies-sabadell.cat
       - VIRTUAL_PORT=8000
       - LETSENCRYPT_HOST=www.inabox.ies-sabadell.cat
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     expose:
       - '8000'
     depends_on:

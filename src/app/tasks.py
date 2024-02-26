@@ -18,6 +18,9 @@ from .models import UserChallengeContainer
 
 from .container import Container, Image
 
+# connection url to the docker service
+URL = "unix://var/run/docker.sock"
+
 g_logger = get_task_logger(__name__)
 
 class ValidateSolution():
@@ -41,7 +44,7 @@ class ValidateSolution():
 
     def connect(self):
         """ Connect to docker and check it is running """
-        self._client = docker.DockerClient(base_url='unix://var/run/docker.sock')
+        self._client = docker.DockerClient(base_url=URL)
         self._client.ping()
 
     def run_container(self, docker_image_name):
