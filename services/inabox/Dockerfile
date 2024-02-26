@@ -61,4 +61,4 @@ RUN rm -rf static && python manage.py collectstatic
 CMD python manage.py makemigrations admin admin_interface app auth contenttypes django_celery_beat django_celery_results sessions; \
     python manage.py migrate; \
     python manage.py loaddata app/classgroups app/users app/challenges app/quests app/news; \
-    /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
+    /usr/bin/supervisord -c /etc/supervisor/supervisord.conf
