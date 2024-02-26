@@ -242,14 +242,28 @@ INTERNAL_IPS = [
 ASGI_APPLICATION = "inabox.asgi.application"
 
 # Channels
-CHANNEL_LAYERS = {
+if DEBUG:
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels_redis.core.RedisChannelLayer",
+            "CONFIG": {
+                "hosts": [("127.0.0.1", 6379)],
+            },
+        },
+    }
+else:
+    CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
+            "hosts": [("redis.inabox.ies-sabadell.cat", 6379)],
         },
     },
 }
+
+
+postgres.
+
 
 # Login admin options
 LOGIN_REDIRECT_URL = "/"
@@ -261,13 +275,19 @@ CELERY_TIMEZONE = "Europe/Rome"
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_CACHE_BACKEND = 'django-cache'
 # Use rabbitmq
-CELERY_BROKER_URL = 'amqp://guest:guest@localhost'
+if DEBUG:
+    CELERY_BROKER_URL = 'amqp://guest:guest@localhost'
+else:
+    CELERY_BROKER_URL = 'amqp://guest:guest@rabbitmq.inabox.ies-sabadell.cat'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 
-#CACHES = {
-#    "default": {
-#        "BACKEND": "django.core.cache.backends.redis.RedisCache",
-#        "LOCATION": "redis://127.0.0.1:6379",
-#    }
-#}
+if DEBUG:
+    pass
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": "redis://redis.inabox.ies-sabadell.cat:6379",
+        }
+    }
