@@ -12,6 +12,8 @@ services:
     volumes:
       - './services/coredns:/etc/coredns'
     command: -conf /etc/coredns/Corefile
+    networks:
+      - backend
 
   proxy:
     image: nginxproxy/nginx-proxy:1.4
@@ -32,6 +34,9 @@ services:
     depends_on:
       inabox:
         condition: service_started
+    networks:
+      - backend
+      - frontend
 
 #  proxy-acme:
 #    image: nginxproxy/acme-companion
@@ -49,6 +54,8 @@ services:
 #    depends_on:
 #      proxy:
 #        condition: service_started
+#    networks:
+#      - backend
 
   ldap:
     image: osixia/openldap:1.5.0
@@ -65,6 +72,8 @@ services:
     ports:
       - 389:389
       - 636:636
+    networks:
+      - backend
 
 #  lam:
 #    image: ghcr.io/ldapaccountmanager/lam:stable
@@ -85,6 +94,8 @@ services:
 #    depends_on:
 #      ldap:
 #        condition: service_started
+#    networks:
+#      - backend
 
   postgres:
     image: postgres
@@ -105,6 +116,8 @@ services:
        interval: 10s
        timeout: 5s
        retries: 5
+    networks:
+      - backend
 
 #  adminer:
 #    image: adminer
@@ -121,6 +134,8 @@ services:
 #    depends_on:
 #      postgres:
 #        condition: service_healthy
+#    networks:
+#      - backend
 
   rabbitmq:
     image: rabbitmq
@@ -128,6 +143,8 @@ services:
     restart: always
     ports:
       - '5672:5672'
+    networks:
+      - backend
 
   redis:
     image: redis:5
@@ -135,6 +152,8 @@ services:
     restart: always
     ports:
       - '6379:6379'
+    networks:
+      - backend
 
 #  guacd:
 #    image: guacamole/guacd
@@ -144,6 +163,8 @@ services:
 #      - GUACD_LOG_LEVEL=debug
 #    ports:
 #      - '4822:4822'
+#    networks:
+#      - backend
 
 #  guacamole:
 #    image: guacamole/guacamole
@@ -164,6 +185,8 @@ services:
 #    depends_on:
 #      postgres:
 #        condition: service_healthy
+#    networks:
+#      - backend
 
   inabox:
     container_name: 'www.inabox.ies-sabadell.cat'
@@ -192,6 +215,8 @@ services:
         condition: service_started
       redis:
         condition: service_started
+    networks:
+      - backend
 
   static:
     container_name: 'static.inabox.ies-sabadell.cat'
@@ -212,6 +237,8 @@ services:
       - VIRTUAL_PORT=80
     expose:
       - '80'
+    networks:
+      - backend
 
 volumes:
   db:
@@ -225,3 +252,9 @@ secrets:
     file: db-password.txt
   django-secret-key:
     file: django-secret-key.txt
+
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge

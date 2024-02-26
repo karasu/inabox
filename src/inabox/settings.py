@@ -261,10 +261,6 @@ else:
     },
 }
 
-
-postgres.
-
-
 # Login admin options
 LOGIN_REDIRECT_URL = "/"
 LOGIN_URL = '/accounts/login/'
