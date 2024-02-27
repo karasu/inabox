@@ -137,15 +137,6 @@ services:
 #    networks:
 #      - backend
 
-  rabbitmq:
-    image: rabbitmq
-    container_name: 'rabbitmq.inabox.ies-sabadell.cat'
-    restart: always
-    ports:
-      - '5672:5672'
-    networks:
-      - backend
-
   redis:
     image: redis:5
     container_name: 'redis.inabox.ies-sabadell.cat'
@@ -210,8 +201,6 @@ services:
       postgres:
         condition: service_healthy
       ldap:
-        condition: service_started
-      rabbitmq:
         condition: service_started
       redis:
         condition: service_started

@@ -270,17 +270,15 @@ LOGOUT_REDIRECT_URL = "loggedout"
 CELERY_TIMEZONE = "Europe/Rome"
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_CACHE_BACKEND = 'django-cache'
-# Use rabbitmq
+
 if DEBUG:
-    CELERY_BROKER_URL = 'amqp://guest:guest@localhost'
+    CELERY_BROKER_URL = 'redis://localhost:6379/0'
 else:
-    CELERY_BROKER_URL = 'amqp://guest:guest@rabbitmq.inabox.ies-sabadell.cat'
+    CELERY_BROKER_URL = 'redis://redis.inabox.ies-sabadell.cat:6379/0'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 
-if DEBUG:
-    pass
-else:
+if DEBUG is None:
     CACHES = {
         "default": {
             "BACKEND": "django.core.cache.backends.redis.RedisCache",
