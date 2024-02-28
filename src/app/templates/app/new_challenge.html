@@ -3,7 +3,7 @@
 {% block title %}{{ _("Add a new challenge") }}{% endblock %}
 {% block content %}
 
-{% include 'show_form_errors.html' %}
+{% include 'app/show_form_errors.html' %}
 
 <div class="alert alert-secondary" role="alert">
 <form action="{% url 'app:new_challenge' %}" method="post" role="form" enctype="multipart/form-data">
