@@ -111,7 +111,7 @@ class SignUpForm(UserCreationForm):
     """ Form to register a new user """
     class Meta:
         model = User
-        fields = ['email']
+        fields = ['username', 'email']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

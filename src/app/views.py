@@ -906,10 +906,11 @@ class SignUpView(generic.base.TemplateView):
         next_page = request.GET.get('next')
         if form.is_valid():
             user = form.save()
+            print(user)
             new_user = authenticate(
                 username=user.username,
                 password=user.password)
-            login(request, new_user)
+            login(request, new_user, backend='django_auth_ldap.backend.LDAPBackend')
             if next_page:
                 return redirect(next_page)
             return redirect('verify-email')
