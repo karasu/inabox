@@ -262,12 +262,12 @@ else:
 }
 
 # Login admin options
-LOGIN_REDIRECT_URL = "/"
+LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/accounts/login/'
-LOGOUT_REDIRECT_URL = "loggedout"
+LOGOUT_REDIRECT_URL = 'loggedout'
 
 # Celery Configuration Options
-CELERY_TIMEZONE = "Europe/Rome"
+CELERY_TIMEZONE = 'Europe/Rome'
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_CACHE_BACKEND = 'django-cache'
 
@@ -275,6 +275,7 @@ if DEBUG:
     CELERY_BROKER_URL = 'redis://localhost:6379/0'
 else:
     CELERY_BROKER_URL = 'redis://redis.inabox.ies-sabadell.cat:6379/0'
+
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 
