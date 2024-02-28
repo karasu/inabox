@@ -2,6 +2,9 @@
 {% load django_bootstrap5 %}
 {% block title %}{{ _("Sign up") }}{% endblock %}
 {% block content %}
+
+{% include 'show_form_errors.html' %}
+
 <div class="card w-25 p-2">
   <div class="card-body">
     <form action="{% url 'app:signup' %}" method="post" role="form" enctype="multipart/form-data">

@@ -2,6 +2,9 @@
 {% load django_bootstrap5 %}
 {% block title %}{{ _("Search results for") }} "{{ search_term }}" {% endblock %}
 {% block content %}
+
+{% include 'show_form_errors.html' %}
+
 {% if quests %}
 <div class="d-grid gap-2">
   <div class="my-3 py-2 bg-dark"><h2>{{ _("I've found these quests:") }}</h2>

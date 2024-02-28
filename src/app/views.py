@@ -9,10 +9,11 @@ from concurrent.futures import ThreadPoolExecutor
 
 from django.http import HttpResponseRedirect,  HttpResponseBadRequest
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views import generic
 from django.utils.translation import gettext_lazy as _
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.utils.translation import get_language, get_language_info
@@ -101,17 +102,13 @@ class NewChallengeView(LoginRequiredMixin, generic.base.TemplateView):
             form = NewChallengeForm(request.POST, request.FILES)
             if form.is_valid():
                 form.save()
-                return HttpResponseRedirect(reverse("app:challenges"))
-            # form not valid
-            g_logger.error(form.errors)
+                return redirect("challenges")
+            
+            # Form is not valid
             return render(
                 request,
-                template_name="app/form_error.html",
-                context={
-                    "title": _("Error inserting a new Challenge! Check the error(s) below:"),
-                    "errors": form.errors,
-                    "form_url": "challenges:new",
-                })
+                template_name=self.template_name,
+                context={'form': form})
 
         raise PermissionDenied()
 
@@ -473,12 +470,8 @@ class ChallengeDetailView(generic.DetailView):
 
         return render(
             request,
-            template_name="app/form_error.html",
-            context={
-                "title": _("Error trying to clean previous container data"),
-                "errors": "Please ask help to an administrator",
-                }
-            )
+            template_name=self.template_name,
+            context={'form': form})
 
     def challenge_ssh_form(self, request):
         """ Create a form instance and populate it with data from the request: """
@@ -579,22 +572,16 @@ class ChallengeDetailView(generic.DetailView):
                 workers[worker.gid] = worker
                 self.loop.call_later(
                     RECYLE_WORKER_DELAY, recycle_worker, worker)
-
                 result.update(
                     workerid=worker.gid, status='', encoding=worker.encoding)
 
             return JsonResponse(result)
 
         # form is not valid
-        g_logger.error(form.errors)
         return render(
             request,
-            template_name="app/form_error.html",
-            context={
-                "title": _("Error form data trying to connect! Check the error(s) below:"),
-                "errors": form.errors,
-                }
-            )
+            template_name=self.template_name,
+            context={'form': form})
 
     def upload_solution_form(self, request, *_args, **kwargs):
         """ We need to check if user has already tried and update the ProposedSolution
@@ -644,15 +631,10 @@ class ChallengeDetailView(generic.DetailView):
             return self.render_to_response(context=context)
 
         # Form is not valid
-        g_logger.error(form.errors)
         return render(
             request,
-            template_name="app/form_error.html",
-            context={
-                "title": _("Error uploading a new solution! Check the error(s) below:"),
-                "errors": form.errors,
-                }
-            )
+            template_name=self.template_name,
+            context={'form': form})
 
     def save_container(self, request, *_args, **kwargs):
         """ save current container as a new image """
@@ -694,10 +676,8 @@ class ChallengeDetailView(generic.DetailView):
         g_logger.warning("Error trying to commit container [%s]", ucc.container_id)
         return render(
             request,
-            template_name="app/form_error.html",
-            context={
-                "title": _("Error saving changes. Check the error(s) below:"),
-                "errors": "Not implemented"})
+            template_name=self.template_name,
+            context={'form': form})
 
     def add_comment(self, request, *_args, **kwargs):
         """ Adds new comment to challenge """
@@ -782,14 +762,10 @@ class SearchView(generic.base.TemplateView):
             return self.render_to_response(context=context)
 
         # Form is not valid
-        g_logger.error(form.errors)
         return render(
             request,
-            template_name="app/form_error.html",
-            context={
-                "title": _("Error in search form. Check the error(s) below:"),
-                "errors": form.errors,
-            })
+            template_name=self.template_name,
+            context={'form': form})
 
 class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
     """ Show user's profile """
@@ -927,18 +903,19 @@ class SignUpView(generic.base.TemplateView):
     def post(self, request, *_args, **_kwargs):
         """ User wants to sign up """
         form = SignUpForm(request.POST)
-
+        next_page = request.GET.get('next')
         if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('auth:login'))
+            user = form.save()
+            new_user = authenticate(
+                username=user.username,
+                password=user.password)
+            login(request, new_user)
+            if next_page:
+                return redirect(next_page)
+            return redirect('verify-email')
 
         # Form is not valid
-        g_logger.error(form.errors)
         return render(
             request,
-            template_name="app/form_error.html",
-            context={
-                "title": _("Error in sign up form. Check the error(s) below:"),
-                "errors": form.errors,
-                "form_url": "app:signup",
-            })
+            template_name=self.template_name,
+            context={'form': form})

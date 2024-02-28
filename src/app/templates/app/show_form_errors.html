@@ -1,0 +1,7 @@
+{% if form.errors %}
+{% for item in form.errors %}
+<div class="alert alert-danger" role="alert">
+  {{ form.errors|get_item:item }}
+</div>
+{% endfor %}
+{% endif %}
