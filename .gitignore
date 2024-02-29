@@ -160,6 +160,5 @@ cython_debug/
 #.idea/
 
 known_hosts
-db-password.txt
-django-secret-key.txt
+secret.txt
 

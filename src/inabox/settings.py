@@ -18,7 +18,35 @@ import ldap
 
 from .bootstrap5 import BOOTSTRAP5
 
-ADMINS = [("karasu", "inabox@ies-sabadell.cat")]
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# load secret settings
+
+SECRET = {}
+
+SECRET_PATH = os.path.join(BASE_DIR, 'secret.txt')
+
+if os.path.exists(SECRET_PATH):
+    #myDict[varName] = varContents
+    #todo
+else:
+    # If no secrets.txt file is present, we assume debug mode
+    DEBUG = 'True'
+    ADMINS = [("admin", "admin@admin.com")]
+    SECRET_KEY = 'django-insecure-$&50skc3lh+e7+ukdex*5u07o_o%_x93u&xw6#%r5w-60#iw@n'
+    DB_PASSWORD = 'development'
+    DEFAULT_FROM_EMAIL = "Inabox mailgoeshere"
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = "smtp.gmail.com"
+    EMAIL_HOST_USER = "mailgoeshere"
+    EMAIL_HOST_PASSWORD = "your email password"
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+
+
+
+
 
 #AUTH_USER_MODEL = "app.InaboxUser"
 
@@ -31,8 +59,7 @@ AUTH_LDAP_USER_SEARCH = LDAPSearch(
 )
 AUTH_LDAP_START_TLS = False
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -50,9 +77,9 @@ else:
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # if DEBUG var does not exist, we assume we're running in debug mode
-DEBUG = os.environ.get('DJANGO_DEBUG', "True")
+DEBUG = os.environ.get('DJANGO_DEBUG', 'True')
 
-if DEBUG != "True":
+if DEBUG != 'True':
     DEBUG = None
 
 if DEBUG:
@@ -67,7 +94,7 @@ else:
         '.ies-sabadell.cat',
         'localhost',
         '127.0.0.1',
-        '[::1]' ]
+        '[::1]']
     CSRF_COOKIE_SECURE = True
     SECURE_HSTS_SECONDS = 60
     SECURE_SSL_REDIRECT = True
@@ -109,7 +136,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     #'django.middleware.cache.FetchFromCacheMiddleware',
-
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -119,8 +145,7 @@ AUTHENTICATION_BACKENDS = [
 
 ROOT_URLCONF = 'inabox.urls'
 
-TEMPLATES = [
-    {
+TEMPLATES = [{
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [ BASE_DIR / 'inabox/templates' ],
         'APP_DIRS': True,
@@ -288,14 +313,7 @@ if DEBUG is None:
     }
 
 
-SECRET_KEY_FILE=os.environ.get('DJANGO_SECRET_KEY_FILE', None)
-if SECRET_KEY_FILE:
-    with open(SECRET_KEY_FILE, 'rt', encoding='utf-8') as skf:
-        SECRET_KEY=skf.readline()
-else:
-    SECRET_KEY = os.environ.get(
-        'DJANGO_SECRET_KEY',
-        'django-insecure-$&50skc3lh+e7+ukdex*5u07o_o%_x93u&xw6#%r5w-60#iw@n')
+
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = "smtp.gmail.com"
