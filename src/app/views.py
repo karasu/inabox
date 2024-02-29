@@ -7,18 +7,26 @@ import asyncio
 
 from concurrent.futures import ThreadPoolExecutor
 
-from django.http import HttpResponseRedirect,  HttpResponseBadRequest
+from django.http import HttpResponseBadRequest
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
-from django.urls import reverse
 from django.views import generic
 from django.utils.translation import gettext_lazy as _
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.utils.translation import get_language, get_language_info
 from django.template.defaulttags import register
 from django.core.exceptions import PermissionDenied
+
+from django.contrib.sites.shortcuts import get_current_site
+#from django.utils.encoding import force_bytes, force_str
+from django.utils.http import urlsafe_base64_encode
+#from django.utils.http import urlsafe_base64_decode
+from django.template.loader import render_to_string
+#from .tokens import account_activation_token
+from django.core.mail import EmailMessage
+#from django.contrib import messages
 
 import paramiko
 
@@ -906,11 +914,9 @@ class SignUpView(generic.base.TemplateView):
         next_page = request.GET.get('next')
         if form.is_valid():
             user = form.save()
-            print(user)
-            new_user = authenticate(
-                username=user.username,
-                password=user.password)
-            login(request, new_user, backend='django_auth_ldap.backend.LDAPBackend')
+            #login(request, user, backend='django_auth_ldap.backend.LDAPBackend')
+            login(request, user,
+                  backend='django.contrib.auth.backends.ModelBackend')
             if next_page:
                 return redirect(next_page)
             return redirect('verify-email')
@@ -920,3 +926,29 @@ class SignUpView(generic.base.TemplateView):
             request,
             template_name=self.template_name,
             context={'form': form})
+
+
+    def verify_email(self, request):
+        """ send email with verification link """
+        if request.method == "POST":
+            if not request.user.email_is_verified:
+                current_site = get_current_site(request)
+                user = request.user
+                email = request.user.email
+                subject = "Verify Email"
+                message = render_to_string('user/verify_email_message.html', {
+                    'request': request,
+                    'user': user,
+                    'domain': current_site.domain,
+                    'uid':urlsafe_base64_encode(force_bytes(user.pk)),
+                    'token':account_activation_token.make_token(user),
+                })
+                email = EmailMessage(
+                    subject, message, to=[email]
+                )
+                email.content_subtype = 'html'
+                email.send()
+                return redirect('verify-email-done')
+            # 
+            return redirect('signup')
+        return render(request, 'user/verify_email.html')
