@@ -928,6 +928,7 @@ class SignUpView(generic.base.TemplateView):
             context={'form': form})
 
 
+class VerifyEmailView(generic.base.TemplateView):
     def verify_email(self, request):
         """ send email with verification link """
         if request.method == "POST":
@@ -952,3 +953,27 @@ class SignUpView(generic.base.TemplateView):
             # 
             return redirect('signup')
         return render(request, 'user/verify_email.html')
+
+class VerifyEmailDoneView(generic.base.TemplateView):
+    def verify_email_done(request):
+        return render(request, 'users/verify_email_done.html')
+
+class VerifyEmailConfirmView(generic.base.TemplateView):
+    def verify_email_confirm(request, uidb64, token):
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except(TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+        if user is not None and account_activation_token.check_token(user, token):
+            user.email_is_verified = True
+            user.save()
+            messages.success(request, 'Your email has been verified.')
+            return redirect('verify-email-complete')   
+        else:
+            messages.warning(request, 'The link is invalid.')
+        return render(request, 'user/verify_email_confirm.html')
+
+class VerifyEmailCompleteView(generic.base.TemplateView):
+    def verify_email_complete(request):
+        return render(request, 'user/verify_email_complete.html')

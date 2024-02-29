@@ -286,3 +286,21 @@ if DEBUG is None:
             "LOCATION": "redis://redis.inabox.ies-sabadell.cat:6379",
         }
     }
+
+
+SECRET_KEY_FILE=os.environ.get('DJANGO_SECRET_KEY_FILE', None)
+if SECRET_KEY_FILE:
+    with open(SECRET_KEY_FILE, 'rt', encoding='utf-8') as skf:
+        SECRET_KEY=skf.readline()
+else:
+    SECRET_KEY = os.environ.get(
+        'DJANGO_SECRET_KEY',
+        'django-insecure-$&50skc3lh+e7+ukdex*5u07o_o%_x93u&xw6#%r5w-60#iw@n')
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_HOST_USER = "mailgoeshere"
+EMAIL_HOST_PASSWORD = "your email password"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = "Inabox mailgoeshere"

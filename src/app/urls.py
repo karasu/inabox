@@ -54,4 +54,10 @@ urlpatterns = [
         name="search"),
     path("profile", views.ProfileView.as_view(),
         name="profile"),
+
+    # verify email urls
+    path('verify-email/', views.VerifyEmailView, name='verify-email'),
+    path('verify-email/done/', views.VerifyEmailDoneView, name='verify-email-done'),
+    path('verify-email-confirm/<uidb64>/<token>/', views.VerifyEmailConfirmView, name='verify-email-confirm'),
+    path('verify-email/complete/', views.VerifyEmailCompleteView, name='verify-email-complete'),    
 ]
