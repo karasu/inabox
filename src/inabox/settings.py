@@ -16,39 +16,43 @@ import os
 from django_auth_ldap.config import LDAPSearch
 import ldap
 
-from .bootstrap5 import BOOTSTRAP5
+
+BOOL_TRUE = ['true', '1', 'y', 'yes']
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# SECURITY WARNING: don't run with debug turned on in production!
+# if DEBUG var does not exist, we assume we're running in debug mode
+DEBUG = os.environ.get('DJANGO_DEBUG', 'True')
+
+if DEBUG.lower() not in BOOL_TRUE:
+    DEBUG = None
+
 # load secret settings
-
 SECRET = {}
-
-SECRET_PATH = os.path.join(BASE_DIR, 'secret.txt')
-
+SECRET_PATH = os.path.join(BASE_DIR.parent, 'secret.txt')
+print(SECRET_PATH)
 if os.path.exists(SECRET_PATH):
-    #myDict[varName] = varContents
-    #todo
-else:
-    # If no secrets.txt file is present, we assume debug mode
-    DEBUG = 'True'
-    ADMINS = [("admin", "admin@admin.com")]
-    SECRET_KEY = 'django-insecure-$&50skc3lh+e7+ukdex*5u07o_o%_x93u&xw6#%r5w-60#iw@n'
-    DB_PASSWORD = 'development'
-    DEFAULT_FROM_EMAIL = "Inabox mailgoeshere"
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = "smtp.gmail.com"
-    EMAIL_HOST_USER = "mailgoeshere"
-    EMAIL_HOST_PASSWORD = "your email password"
-    EMAIL_PORT = 587
-    EMAIL_USE_TLS = True
+    with open(SECRET_PATH, 'rt', encoding='utf-8') as sf:
+        line = sf.readline()
+        while line:
+            line = line.split('=')
+            try:
+                name = line[0].strip()
+                value = line[1].strip()
+                if value[0] == "'":
+                    value = value.strip("'")
+                elif value[0] == '"':
+                    value = value.strip('"')
+                SECRET[name] = value
+            except KeyError:
+                pass
+            line = sf.readline()
 
-
-
-
-
-#AUTH_USER_MODEL = "app.InaboxUser"
+ADMINS = [(
+    SECRET.get("ADMIN_USERNAME", "admin"),
+    SECRET.get("ADMIN_EMAIL", "admin@admin.com"))]
 
 AUTH_LDAP_BIND_DN = ""
 AUTH_LDAP_BIND_PASSWORD = ""
@@ -59,28 +63,11 @@ AUTH_LDAP_USER_SEARCH = LDAPSearch(
 )
 AUTH_LDAP_START_TLS = False
 
-
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = SECRET.get(
+    "SECRET_KEY",
+    'django-insecure-$&50skc3lh+e7+ukdex*5u07o_o%_x93u&xw6#%r5w-60#iw@n')
 
-SECRET_KEY_FILE=os.environ.get('DJANGO_SECRET_KEY_FILE', None)
-if SECRET_KEY_FILE:
-    with open(SECRET_KEY_FILE, 'rt', encoding='utf-8') as skf:
-        SECRET_KEY=skf.readline()
-else:
-    SECRET_KEY = os.environ.get(
-        'DJANGO_SECRET_KEY',
-        'django-insecure-$&50skc3lh+e7+ukdex*5u07o_o%_x93u&xw6#%r5w-60#iw@n')
-
-# SECURITY WARNING: don't run with debug turned on in production!
-# if DEBUG var does not exist, we assume we're running in debug mode
-DEBUG = os.environ.get('DJANGO_DEBUG', 'True')
-
-if DEBUG != 'True':
-    DEBUG = None
 
 if DEBUG:
     print("DJANGO is running in DEBUG mode")
@@ -178,7 +165,7 @@ else:
             "ENGINE": "django.db.backends.postgresql",
             "NAME": "postgres",
             "USER": "postgres",
-            "PASSWORD": "development",
+            "PASSWORD": SECRET.get("DB_PASSWORD", "development"),
             "HOST": "postgres.inabox.ies-sabadell.cat",
             "PORT": "5432",
         }
@@ -194,15 +181,14 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',},
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
 #LANGUAGE_CODE = 'en-us'
 LANGUAGE_CODE = 'ca'
 LANGUAGES = (
- ('ca', 'Catalan'),
- ('en', 'English'),
+    ('ca', 'Catalan'),
+    ('en', 'English'),
 )
 
 TIME_ZONE = 'Europe/Rome'
@@ -312,13 +298,11 @@ if DEBUG is None:
         }
     }
 
+DEFAULT_FROM_EMAIL = SECRET.get("DEFAULT_FROM_EMAIL", "Inabox mailgoeshere")
+EMAIL_BACKEND = SECRET.get("EMAIL_BACKEND",'django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST = SECRET.get("EMAIL_HOST", "smtp.gmail.com")
+EMAIL_HOST_USER = SECRET.get("EMAIL_HOST_USER", "mailgoeshere")
+EMAIL_HOST_PASSWORD = SECRET.get("EMAIL_HOST_PASSWORD", "your email password")
 
-
-
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_HOST_USER = "mailgoeshere"
-EMAIL_HOST_PASSWORD = "your email password"
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-DEFAULT_FROM_EMAIL = "Inabox mailgoeshere"
+EMAIL_PORT = int(SECRET.get("EMAIL_PORT", 587))
+EMAIL_USE_TLS = SECRET.get("EMAIL_USE_TLS", True)

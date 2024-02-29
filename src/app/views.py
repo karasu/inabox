@@ -20,21 +20,21 @@ from django.template.defaulttags import register
 from django.core.exceptions import PermissionDenied
 
 from django.contrib.sites.shortcuts import get_current_site
-#from django.utils.encoding import force_bytes, force_str
+from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode
-#from django.utils.http import urlsafe_base64_decode
+from django.utils.http import urlsafe_base64_decode
 from django.template.loader import render_to_string
-#from .tokens import account_activation_token
 from django.core.mail import EmailMessage
-#from django.contrib import messages
+from django.contrib import messages
 
 import paramiko
 
-from .sshclient import SSHClient
 from .args import Args
-from .privatekey import InvalidValueError
+from .container import Image as DockerImage
 
-from .worker import Worker, recycle_worker, clients
+from .forms import ChallengeSSHForm, CommentForm, NewChallengeForm
+from .forms import UploadSolutionForm, SearchForm, StartAgainForm
+from .forms import SignUpForm
 
 from .models import Challenge, Area, Profile, ProposedSolution, Quest, QuestChallenge
 from .models import ClassGroup, Team, Organization, Comment
@@ -43,18 +43,19 @@ from .models import UserChallengeContainer, UserChallengeImage
 from .models import LEVELS, ROLES
 from .models import NewsEntry
 
-from .forms import ChallengeSSHForm, CommentForm, NewChallengeForm
-from .forms import UploadSolutionForm, SearchForm, StartAgainForm
-from .forms import SignUpForm
+from .privatekey import InvalidValueError
+from .sshclient import SSHClient
 
-# Celery task to check if a proposed solution is valid or not
 from .tasks import validate_solution_task
 from .tasks import run_container_task, commit_container_task
 from .tasks import remove_container_task, remove_image_task
 
 from .logger import g_logger
 
-from .container import Image as DockerImage
+from .token import account_activation_token
+
+from .worker import Worker, recycle_worker, clients
+
 
 @register.filter
 def get_item(dictionary, key):
@@ -897,8 +898,7 @@ class TeamDetailView(generic.DetailView):
             profile__team__id=context['team'].id)
         return context
 
-# TODO: 
-#https://python.plainenglish.io/how-to-send-email-with-verification-link-in-django-efb21eefffe8
+# https://python.plainenglish.io/how-to-send-email-with-verification-link-in-django-efb21eefffe8
 class SignUpView(generic.base.TemplateView):
     """ Show user's profile """
     template_name = "app/signup.html"
@@ -929,7 +929,10 @@ class SignUpView(generic.base.TemplateView):
 
 
 class VerifyEmailView(generic.base.TemplateView):
-    def verify_email(self, request):
+    """ Sends email with the verification link """
+    template_name = 'app/verify_email/verify_email.html'
+
+    def post(self, request):
         """ send email with verification link """
         if request.method == "POST":
             if not request.user.email_is_verified:
@@ -950,30 +953,40 @@ class VerifyEmailView(generic.base.TemplateView):
                 email.content_subtype = 'html'
                 email.send()
                 return redirect('verify-email-done')
-            # 
+            # email is already verified
             return redirect('signup')
-        return render(request, 'user/verify_email.html')
+        return render(request, self.template_name)
+
 
 class VerifyEmailDoneView(generic.base.TemplateView):
-    def verify_email_done(request):
-        return render(request, 'users/verify_email_done.html')
+    """ Show that verification email with link has been sent """
+    template_name = 'app/verify_email/verify_email_done.html'
+
 
 class VerifyEmailConfirmView(generic.base.TemplateView):
-    def verify_email_confirm(request, uidb64, token):
+    """ Gets verification link and verifies email """
+    template_name = 'app/verify_email/verify_email_confirm.html'
+
+    def get(self, request, *args, **kwargs):
+
+        uidb64 = kwargs.get('uidb64')
+        token = kwargs.get('token')
+
         try:
             uid = force_str(urlsafe_base64_decode(uidb64))
             user = User.objects.get(pk=uid)
         except(TypeError, ValueError, OverflowError, User.DoesNotExist):
             user = None
+
         if user is not None and account_activation_token.check_token(user, token):
             user.email_is_verified = True
             user.save()
             messages.success(request, 'Your email has been verified.')
-            return redirect('verify-email-complete')   
-        else:
-            messages.warning(request, 'The link is invalid.')
+            return redirect('verify-email-complete')       
+        messages.warning(request, 'The link is invalid.')
         return render(request, 'user/verify_email_confirm.html')
 
+
 class VerifyEmailCompleteView(generic.base.TemplateView):
-    def verify_email_complete(request):
-        return render(request, 'user/verify_email_complete.html')
+    """ Show message that email has been verified """
+    template_name = 'app/verify_email/verify_email_complete.html'
