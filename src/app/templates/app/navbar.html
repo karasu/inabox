@@ -27,7 +27,7 @@
         {% csrf_token %}
         <input name="search" class="form-control me-1" type="search" placeholder="{{ _('Search') }}"
           aria-label="{{ _('Search') }}">
-        <button class="btn btn-outline-success" type="submit">{{ _("Search") }}</button>
+        <button class="btn btn-outline-light" type="submit">{{ _("Search") }}</button>
       </form>
 
       <!-- set language form -->
@@ -58,7 +58,8 @@
       </a>
       <a class="btn btn-warning ms-sm-0 ms-lg-2" href="{% url 'logout' %}">{{ _("Log out!") }}</a>
       {% else %}
-      <a class="btn btn-primary ms-sm-0 ms-lg-2" href="{% url 'login' %}">{{ _("Log in!") }}</a>
+      <a class="btn btn-light ms-sm-0 ms-lg-2 me-2" href="{% url 'login' %}">{{ _("Log in!") }}</a>or
+      <a class="btn btn-light ms-sm-0 ms-lg-2" href="{% url 'app:signup' %}">{{ _("Sign up!") }}</a>
       {% endif %}
       </div>
     </div>

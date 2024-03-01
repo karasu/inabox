@@ -112,7 +112,7 @@ class NewChallengeView(LoginRequiredMixin, generic.base.TemplateView):
             if form.is_valid():
                 form.save()
                 return redirect("challenges")
-            
+
             # Form is not valid
             return render(
                 request,
@@ -900,7 +900,7 @@ class TeamDetailView(generic.DetailView):
 
 # https://python.plainenglish.io/how-to-send-email-with-verification-link-in-django-efb21eefffe8
 class SignUpView(generic.base.TemplateView):
-    """ Show user's profile """
+    """ Allows a new user to register """
     template_name = "app/signup.html"
 
     def get_context_data(self, **kwargs):
@@ -911,15 +911,13 @@ class SignUpView(generic.base.TemplateView):
     def post(self, request, *_args, **_kwargs):
         """ User wants to sign up """
         form = SignUpForm(request.POST)
-        next_page = request.GET.get('next')
+
         if form.is_valid():
             user = form.save()
             #login(request, user, backend='django_auth_ldap.backend.LDAPBackend')
             login(request, user,
                   backend='django.contrib.auth.backends.ModelBackend')
-            if next_page:
-                return redirect(next_page)
-            return redirect('verify-email')
+            return redirect('/verify-email', request=request)
 
         # Form is not valid
         return render(
@@ -929,7 +927,7 @@ class SignUpView(generic.base.TemplateView):
 
 
 class VerifyEmailView(generic.base.TemplateView):
-    """ Sends email with the verification link """
+    """ Send the verification link to the user’s email """
     template_name = 'app/verify_email/verify_email.html'
 
     def post(self, request):
@@ -959,12 +957,12 @@ class VerifyEmailView(generic.base.TemplateView):
 
 
 class VerifyEmailDoneView(generic.base.TemplateView):
-    """ Show that verification email with link has been sent """
+    """ Tell the user to check his/her email """
     template_name = 'app/verify_email/verify_email_done.html'
 
 
 class VerifyEmailConfirmView(generic.base.TemplateView):
-    """ Gets verification link and verifies email """
+    """ Gets verification link and verifies it """
     template_name = 'app/verify_email/verify_email_confirm.html'
 
     def get(self, request, *args, **kwargs):
@@ -988,5 +986,5 @@ class VerifyEmailConfirmView(generic.base.TemplateView):
 
 
 class VerifyEmailCompleteView(generic.base.TemplateView):
-    """ Show message that email has been verified """
+    """ redirect the user to our website after verification """
     template_name = 'app/verify_email/verify_email_complete.html'

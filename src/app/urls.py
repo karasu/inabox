@@ -50,9 +50,9 @@ urlpatterns = [
     path("organizations/<int:pk>/", views.OrganizationDetailView.as_view(),
         name="organization"),
 
-    path("search", views.SearchView.as_view(),
+    path("search/", views.SearchView.as_view(),
         name="search"),
-    path("profile", views.ProfileView.as_view(),
+    path("profile/", views.ProfileView.as_view(),
         name="profile"),
 
     # verify email urls

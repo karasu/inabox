@@ -19,12 +19,12 @@ from django.urls import include, path
 from django.views.generic import TemplateView
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path("accounts/", include("django.contrib.auth.urls")),
-    #path("debug/", include("debug_toolbar.urls")),
-    path('i18n/', include("django.conf.urls.i18n")),
+    path('admin/', admin.site.urls, name="admin"),
+    path("accounts/", include("django.contrib.auth.urls"), name="accounts"),
+    #path("debug/", include("debug_toolbar.urls"), name="debug"),
+    path('i18n/', include("django.conf.urls.i18n"), name="i18n"),
     path('', include("app.urls")),
     path("loggedout/", TemplateView.as_view(template_name="loggedout.html"), name="loggedout"),
     # Celery progress
-	path('celery-progress/', include('celery_progress.urls')),
+	path('celery-progress/', include('celery_progress.urls'), name="celery-progress"),
 ]
