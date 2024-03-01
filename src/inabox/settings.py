@@ -69,7 +69,9 @@ if os.path.exists(SECRETS_PATH):
                 except (IndexError, KeyError, TypeError) as exc:
                     print(exc)
             line = sf.readline()
-print(SECRETS)
+
+#print(SECRETS)
+
 ADMINS = [(
     SECRETS.get("ADMIN_USERNAME", "admin"),
     SECRETS.get("ADMIN_EMAIL", "admin@admin.com"))]
