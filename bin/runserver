@@ -1,17 +1,15 @@
 #!/bin/bash
 
 # Runs inabox in DEBUG mode with SQLITE
-
+PWD=`pwd`
 INABOX_DIR="/home/karasu/inabox"
 
-cd ${INABOX_DIR}
-
-echo "" > known_hosts
-
 ## Update all challenge's images
-cd docker-images
+cd ${INABOX_DIR}/docker-images
 ./build-all
-cd ..
+
+cd ${DJANGO_APP}
+echo "" > known_hosts
 
 REDIS_CMD="docker-compose up redis" 
 CELERY_WORKER_CMD="celery -A inabox worker -l INFO"
@@ -28,5 +26,7 @@ else
   kitty --detach --title Redis --directory "${INABOX_DIR}" ${REDIS_CMD}
   kitty --detach --title "Celery worker" --directory "${INABOX_DIR}/src" ${CELERY_WORKER_CMD}
   kitty --detach --title "Celery beat" --directory "${INABOX_DIR}/src" ${CELERY_BEAT_CMD}
-  kitty --detach --title Daphne --directory ${INABOX_DIR}/src ${DJANGO_CMD}
+  kitty --detach --title Daphne --directory "${INABOX_DIR}/src" ${DJANGO_CMD}
 fi
+
+cd ${PWD}
