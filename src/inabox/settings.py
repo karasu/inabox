@@ -47,29 +47,29 @@ if not to_bool(DEBUG):
 # load secret settings
 SECRETS = {}
 SECRETS_PATH = os.path.join(BASE_DIR.parent, 'secrets.txt')
-
+print(SECRETS_PATH)
 if os.path.exists(SECRETS_PATH):
     with open(SECRETS_PATH, 'rt', encoding='utf-8') as sf:
         line = sf.readline()
         while line:
-            line = line.split('=')
-            try:
-                name = line[0].strip()
-                value = line[1].strip()
-                if value[0] == "'":
-                    value = value.strip("'")
-                elif value[0] == '"':
-                    value = value.strip('"')
-                elif is_bool(value):
-                    value = to_bool(value)
-                else:
-                    value = int(value)
-
-                SECRETS[name] = value
-            except (KeyError, TypeError) as exc:
-                print(exc)
+            if not line.startswith('#') and '=' in line:
+                line = line.split('=')
+                try:
+                    name = line[0].strip()
+                    value = line[1].strip()
+                    if value[0] == "'":
+                        value = value.strip("'")
+                    elif value[0] == '"':
+                        value = value.strip('"')
+                    elif is_bool(value):
+                        value = to_bool(value)
+                    else:
+                        value = int(value)
+                    SECRETS[name] = value
+                except (IndexError, KeyError, TypeError) as exc:
+                    print(exc)
             line = sf.readline()
-
+print(SECRETS)
 ADMINS = [(
     SECRETS.get("ADMIN_USERNAME", "admin"),
     SECRETS.get("ADMIN_EMAIL", "admin@admin.com"))]
