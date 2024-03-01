@@ -16,7 +16,23 @@ import os
 from django_auth_ldap.config import LDAPSearch
 import ldap
 
-BOOL_TRUE = ['true', '1', 'y', 'yes']
+BOOL_STR = {
+    "True": ['true', '1', 'y', 'yes'],
+    "False": ['false', '0', 'n', 'no']}
+
+def is_bool(mystr):
+    """ check if string can be converted to bool """
+    mystr = mystr.lower()
+    if mystr in BOOL_STR['True'] or mystr in BOOL_STR['False']:
+        return True
+    return False 
+
+def to_bool(mystr):
+    """ convert string to bool """
+    mystr = mystr.lower()
+    if mystr in BOOL_STR['True']:
+        return True
+    return False
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,15 +41,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # if DEBUG var does not exist, we assume we're running in debug mode
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True')
 
-if DEBUG.lower() not in BOOL_TRUE:
+if not to_bool(DEBUG):
     DEBUG = None
 
 # load secret settings
-SECRET = {}
-SECRET_PATH = os.path.join(BASE_DIR.parent, 'secret.txt')
+SECRETS = {}
+SECRETS_PATH = os.path.join(BASE_DIR.parent, 'secrets.txt')
 
-if os.path.exists(SECRET_PATH):
-    with open(SECRET_PATH, 'rt', encoding='utf-8') as sf:
+if os.path.exists(SECRETS_PATH):
+    with open(SECRETS_PATH, 'rt', encoding='utf-8') as sf:
         line = sf.readline()
         while line:
             line = line.split('=')
@@ -44,14 +60,19 @@ if os.path.exists(SECRET_PATH):
                     value = value.strip("'")
                 elif value[0] == '"':
                     value = value.strip('"')
-                SECRET[name] = value
-            except KeyError:
-                pass
+                elif is_bool(value):
+                    value = to_bool(value)
+                else:
+                    value = int(value)
+
+                SECRETS[name] = value
+            except (KeyError, TypeError) as exc:
+                print(exc)
             line = sf.readline()
 
 ADMINS = [(
-    SECRET.get("ADMIN_USERNAME", "admin"),
-    SECRET.get("ADMIN_EMAIL", "admin@admin.com"))]
+    SECRETS.get("ADMIN_USERNAME", "admin"),
+    SECRETS.get("ADMIN_EMAIL", "admin@admin.com"))]
 
 AUTH_LDAP_BIND_DN = ""
 AUTH_LDAP_BIND_PASSWORD = ""
@@ -63,7 +84,7 @@ AUTH_LDAP_USER_SEARCH = LDAPSearch(
 AUTH_LDAP_START_TLS = False
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = SECRET.get(
+SECRET_KEY = SECRETS.get(
     "SECRET_KEY",
     'django-insecure-$&50skc3lh+e7+ukdex*5u07o_o%_x93u&xw6#%r5w-60#iw@n')
 
@@ -164,7 +185,7 @@ else:
             "ENGINE": "django.db.backends.postgresql",
             "NAME": "postgres",
             "USER": "postgres",
-            "PASSWORD": SECRET.get("DB_PASSWORD", "development"),
+            "PASSWORD": SECRETS.get("DB_PASSWORD", "development"),
             "HOST": "postgres.inabox.ies-sabadell.cat",
             "PORT": "5432",
         }
@@ -297,14 +318,14 @@ if DEBUG is None:
         }
     }
 
-DEFAULT_FROM_EMAIL = SECRET.get("DEFAULT_FROM_EMAIL", "Inabox mailgoeshere")
-EMAIL_BACKEND = SECRET.get("EMAIL_BACKEND",'django.core.mail.backends.smtp.EmailBackend')
-EMAIL_HOST = SECRET.get("EMAIL_HOST", "smtp.gmail.com")
-EMAIL_HOST_USER = SECRET.get("EMAIL_HOST_USER", "mailgoeshere")
-EMAIL_HOST_PASSWORD = SECRET.get("EMAIL_HOST_PASSWORD", "your email password")
+DEFAULT_FROM_EMAIL = SECRETS.get("DEFAULT_FROM_EMAIL", "Inabox mailgoeshere")
+EMAIL_BACKEND = SECRETS.get("EMAIL_BACKEND",'django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST = SECRETS.get("EMAIL_HOST", "smtp.gmail.com")
+EMAIL_HOST_USER = SECRETS.get("EMAIL_HOST_USER", "mailgoeshere")
+EMAIL_HOST_PASSWORD = SECRETS.get("EMAIL_HOST_PASSWORD", "your email password")
 
-EMAIL_PORT = int(SECRET.get("EMAIL_PORT", 587))
-EMAIL_USE_TLS = SECRET.get("EMAIL_USE_TLS", True)
+EMAIL_PORT = SECRETS.get("EMAIL_PORT", 587)
+EMAIL_USE_TLS = SECRETS.get("EMAIL_USE_TLS", True)
 
 
 BOOTSTRAP5 = {

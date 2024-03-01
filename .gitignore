@@ -160,5 +160,5 @@ cython_debug/
 #.idea/
 
 known_hosts
-secret.txt
+secrets.txt
 
