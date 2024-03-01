@@ -149,6 +149,7 @@ class Profile(models.Model):
     organization = models.ForeignKey(
         Organization, default=1, on_delete=models.CASCADE)
     #bio = models.TextField()
+    email_is_verified = models.BooleanField(default=False)
 
     def calculate_solved_challenges(self):
         """ calc how many solved challenges the user has done """

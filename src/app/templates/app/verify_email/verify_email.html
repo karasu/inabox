@@ -1,5 +1,11 @@
-<h1>You need to verify your email</h1>
+{% extends 'app/base.html' %}
+{% load django_bootstrap5 %}
+{% block title %}{{ _("Verify email") }}{% endblock %}
+{% block content %}
+
+<h4>You need to verify your email</h4>
 <form method="post">
     {% csrf_token %}
-    <input class="btn btn-primary max-btn" type="submit" value="Verify">
+    <input class="btn btn-light max-btn" type="submit" value="Send verification link">
 </form>
+{% endblock %}
