@@ -16,7 +16,6 @@ import os
 from django_auth_ldap.config import LDAPSearch
 import ldap
 
-
 BOOL_TRUE = ['true', '1', 'y', 'yes']
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -32,7 +31,7 @@ if DEBUG.lower() not in BOOL_TRUE:
 # load secret settings
 SECRET = {}
 SECRET_PATH = os.path.join(BASE_DIR.parent, 'secret.txt')
-print(SECRET_PATH)
+
 if os.path.exists(SECRET_PATH):
     with open(SECRET_PATH, 'rt', encoding='utf-8') as sf:
         line = sf.readline()

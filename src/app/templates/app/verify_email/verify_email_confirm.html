@@ -1,3 +1,8 @@
+{% extends 'app/base.html' %}
+{% load django_bootstrap5 %}
+{% block title %}{{ _("Verify email") }}{% endblock %}
+{% block content %}
+
 <div class="container">
     {% if messages %}
         {% for message in messages %}
@@ -7,3 +12,5 @@
         {% endfor %}
     {% endif %}
 </div>
+
+{% endblock %}

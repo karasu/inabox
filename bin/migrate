@@ -1,9 +1,14 @@
 #!/bin/sh
 
-rm -f app/migrations/*.py
-rm -rf app/migrations/__pycache__
+PWD=`pwd`
+DJANGO_SRC="/home/karasu/inabox/src"
 
-mv inabox.sqlite3 inabox.sqlite3.bak
+cd ${DJANGO_SRC}
+
+rm -f ${DJANGO_SRC}/app/migrations/*.py
+rm -rf ${DJANGO_SRC}/app/migrations/__pycache__
+
+mv ${DJANGO_SRC}/db.sqlite3 db.sqlite3.bak
 
 echo Running makemigrations step...
 python manage.py makemigrations
@@ -15,5 +20,7 @@ python manage.py migrate
 python manage.py createsuperuser --username karasu --email notvalid@inabox.com 
 
 # Load fixtures into database
-./loaddata
+../bin/loaddata
+
+cd ${PWD}
 

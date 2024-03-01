@@ -34,6 +34,7 @@
     language: ca
     team: 1
     organization: 1
+    email_is_verified: True
 - model: auth.User
   pk: 2
   fields:
@@ -53,4 +54,4 @@
     language: en
     team: 1
     organization: 1
-  
+    email_is_verified: True
