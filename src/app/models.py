@@ -130,12 +130,12 @@ class Profile(models.Model):
     """ Store users' profile """
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     class_group = models.ForeignKey(
-        ClassGroup, on_delete=models.CASCADE)
+        ClassGroup, on_delete=models.CASCADE, default=1)
     role = models.CharField(
         max_length=1, choices=ROLES, default="S")
     teacher = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="teacher",
-        verbose_name=_("Teacher"))
+        verbose_name=_("Teacher"), default=1)
     avatar = models.ImageField(
         upload_to=user_directory_path,
         default=avatar("021"))

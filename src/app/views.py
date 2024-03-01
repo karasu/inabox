@@ -914,6 +914,8 @@ class SignUpView(generic.base.TemplateView):
 
         if form.is_valid():
             user = form.save()
+            profile = Profile(user=user)
+            profile.save()
             #login(request, user, backend='django_auth_ldap.backend.LDAPBackend')
             login(request, user,
                   backend='django.contrib.auth.backends.ModelBackend')
@@ -938,7 +940,8 @@ class VerifyEmailView(generic.base.TemplateView):
                 user = request.user
                 email = request.user.email
                 subject = "Verify Email"
-                message = render_to_string('user/verify_email_message.html', {
+                template = 'app/verify_email/verify_email_message.html'
+                message = render_to_string(template, {
                     'request': request,
                     'user': user,
                     'domain': current_site.domain,
@@ -978,11 +981,11 @@ class VerifyEmailConfirmView(generic.base.TemplateView):
 
         if user is not None and account_activation_token.check_token(user, token):
             user.profile.email_is_verified = True
-            user.save()
+            user.profile.save()
             messages.success(request, 'Your email has been verified.')
-            return redirect('/verify-email-complete')       
+            return redirect('/verify-email-complete')
         messages.warning(request, 'The link is invalid.')
-        return render(request, 'user/verify_email_confirm.html')
+        return render(request, 'app/verify_email/verify_email_confirm.html')
 
 
 class VerifyEmailCompleteView(generic.base.TemplateView):
