@@ -162,3 +162,5 @@ cython_debug/
 known_hosts
 secrets.txt
 
+src/db.sqlite3.bak
+
