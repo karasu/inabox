@@ -116,7 +116,7 @@ class Worker():
 
     def write(self, _consumer):
         """ write data """
-        g_logger.debug("worker %d on write", self.gid)
+        g_logger.debug("worker %s on write", self.gid)
 
         if not self.data_to_dst:
             return

@@ -46,6 +46,8 @@ from .models import NewsEntry
 from .privatekey import InvalidValueError
 from .sshclient import SSHClient
 
+from smtplib import SMTPAuthenticationError
+
 from .tasks import validate_solution_task
 from .tasks import run_container_task, commit_container_task
 from .tasks import remove_container_task, remove_image_task
@@ -53,6 +55,7 @@ from .tasks import remove_container_task, remove_image_task
 from .logger import g_logger
 
 from .token import account_activation_token
+from .utils import to_str
 
 from .worker import Worker, recycle_worker, clients
 
@@ -685,8 +688,12 @@ class ChallengeDetailView(generic.DetailView):
         g_logger.warning("Error trying to commit container [%s]", ucc.container_id)
         return render(
             request,
-            template_name=self.template_name,
-            context={'form': form})
+            template_name="app/error.html",
+            context={
+                'error_title': _("Save container error"),
+                'error_id': 1001,
+                'error_message': f"Error trying to commit container {ucc.container_id}"}
+        )
 
     def add_comment(self, request, *_args, **kwargs):
         """ Adds new comment to challenge """
@@ -952,16 +959,29 @@ class VerifyEmailView(generic.base.TemplateView):
                     subject, message, to=[email]
                 )
                 email.content_subtype = 'html'
-                email.send()
-                return redirect('/verify-email-done')
+                try:
+                    email.send()
+                except SMTPAuthenticationError as exc:
+                    error_message = to_str(exc.smtp_error)
+                    g_logger.warning(error_message)
+                    error_message = error_message.split('\n')
+                    return render(
+                        request,
+                        template_name="app/error.html",
+                        context={
+                            'error_title': _("Error sending verification email"),
+                            'error_id': exc.smtp_code,
+                            'error_message': error_message }
+                    )
+                return redirect('/verify-email-sent')
             # email is already verified
             return redirect('signup')
         return render(request, self.template_name)
 
 
-class VerifyEmailDoneView(generic.base.TemplateView):
-    """ Tell the user to check his/her email """
-    template_name = 'app/verify_email/verify_email_done.html'
+class VerifyEmailSentView(generic.base.TemplateView):
+    """ Email was sent. Tell the user to check his/her email """
+    template_name = 'app/verify_email/verify_email_sent.html'
 
 
 class VerifyEmailConfirmView(generic.base.TemplateView):

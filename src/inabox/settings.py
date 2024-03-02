@@ -47,7 +47,7 @@ if not to_bool(DEBUG):
 # load secret settings
 SECRETS = {}
 SECRETS_PATH = os.path.join(BASE_DIR.parent, 'secrets.txt')
-print(SECRETS_PATH)
+print("loading secrets from", SECRETS_PATH)
 if os.path.exists(SECRETS_PATH):
     with open(SECRETS_PATH, 'rt', encoding='utf-8') as sf:
         line = sf.readline()

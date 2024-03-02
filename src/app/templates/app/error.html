@@ -1,0 +1,19 @@
+{% extends 'app/base.html' %}
+{% load django_bootstrap5 %}
+{% block title %}{{ error_title }}{% endblock %}
+{% block content %}
+<div class="card mt-4">
+    <div class="card-header">
+    <h3 class="card-title mt-3">{{ error_id }} : {{ error_title }}</h3>
+    </div>
+    <div class="card-body">
+    <p class="card-text fs-5">
+    {% for line in error_message %}
+    {{ line }}<br>
+    {% endfor %}
+    <br>
+    {{ _("Please, contact us to get more help about this error.") }}
+    </p>
+    </div>
+</div>
+{% endblock %}

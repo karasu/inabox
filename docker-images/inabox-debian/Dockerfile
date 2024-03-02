@@ -35,6 +35,8 @@ WORKDIR /home/inabox/
 
 USER root
 
+ADD motd /etc/motd
+
 # Setup SSH
 EXPOSE 22
 # Start SSH Deamon in "not detach" mode. Once SSH connction breaks the container stops
