@@ -117,7 +117,6 @@ else:
 INSTALLED_APPS = [
 #    'compressor',
     'daphne',
-    #'debug_toolbar',
     'admin_interface',
     'colorfield',
     'django_bootstrap5',
@@ -135,7 +134,6 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     #'django.middleware.cache.UpdateCacheMiddleware',
-    #'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -228,12 +226,12 @@ USE_TZ = True
 # static files DMOJ uses will be collected to.
 # You must configure your webserver to serve this directory as /static/ in production.
 
-STATIC_ROOT = '/tmp/static'
-
 # URL to access static files.
 if DEBUG:
-    STATIC_URL = '/tmp/static/'
+    #STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+    STATIC_URL = '/static/'
 else:
+    STATIC_ROOT = '/tmp/static'
     STATIC_URL = 'https://static.inabox.ies-sabadell.cat/static/'
 
 # Uncomment to use hashed filenames with the cache framework.
@@ -244,11 +242,10 @@ else:
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
 if DEBUG:
-    MEDIA_URL = '/media/'
+    MEDIA_URL = '/'
 else:
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
     MEDIA_URL = 'https://static.inabox.ies-sabadell.cat/media/'
 
 #STATICFILES_FINDERS = [
@@ -263,13 +260,6 @@ else:
 #    "django.contrib.staticfiles.finders.FileSystemFinder",
 #    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 #]
-
-# The Debug Toolbar is shown only if your IP address is listed in Django’s INTERNAL_IPS setting.
-# This means that for local development, you must add "127.0.0.1" to INTERNAL_IPS.
-
-INTERNAL_IPS = [
-    '127.0.0.1'
-]
 
 # Daphne
 ASGI_APPLICATION = "inabox.asgi.application"
@@ -320,14 +310,20 @@ if DEBUG is None:
         }
     }
 
-DEFAULT_FROM_EMAIL = SECRETS.get("DEFAULT_FROM_EMAIL", "Inabox mailgoeshere")
-EMAIL_BACKEND = SECRETS.get("EMAIL_BACKEND",'django.core.mail.backends.smtp.EmailBackend')
-EMAIL_HOST = SECRETS.get("EMAIL_HOST", "smtp.gmail.com")
-EMAIL_HOST_USER = SECRETS.get("EMAIL_HOST_USER", "mailgoeshere")
-EMAIL_HOST_PASSWORD = SECRETS.get("EMAIL_HOST_PASSWORD", "your email password")
-
-EMAIL_PORT = SECRETS.get("EMAIL_PORT", 587)
-EMAIL_USE_TLS = SECRETS.get("EMAIL_USE_TLS", True)
+DEFAULT_FROM_EMAIL = SECRETS.get(
+    "DEFAULT_FROM_EMAIL", "Inabox mailgoeshere")
+EMAIL_BACKEND = SECRETS.get(
+    "EMAIL_BACKEND",'django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST = SECRETS.get(
+    "EMAIL_HOST", "smtp.gmail.com")
+EMAIL_HOST_USER = SECRETS.get(
+    "EMAIL_HOST_USER", "mailgoeshere")
+EMAIL_HOST_PASSWORD = SECRETS.get(
+    "EMAIL_HOST_PASSWORD", "your email password")
+EMAIL_PORT = SECRETS.get(
+    "EMAIL_PORT", 587)
+EMAIL_USE_TLS = SECRETS.get(
+    "EMAIL_USE_TLS", True)
 
 
 BOOTSTRAP5 = {
