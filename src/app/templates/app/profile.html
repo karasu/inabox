@@ -28,7 +28,19 @@
     {% if user_data and profile_data %}
     <div class="card px-3">
       <div class="card-body">
-        <h2>{{ _("Profile") }}</h2><hr />
+        <h2>{{ _("Profile") }}</h2>
+
+
+        <form id="editprofile" action="{% url 'app:profile' profile.id %}"
+          method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <button type="submit" name="term-btn" class="btn btn-primary">{{ _("Let's try to solve it!") }}</button>    
+      </form>
+    
+
+
+        <button type="button" class="btn btn-danger">Edit</button>
+        <hr />
         <div class="row">
           <form class="form-horizontal col-sm-6" action="#" role="form">
           {% csrf_token %}
