@@ -33,7 +33,7 @@
       <!-- set language form -->
       <form class="d-flex mx-sm-0 mx-lg-2 mb-2 mb-lg-0" role="language" action="{% url 'set_language' %}" method="post">
         {% csrf_token %}
-        <input name="next" type="hidden" value="{{ redirect_to }}" />
+        <input name="next" type="hidden" value="{{ redirect_to }}">
         <select name="language" class="form-control dropdown-toggle" href="#"
           id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"
           onchange="this.form.submit()">
@@ -61,7 +61,6 @@
       <a class="btn btn-light ms-sm-0 ms-lg-2 me-2" href="{% url 'login' %}">{{ _("Log in!") }}</a>or
       <a class="btn btn-light ms-sm-0 ms-lg-2" href="{% url 'app:signup' %}">{{ _("Sign up!") }}</a>
       {% endif %}
-      </div>
     </div>
   </div>
 </nav>

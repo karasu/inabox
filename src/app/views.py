@@ -786,16 +786,18 @@ class SearchView(generic.base.TemplateView):
 class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
     """ Show user's profile """
     template_name = "app/profile.html"
+    editMode = False
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['roles'] = ROLES
+        context['editMode'] = self.editMode
 
         objs = {
             "user": User.objects.get(id=self.request.user.id),
             "profile": Profile.objects.get(user=self.request.user)
         }
-
+        
         excludes = {
             "user": ["id", "password", "groups", "user_permissions", "profile"],
             "profile": ["id", "user", "private_key", "challenge",
@@ -853,6 +855,9 @@ class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
             print(err)
             return None
 
+    def post(self, request, *args, **kwargs):
+        """ Activate edition or save changes """
+        pass
 
 class PlayersListView(generic.ListView):
     """ Show a list of all players (users) """

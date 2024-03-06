@@ -4,7 +4,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 
-from .models import Challenge, ProposedSolution, Comment
+from .models import Challenge, ProposedSolution, Comment, Profile
 
 class ChallengeSSHForm(forms.Form):
     """ Form with ssh connection data """
@@ -112,6 +112,21 @@ class SignUpForm(UserCreationForm):
     class Meta:
         model = User
         fields = ['username', 'email']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Add form-control class to all form widgets
+        for field in self.visible_fields():
+            field.field.widget.attrs.update({'class': 'form-control'})
+
+class ProfileForm(forms.ModelForm):
+    """ Edit user's profile form """
+    class Meta:
+        model = Profile
+        fields = [
+            'user', 'class_group', 'role', 'teacher', 'avatar', 'private_key',
+            'language', 'points', 'team', 'organization']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
