@@ -17,7 +17,7 @@
         <form id="editprofile" class="my-2" action="{% url 'app:profile' %}"
           method="post" enctype="multipart/form-data">
           {% csrf_token %}
-          <button type="button" class="btn btn-danger">Edit</button>
+          <button type="button" class="btn btn-danger">{{ _("Edit profile") }}</button>
         </form>
         {% endif %}
       </div>
