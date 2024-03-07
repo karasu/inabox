@@ -5,9 +5,10 @@ from django.utils.timezone import now
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
-
 # Get available languages
 from django.conf import settings
+
+from PIL import Image
 
 from .utils import to_str, to_bytes
 
@@ -160,6 +161,16 @@ class Profile(models.Model):
     def __str__(self):
         return f"{self.user.username}'s profile"
 
+    # resizing images
+    def save(self, *_args, **_kwargs):
+        super().save()
+
+        img = Image.open(self.avatar.path)
+
+        if img.height > 256 or img.width > 256:
+            new_img = (256, 256)
+            img.thumbnail(new_img)
+            img.save(self.avatar.path)
 
 class DockerImage(models.Model):
     """ Store a docker image information """

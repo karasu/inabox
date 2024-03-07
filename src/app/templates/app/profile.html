@@ -11,11 +11,13 @@
   <div class="card-body">
     <div class="row">        
       <div class="col-sm-4">
-        <img src="{% static user.profile.avatar.url %}" alt="avatar" width="256" class="card-img-top" style="width: 18rem;">
+        <img src="{% static user.profile.avatar.url %}"
+          alt="avatar" width="256" class="rounded-circle account-img" style="width: 18rem;">
       </div>
       <div class="col-sm-8">
-        <form action="{% url 'app:profile' pk=user.id %}" method="post" role="form" enctype="multipart/form-data">
-          USER DATA GOES HERE
+        <h2>{{ user.first_name }} {{ user.last_name }} ({{ user.username }})</h2>
+        <form action="{% url 'app:profile' pk=user.id %}" method="post"
+          enctype="multipart/form-data">
           <hr>      
           {% csrf_token %}
           {% for e in form.visible_fields %}
@@ -26,6 +28,7 @@
           {% endfor %}
           <button type="submit" class="btn btn-danger float-end">{{ _("Save changes") }}</button>
         </form>
+
       </div>
     </div>
   </div>

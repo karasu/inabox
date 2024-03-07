@@ -12,3 +12,4 @@ class InaboxConfig(AppConfig):
     def ready(self):
         """ startup code goes here """
         setup_logger()
+        import app.signals

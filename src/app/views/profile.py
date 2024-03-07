@@ -19,11 +19,8 @@ class ProfileView(LoginRequiredMixin, generic.DetailView):
         context = super().get_context_data(**kwargs)
 
         context['user'] = self.request.user
-
-        if self.request.user.id != context['profile'].user.id:
-            raise PermissionDenied()
-
-        context['form'] = ProfileForm(instance=context['profile'])
+        context['profile'] = Profile.objects.filter(user=self.request.user)
+        context['form'] = ProfileForm(instance=self.request.user.profile)
 
         return context
 
@@ -34,7 +31,10 @@ class ProfileView(LoginRequiredMixin, generic.DetailView):
             form = ProfileForm(request.POST, request.FILES)
 
             if form.is_valid():
-                form.save()
+                profile = form.save(commit=False)
+                profile.user = request.user
+                profile.save()
+
                 return redirect("profile", pk=pk)
 
             # Form is not valid
