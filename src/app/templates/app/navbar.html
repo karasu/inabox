@@ -51,7 +51,7 @@
 
       <!-- user avatar and link -->
       {% if user.is_authenticated %}
-      <a class="nav-item nav-link mx-sm-0 mx-lg-2 mb-2 mb-lg-0" href="{% url 'app:profile' %}">
+      <a class="nav-item nav-link mx-sm-0 mx-lg-2 mb-2 mb-lg-0" href="{% url 'app:profile' pk=user.id%}">
         <img class="img-thumbnail" style="max-width:64px;max-height:38px"
          src="{% static user.profile.avatar.url %}" alt="avatar">
         {{ user.get_username }}

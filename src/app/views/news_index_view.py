@@ -7,8 +7,6 @@ import asyncio
 
 from concurrent.futures import ThreadPoolExecutor
 
-from smtplib import SMTPAuthenticationError
-
 from django.http import HttpResponseBadRequest
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
@@ -31,6 +29,8 @@ from django.core.mail import EmailMessage
 from django.contrib import messages
 
 import paramiko
+
+from smtplib import SMTPAuthenticationError
 
 from .args import Args
 from .container import Image as DockerImage
@@ -61,13 +61,24 @@ from .utils import to_str
 
 from .worker import Worker, recycle_worker, clients
 
-from views import *
 
-@register.filter
-def get_item(dictionary, key):
-    """ Filter to get dict item in a loop """
-    return dictionary.get(key)
+class NewsIndexView(generic.ListView):
+    """ News view class """
+    template_name = "app/news.html"
+    model = NewsEntry
+    paginate_by = 10
 
-base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    def get_user_language(self):
+        """ get user's chosen language """
+        if self.request.user.is_authenticated:
+            user_id = self.request.user.id
+            profile = Profile.objects.get(user=user_id)
+            return profile.language
 
+        return get_language()
 
+    #def get_queryset(self):
+    #    """ Return the last five published news in the user's language """
+    #    return NewsEntry.objects.filter(
+    # language=self.get_user_language()).order_by("-pub_date")[:5]
+    

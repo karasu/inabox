@@ -7,8 +7,6 @@ import asyncio
 
 from concurrent.futures import ThreadPoolExecutor
 
-from smtplib import SMTPAuthenticationError
-
 from django.http import HttpResponseBadRequest
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
@@ -31,6 +29,8 @@ from django.core.mail import EmailMessage
 from django.contrib import messages
 
 import paramiko
+
+from smtplib import SMTPAuthenticationError
 
 from .args import Args
 from .container import Image as DockerImage
@@ -61,7 +61,6 @@ from .utils import to_str
 
 from .worker import Worker, recycle_worker, clients
 
-from views import *
 
 @register.filter
 def get_item(dictionary, key):
@@ -70,4 +69,34 @@ def get_item(dictionary, key):
 
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# Maximum live connections (ssh sessions) per client
+MAXCONN=20
+
+# The delay to call recycle_worker
+RECYLE_WORKER_DELAY=3
+
+class NewChallengeView(LoginRequiredMixin, generic.base.TemplateView):
+    """ New challenge view """
+    template_name="app/new_challenge.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["new_challenge_form"] = NewChallengeForm(user_id=self.request.user.id)
+        return context
+
+    def post(self, request):
+        """ Deal with post data here """
+        if request.method == "POST":
+            form = NewChallengeForm(request.POST, request.FILES)
+            if form.is_valid():
+                form.save()
+                return redirect("challenges")
+
+            # Form is not valid
+            return render(
+                request,
+                template_name=self.template_name,
+                context={'form': form})
+
+        raise PermissionDenied()
 

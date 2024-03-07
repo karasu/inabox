@@ -7,8 +7,6 @@ import asyncio
 
 from concurrent.futures import ThreadPoolExecutor
 
-from smtplib import SMTPAuthenticationError
-
 from django.http import HttpResponseBadRequest
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
@@ -31,6 +29,8 @@ from django.core.mail import EmailMessage
 from django.contrib import messages
 
 import paramiko
+
+from smtplib import SMTPAuthenticationError
 
 from .args import Args
 from .container import Image as DockerImage
@@ -61,13 +61,19 @@ from .utils import to_str
 
 from .worker import Worker, recycle_worker, clients
 
-from views import *
+class TeamsListView(generic.ListView):
+    """ List of teams """
+    template_name = "app/teams.html"
+    model = Team
+    paginate_by = 10
 
-@register.filter
-def get_item(dictionary, key):
-    """ Filter to get dict item in a loop """
-    return dictionary.get(key)
+class TeamDetailView(generic.DetailView):
+    """ Team details """
+    template_name = "app/team.html"
+    model = Team
 
-base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["members"] = User.objects.filter(
+            profile__team__id=context['team'].id)
+        return context

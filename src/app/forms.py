@@ -125,8 +125,8 @@ class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = [
-            'user', 'class_group', 'role', 'teacher', 'avatar', 'private_key',
-            'language', 'points', 'team', 'organization']
+            'user', 'class_group', 'role', 'teacher', 'avatar',
+            'private_key', 'language', 'points', 'team', 'organization']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

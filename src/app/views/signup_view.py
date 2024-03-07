@@ -7,8 +7,6 @@ import asyncio
 
 from concurrent.futures import ThreadPoolExecutor
 
-from smtplib import SMTPAuthenticationError
-
 from django.http import HttpResponseBadRequest
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
@@ -31,6 +29,8 @@ from django.core.mail import EmailMessage
 from django.contrib import messages
 
 import paramiko
+
+from smtplib import SMTPAuthenticationError
 
 from .args import Args
 from .container import Image as DockerImage
@@ -61,13 +61,32 @@ from .utils import to_str
 
 from .worker import Worker, recycle_worker, clients
 
-from views import *
+# https://python.plainenglish.io/how-to-send-email-with-verification-link-in-django-efb21eefffe8
+class SignUpView(generic.base.TemplateView):
+    """ Allows a new user to register """
+    template_name = "app/signup.html"
 
-@register.filter
-def get_item(dictionary, key):
-    """ Filter to get dict item in a loop """
-    return dictionary.get(key)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = SignUpForm()
+        return context
 
-base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    def post(self, request, *_args, **_kwargs):
+        """ User wants to sign up """
+        form = SignUpForm(request.POST)
 
+        if form.is_valid():
+            user = form.save()
+            profile = Profile(user=user)
+            profile.save()
+            #login(request, user, backend='django_auth_ldap.backend.LDAPBackend')
+            login(request, user,
+                  backend='django.contrib.auth.backends.ModelBackend')
+            return redirect('/verify-email', request=request)
+
+        # Form is not valid
+        return render(
+            request,
+            template_name=self.template_name,
+            context={'form': form})
 
