@@ -2,19 +2,19 @@
 
 from django.urls import path
 
-from .views.about_view import AboutView
-from .views.challenges_view import ChallengesListView, ChallengeDetailView
-from .views.new_challenge_view import NewChallengeView
-from .views.news_view import NewsView
-from .views.organizations_view import OrganizationsListView, OrganizationDetailView
-from .views.players_view import PlayersListView, PlayerDetailView
-from .views.profile_view import ProfileView
-from .views.quests_view import QuestsListView, QuestDetailView
-from .views.search_view import SearchView
-from .views.signup_view import SignUpView
-from .views.teams_view import TeamsListView, TeamDetailView
-from .views.verify_email_view import VerifyEmailView, VerifyEmailCompleteView
-from .views.verify_email_view import VerifyEmailConfirmView, VerifyEmailSentView
+from .views.about import AboutView
+from .views.challenges import ChallengesListView, ChallengeDetailView
+from .views.new_challenge import NewChallengeView
+from .views.news import NewsView
+from .views.organizations import OrganizationsListView, OrganizationDetailView
+from .views.players import PlayersListView, PlayerDetailView
+from .views.profile import ProfileView
+from .views.quests import QuestsListView, QuestDetailView
+from .views.search import SearchView
+from .views.signup import SignUpView
+from .views.teams import TeamsListView, TeamDetailView
+from .views.verify_email import VerifyEmailView, VerifyEmailCompleteView
+from .views.verify_email import VerifyEmailConfirmView, VerifyEmailSentView
 
 app_name = "app"
 

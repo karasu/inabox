@@ -1,4 +1,4 @@
-""" Challenges and Challenge views """
+""" Challenges and challenge views """
 
 import socket
 import os
