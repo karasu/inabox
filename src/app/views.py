@@ -34,7 +34,7 @@ from .container import Image as DockerImage
 
 from .forms import ChallengeSSHForm, CommentForm, NewChallengeForm
 from .forms import UploadSolutionForm, SearchForm, StartAgainForm
-from .forms import SignUpForm
+from .forms import SignUpForm, ProfileForm
 
 from .models import Challenge, Area, Profile, ProposedSolution, Quest, QuestChallenge
 from .models import ClassGroup, Team, Organization, Comment
@@ -782,7 +782,7 @@ class SearchView(generic.base.TemplateView):
             request,
             template_name=self.template_name,
             context={'form': form})
-
+'''
 class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
     """ Show user's profile """
     template_name = "app/profile.html"
@@ -797,19 +797,20 @@ class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
             "user": User.objects.get(id=self.request.user.id),
             "profile": Profile.objects.get(user=self.request.user)
         }
-        
+
         excludes = {
             "user": ["id", "password", "groups", "user_permissions", "profile"],
             "profile": ["id", "user", "private_key", "challenge",
                 "proposedsolution", "quest", "logentry"]}
 
         for k, obj in objs.items():
-            context[k + "_data"] = []
+            name = k + "_data"
+            context[name] = []
             for field in obj._meta.get_fields():
                 if field.name not in excludes[k]:
                     item = self.get_field_data(obj, field)
                     if item:
-                        context[k + "_data"].append(item)
+                        context[name].append(item)
 
         return context
 
@@ -819,6 +820,15 @@ class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
         try:
             label = field.verbose_name.capitalize()
             value = field.value_from_object(obj)
+            input_type = "text"
+            class_value = "form-control"
+
+            #if field.name == "avatar":
+            # input_type = "file"
+            #    #class_value = "form-control-file"
+
+            if field.name == "email":
+                input_type = "email"
 
             if field.name == "teacher":
                 value = User.objects.get(id=value)
@@ -849,7 +859,9 @@ class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
             return {
                 "name": field.name,
                 "label": label,
-                "value": value
+                "value": value,
+                "type": input_type,
+                "class": class_value,
             }
         except AttributeError as err:
             print(err)
@@ -858,6 +870,20 @@ class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
     def post(self, request, *args, **kwargs):
         """ Activate edition or save changes """
         pass
+'''
+
+class ProfileView(LoginRequiredMixin, generic.DetailView):
+    """ Show user's profile """
+    template_name = "app/profile.html"
+    editMode = False
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['roles'] = ROLES
+        context['editMode'] = self.editMode
+
+        context['profile_data'] = ProfileForm()
+        return context
 
 class PlayersListView(generic.ListView):
     """ Show a list of all players (users) """

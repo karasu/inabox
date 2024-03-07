@@ -6,7 +6,7 @@
 {% if user.is_authenticated %}
 {% load static %}
 
-{% if user_data and profile_data %}
+{% if profile_data %}
 <div class="card px-3">
   <div class="card-body">
     <div class="row">        
@@ -28,7 +28,7 @@
           <div class="form-group mb-3 row">
             <label for="{{ e.name }}" class="control-label col-sm-4 mt-2">{{ e.label }}</label>
             <div class="col-sm-8">
-              <input type="text" class="form-control" id="{{ e.name }}" value="{{ e.value }}" disabled>
+              <input type="{{ e.type }}" class="{{ e.class }}" id="{{ e.name }}" value="{{ e.value }}" disabled>
             </div>
           </div>
           {% endfor %}
@@ -43,7 +43,7 @@
               <a href="{% url 'app:team' pk=e.value.id %}"
                 class="btn btn-secondary form-control text-start">{{ e.value }}</a>
               {% else %}
-              <input type="text" class="form-control" id="{{ e.name }}" value="{{ e.value }}" disabled>
+              <input type="{{ e.type }}" class="{{ e.class }}" id="{{ e.name }}" value="{{ e.value }}" disabled>
               {% endif %}
             </div>
           </div>
