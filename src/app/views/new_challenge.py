@@ -1,6 +1,6 @@
 """ New challenge view """
 
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect, render
 from django.views import generic
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.mixins import LoginRequiredMixin

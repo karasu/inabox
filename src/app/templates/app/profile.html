@@ -5,55 +5,31 @@
 
 {% if user.is_authenticated %}
 {% load static %}
+{% include 'app/show_form_errors.html' %}
 
-{% if profile_data %}
 <div class="card px-3">
   <div class="card-body">
     <div class="row">        
       <div class="col-sm-4">
         <img src="{% static user.profile.avatar.url %}" alt="avatar" width="256" class="card-img-top" style="width: 18rem;">
-        {% if editMode %}
-        {% else %}
-        <form id="editprofile" class="my-2" action="{% url 'app:profile' pk=user.id %}"
-          method="post" enctype="multipart/form-data">
-          {% csrf_token %}
-          <button type="button" class="btn btn-danger">{{ _("Edit profile") }}</button>
-        </form>
-        {% endif %}
       </div>
       <div class="col-sm-8">
-        <form class="" action="#">      
+        <form action="{% url 'app:profile' pk=user.id %}" method="post" role="form" enctype="multipart/form-data">
+          USER DATA GOES HERE
+          <hr>      
           {% csrf_token %}
-          {% for e in user_data %}
-          <div class="form-group mb-3 row">
-            <label for="{{ e.name }}" class="control-label col-sm-4 mt-2">{{ e.label }}</label>
-            <div class="col-sm-8">
-              <input type="{{ e.type }}" class="{{ e.class }}" id="{{ e.name }}" value="{{ e.value }}" disabled>
-            </div>
+          {% for e in form.visible_fields %}
+          <div class="form-group mb-3">
+            {{ e.label_tag }}
+            {{ e }}
           </div>
           {% endfor %}
-          {% for e in profile_data %}
-          <div class="form-group mb-3 row">
-            <label for="{{ e.name }}" class="control-label col-sm-4 mt-2">{{ e.label }}</label>
-            <div class="col-sm-8">
-              {% if e.name == "organization" %}
-              <a href="{% url 'app:organization' pk=e.value.id %}"
-                class="btn btn-secondary form-control text-start">{{ e.value }}</a>
-              {% elif e.name == "team" %}
-              <a href="{% url 'app:team' pk=e.value.id %}"
-                class="btn btn-secondary form-control text-start">{{ e.value }}</a>
-              {% else %}
-              <input type="{{ e.type }}" class="{{ e.class }}" id="{{ e.name }}" value="{{ e.value }}" disabled>
-              {% endif %}
-            </div>
-          </div>
-          {% endfor %}
+          <button type="submit" class="btn btn-danger float-end">{{ _("Save changes") }}</button>
         </form>
       </div>
     </div>
   </div>
 </div>
-{% endif %}
 {% endif %}
 {% endblock %}
 
