@@ -49,6 +49,8 @@ from .utils import to_str
 
 from .worker import Worker, recycle_worker, clients
 
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 # Maximum live connections (ssh sessions) per client
 MAXCONN=20
 
