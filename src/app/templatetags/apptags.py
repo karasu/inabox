@@ -1,6 +1,5 @@
-""" app views go here """
-
-from views import *
+""" Template tags """
+from django.template.defaulttags import register
 
 @register.filter
 def get_item(dictionary, key):

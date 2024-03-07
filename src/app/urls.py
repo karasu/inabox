@@ -2,66 +2,78 @@
 
 from django.urls import path
 
-from . import views
+from .views.about_view import AboutView
+from .views.challenges_view import ChallengesListView, ChallengeDetailView
+from .views.new_challenge_view import NewChallengeView
+from .views.news_view import NewsView
+from .views.organizations_view import OrganizationsListView, OrganizationDetailView
+from .views.players_view import PlayersListView, PlayerDetailView
+from .views.profile_view import ProfileView
+from .views.quests_view import QuestsListView, QuestDetailView
+from .views.search_view import SearchView
+from .views.signup_view import SignUpView
+from .views.teams_view import TeamsListView, TeamDetailView
+from .views.verify_email_view import VerifyEmailView, VerifyEmailCompleteView
+from .views.verify_email_view import VerifyEmailConfirmView, VerifyEmailSentView
 
 app_name = "app"
 
 urlpatterns = [
-    path("", views.NewsIndexView.as_view(), name="news"),
-    path("about/", views.AboutView.as_view(), name="about"),
+    path("", NewsView.as_view(), name="news"),
+    path("about/", AboutView.as_view(), name="about"),
 
-    path("signup/", views.SignUpView.as_view(), name="signup"),
+    path("signup/", SignUpView.as_view(), name="signup"),
 
     # /challenges
-    path("challenges/", views.ChallengesListView.as_view(),
+    path("challenges/", ChallengesListView.as_view(),
         name="challenges"),
     # /challenges/5
-    path("challenges/<int:pk>/", views.ChallengeDetailView.as_view(),
+    path("challenges/<int:pk>/", ChallengeDetailView.as_view(),
         name="challenge"),
     # /challenges/new
-    path("challenges/new/", views.NewChallengeView.as_view(),
+    path("challenges/new/", NewChallengeView.as_view(),
         name="new_challenge"),
 
     # /quests
-    path("quests/", views.QuestsListView.as_view(),
+    path("quests/", QuestsListView.as_view(),
         name="quests"),
     # /quests/5
-    path("quests/<int:pk>/", views.QuestDetailView.as_view(),
+    path("quests/<int:pk>/", QuestDetailView.as_view(),
         name="quest"),
 
     # /players
-    path("players/", views.PlayersListView.as_view(),
+    path("players/", PlayersListView.as_view(),
         name="players"),
     # /players/5
-    path("players/<int:pk>/", views.PlayerDetailView.as_view(),
+    path("players/<int:pk>/", PlayerDetailView.as_view(),
         name="player"),
 
     # /teams
-    path("teams/", views.TeamsListView.as_view(),
+    path("teams/", TeamsListView.as_view(),
         name="teams"),
     # /teams/5
-    path("teams/<int:pk>/", views.TeamDetailView.as_view(),
+    path("teams/<int:pk>/", TeamDetailView.as_view(),
         name="team"),
 
     # /organizations
-    path("organizations/", views.OrganizationsListView.as_view(),
+    path("organizations/", OrganizationsListView.as_view(),
         name="organizations"),
     # /organizations/5
-    path("organizations/<int:pk>/", views.OrganizationDetailView.as_view(),
+    path("organizations/<int:pk>/", OrganizationDetailView.as_view(),
         name="organization"),
 
-    path("search/", views.SearchView.as_view(),
+    path("search/", SearchView.as_view(),
         name="search"),
-    path("profile/<int:pk>", views.ProfileView.as_view(),
+    path("profile/<int:pk>", ProfileView.as_view(),
         name="profile"),
 
     # verify email urls
-    path('verify-email/', views.VerifyEmailView.as_view(),
+    path('verify-email/', VerifyEmailView.as_view(),
         name='verify-email'),
-    path('verify-email-sent/', views.VerifyEmailSentView.as_view(),
+    path('verify-email-sent/', VerifyEmailSentView.as_view(),
         name='verify-email-sent'),
-    path('verify-email-confirm/<uidb64>/<token>/', views.VerifyEmailConfirmView.as_view(),
+    path('verify-email-confirm/<uidb64>/<token>/', VerifyEmailConfirmView.as_view(),
         name='verify-email-confirm'),
-    path('verify-email/complete/', views.VerifyEmailCompleteView.as_view(),
+    path('verify-email/complete/', VerifyEmailCompleteView.as_view(),
         name='verify-email-complete'),
 ]

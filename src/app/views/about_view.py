@@ -1,4 +1,4 @@
-""" app views go here """
+""" About inabox view """
 
 from django.views import generic
 

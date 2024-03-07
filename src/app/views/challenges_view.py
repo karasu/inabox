@@ -1,5 +1,4 @@
-""" app views go here """
-
+""" Challenges and Challenge views """
 
 import socket
 import os
@@ -20,34 +19,27 @@ from django.core.exceptions import PermissionDenied
 
 import paramiko
 
-from .args import Args
-from .container import Image as DockerImage
+from ..args import Args
+from ..container import Image as DockerImage
 
-from .forms import ChallengeSSHForm, CommentForm, NewChallengeForm
-from .forms import UploadSolutionForm, SearchForm, StartAgainForm
-from .forms import SignUpForm, ProfileForm
+from ..forms import ChallengeSSHForm, CommentForm
+from ..forms import UploadSolutionForm, StartAgainForm
 
-from .models import Challenge, Area, Profile, ProposedSolution, Quest, QuestChallenge
-#from .models import ClassGroup
-from .models import Team, Organization, Comment
-#from .models import DockerImage
-from .models import UserChallengeContainer, UserChallengeImage
-from .models import LEVELS, ROLES
-from .models import NewsEntry
+from ..models import Challenge, Area, Profile, ProposedSolution
+from ..models import Comment
+from ..models import UserChallengeContainer, UserChallengeImage
+from ..models import LEVELS
 
-from .privatekey import InvalidValueError
-from .sshclient import SSHClient
+from ..privatekey import InvalidValueError
+from ..sshclient import SSHClient
 
-from .tasks import validate_solution_task
-from .tasks import run_container_task, commit_container_task
-from .tasks import remove_container_task, remove_image_task
+from ..tasks import validate_solution_task
+from ..tasks import run_container_task, commit_container_task
+from ..tasks import remove_container_task, remove_image_task
 
-from .logger import g_logger
+from ..logger import g_logger
 
-from .token import account_activation_token
-from .utils import to_str
-
-from .worker import Worker, recycle_worker, clients
+from ..worker import Worker, recycle_worker, clients
 
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
