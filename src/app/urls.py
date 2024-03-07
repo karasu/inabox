@@ -64,7 +64,7 @@ urlpatterns = [
 
     path("search/", SearchView.as_view(),
         name="search"),
-    path("profile/<int:pk>", ProfileView.as_view(),
+    path("profile/", ProfileView.as_view(),
         name="profile"),
 
     # verify email urls

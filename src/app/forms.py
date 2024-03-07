@@ -46,11 +46,13 @@ class UploadSolutionForm(forms.ModelForm):
             # set the creator field to the current user (and remove the rest)
             self.fields['user'].queryset = User.objects.filter(id=user_id)
             self.fields['user'].empty_label = None
+            self.fields['user'].disabled = True
 
         if challenge_id:
             # set the challenge field to the current challenge (and remove the rest)
             self.fields['challenge'].queryset = Challenge.objects.filter(id=challenge_id)
             self.fields['challenge'].empty_label = None
+            self.fields['challenge'].disabled = True
 
 
 class SearchForm(forms.Form):
@@ -80,6 +82,7 @@ class NewChallengeForm(forms.ModelForm):
         if user_id:
             self.fields['creator'].queryset = User.objects.filter(id=user_id)
             self.fields['creator'].empty_label = None
+            self.fields['creator'].disabled = True
 
 class CommentForm(forms.ModelForm):
     """ Form to add a new comment to a challenge """
@@ -100,11 +103,13 @@ class CommentForm(forms.ModelForm):
             # set the creator field to the current user (and remove the rest)
             self.fields['user'].queryset = User.objects.filter(id=user_id)
             self.fields['user'].empty_label = None
+            self.fields['user'].disabled = True
 
         if challenge_id:
             # set the challenge field to the current challenge (and remove the rest)
             self.fields['challenge'].queryset = Challenge.objects.filter(id=challenge_id)
             self.fields['challenge'].empty_label = None
+            self.fields['challenge'].disabled = True
 
 
 class SignUpForm(UserCreationForm):
@@ -125,8 +130,8 @@ class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = [
-            'class_group', 'role', 'teacher', 'avatar',
-            'private_key', 'language', 'points', 'team', 'organization']
+            'user', 'class_group', 'role', 'teacher', 'avatar',
+            'language', 'points', 'team', 'organization', 'private_key']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -134,3 +139,5 @@ class ProfileForm(forms.ModelForm):
         # Add form-control class to all form widgets
         for field in self.visible_fields():
             field.field.widget.attrs.update({'class': 'form-control'})
+
+        self.fields['user'].disabled = True

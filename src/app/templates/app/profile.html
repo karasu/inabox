@@ -16,7 +16,7 @@
       </div>
       <div class="col-sm-8">
         <h2>{{ user.first_name }} {{ user.last_name }} ({{ user.username }})</h2>
-        <form action="{% url 'app:profile' pk=user.id %}" method="post"
+        <form action="{% url 'app:profile' %}" method="post"
           enctype="multipart/form-data">
           <hr>      
           {% csrf_token %}
