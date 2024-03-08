@@ -228,8 +228,7 @@ USE_TZ = True
 
 # URL to access static files.
 if DEBUG:
-    #STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-    STATIC_URL = '/static/'
+    STATIC_URL = 'static/'
 else:
     STATIC_ROOT = '/tmp/static'
     STATIC_URL = 'https://static.inabox.ies-sabadell.cat/static/'
@@ -243,9 +242,10 @@ else:
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 if DEBUG:
-    MEDIA_URL = '/'
+    MEDIA_ROOT = ''
+    MEDIA_URL = ''
 else:
-    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+    MEDIA_ROOT = '/tmp/media'
     MEDIA_URL = 'https://static.inabox.ies-sabadell.cat/media/'
 
 #STATICFILES_FINDERS = [
