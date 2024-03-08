@@ -166,3 +166,5 @@ src/db.sqlite3.bak
 
 # Do not store static files (generated with collectstatic)
 src/static
+src/users
+
