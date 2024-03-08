@@ -20,7 +20,13 @@
           enctype="multipart/form-data">
           <hr>      
           {% csrf_token %}
-          {% for e in form.visible_fields %}
+          {% for e in user_form.visible_fields %}
+          <div class="form-group mb-3">
+            {{ e.label_tag }}
+            {{ e }}
+          </div>
+          {% endfor %}
+          {% for e in profile_form.visible_fields %}
           <div class="form-group mb-3">
             {{ e.label_tag }}
             {{ e }}

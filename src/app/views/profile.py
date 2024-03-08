@@ -4,7 +4,7 @@ from django.views import generic
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
-from ..forms import ProfileForm
+from ..forms import ProfileForm, UserForm
 
 
 class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
@@ -13,8 +13,10 @@ class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['user'] = self.request.user
-        context['form'] = ProfileForm(instance=self.request.user.profile)
+        user = self.request.user
+        context['user'] = user
+        context['user_form'] = UserForm(instance=user)
+        context['profile_form'] = ProfileForm(instance=user.profile)
 
         return context
 
@@ -24,18 +26,22 @@ class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
         profile = user.profile
 
         if request.method == "POST":
+            # Save user's data form
+            user_form = UserForm(request.POST, instance=request.user)
             # Save user's profile data form
-            form = ProfileForm(
+            profile_form = ProfileForm(
                 request.POST, request.FILES,
                 instance=profile)
-            if form.is_valid():
-                form.save()
+            if user_form.is_valid() and profile_form.is_valid():
+                user_form.save()
+                profile_form.save()
         else:
             # Show form with current user's profile data
-            form = ProfileForm(
-                instance=profile)
+            user_form = UserForm(request.POST, instance=user)
+            profile_form = ProfileForm(instance=profile)
 
         return render(request, self.template_name, {
             'user': user,
             'profile': profile,
-            'form': form }) 
+            'user_form': user_form,
+            'profile_form': profile_form }) 
