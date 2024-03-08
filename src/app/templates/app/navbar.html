@@ -50,17 +50,23 @@
       </form>
 
       <!-- user avatar and link -->
+      
       {% if user.is_authenticated %}
       <a class="nav-item nav-link mx-sm-0 mx-lg-2 mb-2 mb-lg-0" href="{% url 'app:profile' %}">
         <img class="img-thumbnail" style="max-width:64px;max-height:38px"
          src="{{ user.profile.avatar.url }}" alt="avatar">
-         
         {{ user.get_username }}
       </a>
-      <a class="btn btn-warning ms-sm-0 ms-lg-2" href="{% url 'logout' %}">{{ _("Log out!") }}</a>
+      <a class="btn btn-warning ms-sm-0 ms-lg-2 me-2"
+        style="max-height:38px" href="{% url 'logout' %}">
+        <span style="font-size:smaller;">{{ _("Exit") }}</span></a>
       {% else %}
-      <a class="btn btn-light ms-sm-0 ms-lg-2 me-2" href="{% url 'login' %}">{{ _("Log in!") }}</a>or
-      <a class="btn btn-light ms-sm-0 ms-lg-2" href="{% url 'app:signup' %}">{{ _("Sign up!") }}</a>
+      <a class="btn btn-light ms-sm-0 ms-lg-2 me-2"
+        style="max-height:38px" href="{% url 'login' %}">
+        <span style="font-size:smaller;">{{ _("Log in!") }}</span></a>or
+      <a class="btn btn-light ms-sm-0 ms-lg-2"
+        style="max-height:38px" href="{% url 'app:signup' %}">
+        <span style="font-size:smaller;">{{ _("Sign up!") }}</span></a>
       {% endif %}
     </div>
   </div>
