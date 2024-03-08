@@ -11,7 +11,9 @@ django-celery-beat
 django-celery-results
 django-colorfield
 django-debug-toolbar
+django-minify-html
 docker
+minify-html
 msgpack
 paramiko
 pillow

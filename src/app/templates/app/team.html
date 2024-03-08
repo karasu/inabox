@@ -18,7 +18,7 @@
 
 <h2>{{ _("Members:") }}</h2>
 {% for member in members %}
-<a class="btn btn-secondary" href="{% url 'app:player' pk=member.id %}">
+<a class="btn btn-secondary me-sm-2 my-sm-2" href="{% url 'app:player' pk=member.id %}">
 {% if member.first_name and member.last_name %}
 {{ member.first_name }} {{ member.last_name }}
 {% else %}

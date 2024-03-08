@@ -16,12 +16,10 @@ class InaboxModelForm(forms.ModelForm):
         # Add form-control class to all form widgets
         for field in self.visible_fields():
             if isinstance(field.field, forms.fields.BooleanField):
-                field.field.widget.attrs.update({'class': 'form-check-input form-switch'})
-            elif isinstance(field.field, forms.fields.DateTimeField):
-                field.field.widget.attrs.update({'class': ''})
+                field.field.widget.attrs.update({'class': 'form-check-input form-switch ms-2'})
             else:
                 field.field.widget.attrs.update({'class': 'form-control'})
-    
+
         if user_id:
             # set the creator field to the current user (and remove the rest)
             self.fields['user'].queryset = User.objects.filter(id=user_id)
@@ -49,11 +47,13 @@ class ChallengeSSHForm(forms.Form):
     image_name = forms.CharField(widget=forms.HiddenInput(), required=False)
     container_id = forms.CharField(widget=forms.HiddenInput(), required=False)
 
+
 class StartAgainForm(forms.Form):
     """ Form with challenge and container info """
     challenge_id = forms.IntegerField(widget=forms.HiddenInput())
     image_name = forms.CharField(widget=forms.HiddenInput(), required=False)
     container_id = forms.CharField(widget=forms.HiddenInput(), required=False)
+
 
 class UploadSolutionForm(InaboxModelForm):
     """ This form is used to upload a challenge solution """
@@ -113,9 +113,8 @@ class UserForm(InaboxModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # disable these fields
         for field_name in self.disable:
-            self.fields[field_name].disabled = True    
+            self.fields[field_name].disabled = True
 
 
 class ProfileForm(InaboxModelForm):
@@ -126,6 +125,10 @@ class ProfileForm(InaboxModelForm):
             'user', 'class_group', 'role', 'teacher', 'avatar',
             'language', 'points', 'team', 'organization', 'private_key']
 
+    disable = ['user', 'points']
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['user'].disabled = True
+
+        for field_name in self.disable:
+            self.fields[field_name].disabled = True
