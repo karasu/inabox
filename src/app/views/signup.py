@@ -6,7 +6,6 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import login
 
 from ..forms import SignUpForm
-from ..models import Profile
 
 
 # https://python.plainenglish.io/how-to-send-email-with-verification-link-in-django-efb21eefffe8
@@ -25,12 +24,10 @@ class SignUpView(generic.base.TemplateView):
 
         if form.is_valid():
             user = form.save()
-            profile = Profile(user=user)
-            profile.save()
-            #login(request, user, backend='django_auth_ldap.backend.LDAPBackend')
+            # profile is saved in signals.py
             login(request, user,
                   backend='django.contrib.auth.backends.ModelBackend')
-            return redirect('/verify-email', request=request)
+            return redirect('verify-email', request=request)
 
         # Form is not valid
         return render(

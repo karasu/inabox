@@ -58,7 +58,7 @@ class VerifyEmailView(generic.base.TemplateView):
                             'error_id': exc.smtp_code,
                             'error_message': error_message }
                     )
-                return redirect('/verify-email-sent')
+                return redirect('verify-email-sent')
             # email is already verified
             return redirect('signup')
         return render(request, self.template_name)
@@ -88,7 +88,7 @@ class VerifyEmailConfirmView(generic.base.TemplateView):
             user.profile.email_is_verified = True
             user.profile.save()
             messages.success(request, 'Your email has been verified.')
-            return redirect('/verify-email-complete')
+            return redirect('verify-email-complete')
         messages.warning(request, 'The link is invalid.')
         return render(request, 'app/verify_email/verify_email_confirm.html')
 
