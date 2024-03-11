@@ -27,7 +27,7 @@ class SignUpView(generic.base.TemplateView):
             # profile is saved in signals.py
             login(request, user,
                   backend='django.contrib.auth.backends.ModelBackend')
-            return redirect('verify-email', request=request)
+            return redirect('/verify-email/', request=request)
 
         # Form is not valid
         return render(

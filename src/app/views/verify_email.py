@@ -14,13 +14,14 @@ from django.utils.http import urlsafe_base64_decode
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from ..logger import g_logger
 from ..token import account_activation_token
 from ..utils import to_str
 
 
-class VerifyEmailView(generic.base.TemplateView):
+class VerifyEmailView(LoginRequiredMixin, generic.base.TemplateView):
     """ Send the verification link to the user’s email """
     template_name = 'app/verify_email/verify_email.html'
 
