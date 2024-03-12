@@ -76,13 +76,16 @@ ADMINS = [(
     SECRETS.get("ADMIN_USERNAME", "admin"),
     SECRETS.get("ADMIN_EMAIL", "admin@admin.com"))]
 
+# LDAP
+AUTH_LDAP_SERVER_URI = "ldap://ldap.inabox.ies-sabadell.cat"
 AUTH_LDAP_BIND_DN = ""
 AUTH_LDAP_BIND_PASSWORD = ""
-AUTH_LDAP_USER_SEARCH = LDAPSearch(
-    "ou=users,dc=inabox,dc=ies-sabadell,dc=cat",
-    ldap.SCOPE_SUBTREE,
-    "(uid=%(user)s)"
-)
+AUTH_LDAP_USER_DN_TEMPLATE = "uid=%(user)s,ou=users,dc=inabox,dc=ies-sabadell,dc=cat"
+#AUTH_LDAP_USER_SEARCH = LDAPSearch(
+#    "ou=users,dc=inabox,dc=ies-sabadell,dc=cat",
+#    ldap.SCOPE_SUBTREE,
+#    "(uid=%(user)s)"
+#)
 AUTH_LDAP_START_TLS = False
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -179,7 +182,13 @@ if DEBUG:
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
             'NAME': os.path.join(BASE_DIR , 'db.sqlite3'),
-        }
+        },
+        'ldap': {
+            'ENGINE': 'ldapdb.backends.ldap',
+            'NAME': 'ldap://ldap.inabox.ies-sabadell.cat/',
+            'USER': 'cn=admin,dc=inabox,dc=ies-sabadell,dc=cat',
+            'PASSWORD': SECRETS.get("LDAP_DB_PASSWORD", "development"),
+        },
     }
 else:
     DATABASES = {
@@ -190,7 +199,13 @@ else:
             "PASSWORD": SECRETS.get("DB_PASSWORD", "development"),
             "HOST": "postgres.inabox.ies-sabadell.cat",
             "PORT": "5432",
-        }
+        },
+        'ldap': {
+            'ENGINE': 'ldapdb.backends.ldap',
+            'NAME': 'ldap://ldap.inabox.ies-sabadell.cat/',
+            'USER': 'cn=admin,dc=inabox,dc=ies-sabadell,dc=cat',
+            'PASSWORD': SECRETS.get("LDAP_DB_PASSWORD", "development"),
+        },
     }
 
 # Password validation

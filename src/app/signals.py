@@ -20,3 +20,6 @@ def create_profile(sender, instance, created, **_kwargs):
 def save_profile(sender, instance, **_kwargs):
     """ run after a user is saved """
     instance.profile.save()
+    # Also store user (sender) and profile to LDAP
+    sender.save(using="ldap", force_insert=True)
+    instance.profile.save(using="ldap", force_insert=True)

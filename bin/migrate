@@ -1,10 +1,16 @@
 #!/bin/sh
 
 PWD=`pwd`
+INABOX_DIR="/home/karasu/inabox"
 DJANGO_SRC="/home/karasu/inabox/src"
 
-cd ${DJANGO_SRC}
+if [ "${XDG_SESSION_TYPE}" == "tty" ]; then
+  docker-compose up ldap
+else
+  kitty --detach --title ldap --directory "${INABOX_DIR}" docker-compose up ldap
+fi
 
+cd ${DJANGO_SRC}
 rm -f ${DJANGO_SRC}/app/migrations/*.py
 rm -rf ${DJANGO_SRC}/app/migrations/__pycache__
 
@@ -16,11 +22,15 @@ python manage.py makemigrations app
 
 echo Running migrate step...
 python manage.py migrate
+python manage.py migrate --database=ldap
 
 #python manage.py createsuperuser --username karasu --email notvalid@inabox.com 
 
 # Load fixtures into database
 ../bin/loaddata
+
+cd ${INABOX_DIR}
+docker-compose stop ldap
 
 cd ${PWD}
 

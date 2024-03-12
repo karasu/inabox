@@ -11,6 +11,7 @@ django-celery-beat
 django-celery-results
 django-colorfield
 django-debug-toolbar
+django-ldapdb
 django-minify-html
 docker
 minify-html
@@ -25,4 +26,3 @@ pyyaml
 redis
 six
 twisted
-

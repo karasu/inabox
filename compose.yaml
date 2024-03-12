@@ -64,8 +64,7 @@ services:
     environment:
       - LDAP_ORGANISATION=inabox
       - LDAP_DOMAIN=inabox.ies-sabadell.cat
-      - "LDAP_BASE_DN=dc=inabox,dc=ies-sabadell,dc=cat"
-      - LDAP_ADMIN_PASSWORD=inabox
+      - LDAP_ADMIN_PASSWORD=development
     volumes:
       - ldap:/var/lib/ldap
       - slapd.d:/etc/ldap/slapd.d
