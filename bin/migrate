@@ -16,6 +16,8 @@ rm -rf ${DJANGO_SRC}/app/migrations/__pycache__
 
 mv ${DJANGO_SRC}/db.sqlite3 db.sqlite3.bak
 
+python manage.py version
+
 echo Running makemigrations step...
 python manage.py makemigrations app
 
@@ -23,15 +25,14 @@ echo "Running migrate step..."
 python manage.py migrate
 
 echo "Running migrate (LDAP) step..."
-python manage.py migrate --database=ldap
+python manage.py migrate --database=ldap app
 
 #python manage.py createsuperuser --username karasu --email notvalid@inabox.com 
 
 # Load fixtures into database
-../bin/loaddata
+python manage.py loaddata app/classgroups app/users app/challenges app/quests app/news
 
 cd ${INABOX_DIR}
 docker-compose stop ldap
 
 cd ${PWD}
-
