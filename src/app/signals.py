@@ -13,13 +13,25 @@ from .models import Profile
 def create_profile(sender, instance, created, **_kwargs):
     """ is run every time a user is created """ 
     if created:
+        # Create user's profile
         Profile.objects.create(user=instance)
 
 
 @receiver(post_save, sender=User)
-def save_profile(sender, instance, **_kwargs):
+def save_profile(sender, instance, **kwargs):
     """ run after a user is saved """
+    # Save user's profile
     instance.profile.save()
+
     # Also store user (sender) and profile to LDAP
-    sender.save(using="ldap", force_insert=True)
-    instance.profile.save(using="ldap", force_insert=True)
+    print("-- sender:", sender)
+    print("-- instance:", instance)
+    print("-- kwargs:", *kwargs)
+
+    #instance.save(using="ldap")
+    #instance.save(using="ldap", force_insert=True)
+    #sender.save(using="ldap", force_insert=True)
+    #instance.profile.save(using="ldap", force_insert=True)
+
+
+# (receiver, receiver(signal=self, sender=sender, **named))

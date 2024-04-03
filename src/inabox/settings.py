@@ -13,8 +13,10 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 import os
 
-from django_auth_ldap.config import LDAPSearch
-import ldap
+# django-ldap-auth
+# https://github.com/django-auth-ldap/django-auth-ldap
+# from django_auth_ldap.config import LDAPSearch
+# import ldap
 
 BOOL_STR = {
     "True": ['true', '1', 'y', 'yes'],
@@ -76,7 +78,9 @@ ADMINS = [(
     SECRETS.get("ADMIN_USERNAME", "admin"),
     SECRETS.get("ADMIN_EMAIL", "admin@admin.com"))]
 
-# LDAP
+# django-ldap-auth
+# https://github.com/django-auth-ldap/django-auth-ldap
+
 AUTH_LDAP_SERVER_URI = "ldap://ldap.inabox.ies-sabadell.cat"
 AUTH_LDAP_BIND_DN = ""
 AUTH_LDAP_BIND_PASSWORD = ""
@@ -177,6 +181,9 @@ WSGI_APPLICATION = 'inabox.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+# ldapdb
+# https://github.com/django-ldapdb/django-ldapdb
+
 if DEBUG:
     DATABASES = {
         "default": {
@@ -207,6 +214,7 @@ else:
             'PASSWORD': SECRETS.get("LDAP_DB_PASSWORD", "development"),
         },
     }
+DATABASE_ROUTERS = ['ldapdb.router.Router']
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
