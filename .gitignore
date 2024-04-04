@@ -159,9 +159,15 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
+# Do not store ssh hosts
 known_hosts
-secrets.txt
 
+# Do not store secret files
+secrets.txt
+django-secret-key.txt
+db-password.txt
+
+# Do not store backup devel db
 src/db.sqlite3.bak
 
 # Do not store static files (generated with collectstatic)
