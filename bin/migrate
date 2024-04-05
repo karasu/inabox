@@ -16,16 +16,17 @@ rm -rf ${DJANGO_SRC}/app/migrations/__pycache__
 
 mv ${DJANGO_SRC}/db.sqlite3 db.sqlite3.bak
 
-python manage.py version
+echo [VERSION]
+python manage.py version --database=primary
 
-echo Running makemigrations step...
-python manage.py makemigrations app
-
-echo "Running migrate step..."
-python manage.py migrate
+echo "Running makemigrations step..."
+python manage.py makemigrations
 
 echo "Running migrate (LDAP) step..."
-python manage.py migrate --database=ldap app
+python manage.py migrate --database=auth
+
+echo "Running migrate step..."
+python manage.py migrate --database=primary
 
 #python manage.py createsuperuser --username karasu --email notvalid@inabox.com 
 

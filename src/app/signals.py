@@ -22,12 +22,3 @@ def save_profile(sender, instance, **_kwargs):
     """ run after a user is saved """
     # Save user's profile
     instance.profile.save()
-
-    # Also store user (sender) and profile to LDAP
-    #instance.save(using="ldap")
-    #instance.save(using="ldap", force_insert=True)
-    #sender.save(using="ldap", force_insert=True)
-    #instance.profile.save(using="ldap")
-
-
-# (receiver, receiver(signal=self, sender=sender, **named))
