@@ -186,11 +186,11 @@ WSGI_APPLICATION = 'inabox.wsgi.application'
 
 if DEBUG:
     DATABASES = {
-        "primary": {
+        "default": {
             "ENGINE": "django.db.backends.sqlite3",
             'NAME': os.path.join(BASE_DIR , 'db.sqlite3'),
         },
-        'auth': {
+        'ldap': {
             'ENGINE': 'ldapdb.backends.ldap',
             'NAME': 'ldap://ldap.inabox.ies-sabadell.cat/',
             'USER': 'cn=admin,dc=inabox,dc=ies-sabadell,dc=cat',
@@ -199,7 +199,7 @@ if DEBUG:
     }
 else:
     DATABASES = {
-        "primary": {
+        "default": {
             "ENGINE": "django.db.backends.postgresql",
             "NAME": "postgres",
             "USER": "postgres",
@@ -207,15 +207,19 @@ else:
             "HOST": "postgres.inabox.ies-sabadell.cat",
             "PORT": "5432",
         },
-        'auth': {
+        'ldap': {
             'ENGINE': 'ldapdb.backends.ldap',
             'NAME': 'ldap://ldap.inabox.ies-sabadell.cat/',
             'USER': 'cn=admin,dc=inabox,dc=ies-sabadell,dc=cat',
             'PASSWORD': SECRETS.get("LDAP_DB_PASSWORD", "development"),
         },
     }
-# DATABASE_ROUTERS = ['ldapdb.router.Router']
-DATABASE_ROUTERS = ["inabox.routers.AuthRouter", "inabox.routers.DefaultRouter"]
+
+DATABASE_ROUTERS = [
+    'inabox.routers.AuthRouter',
+    'ldapdb.router.Router',
+    'inabox.routers.DefaultRouter']
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

@@ -13,7 +13,7 @@ class AuthRouter:
         Attempts to read auth and contenttypes models go to auth_db.
         """
         if model._meta.app_label in self.route_app_labels:
-            return "auth"
+            return "ldap"
         return None
 
     def db_for_write(self, model, **_hints):
@@ -21,7 +21,7 @@ class AuthRouter:
         Attempts to write auth and contenttypes models go to auth_db.
         """
         if model._meta.app_label in self.route_app_labels:
-            return "auth"
+            return "ldap"
         return None
 
     def allow_relation(self, obj1, obj2, **_hints):
@@ -42,25 +42,26 @@ class AuthRouter:
         'auth_db' database.
         """
         if app_label in self.route_app_labels:
-            return db == "auth"
+            return db == "ldap"
         return None
 
 class DefaultRouter:
     """ Router that sends all non auth related to the defaultconfiguration """
+
     def db_for_read(self, _model, **_hints):
         """ Reads go to default database (non ldap) """
-        return "primary"
+        return "default"
 
     def db_for_write(self, _model, **_hints):
         """ Writes go to default database (non ldap) """
-        return "primary"
+        return "default"
 
     def allow_relation(self, obj1, obj2, **_hints):
         """
         Relations between objects are allowed if both objects are
         in the default pool.
         """
-        db_set = {"primary"}
+        db_set = {"default"}
         if obj1._state.db in db_set and obj2._state.db in db_set:
             return True
         return None
