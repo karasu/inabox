@@ -174,3 +174,7 @@ src/db.sqlite3.bak
 src/static
 src/users
 
+# Do not store generated proxy files
+services/nginx/acme
+services/nginx/certs/default.key
+services/nginx/vhost
