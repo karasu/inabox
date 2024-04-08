@@ -13,12 +13,6 @@ PWD=`pwd`
 INABOX_DIR="/home/karasu/inabox"
 DJANGO_SRC="/home/karasu/inabox/src"
 
-if [ "${XDG_SESSION_TYPE}" == "tty" ]; then
-  docker-compose up ldap
-else
-  kitty --start-as=minimized --detach --title ldap --directory "${INABOX_DIR}" docker-compose up ldap
-fi
-
 cd ${DJANGO_SRC}
 rm -f ${DJANGO_SRC}/app/migrations/*.py
 rm -rf ${DJANGO_SRC}/app/migrations/__pycache__
@@ -32,25 +26,14 @@ show_msg "Running makemigrations step..."
 python manage.py makemigrations app
 pause
 
-show_msg "Running migrate (ldap) step..."
-python manage.py migrate --database=ldap auth
-pause
-
 show_msg "Running migrate (default) step..."
 python manage.py migrate
 pause
 
 #python manage.py createsuperuser --username karasu --email notvalid@inabox.com 
 
-show_msg "Load fixtures into auth database..."
-python manage.py loaddata --database=ldap app/users
-pause
-
 show_msg "Load fixtures into default database..."
 python manage.py loaddata app/classgroups app/users app/challenges app/quests app/news
 pause
-
-cd ${INABOX_DIR}
-docker-compose stop ldap
 
 cd ${PWD}

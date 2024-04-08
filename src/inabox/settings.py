@@ -215,10 +215,8 @@ else:
         },
     }
 
-DATABASE_ROUTERS = [
-    'inabox.routers.AuthRouter',
-    'ldapdb.router.Router',
-    'inabox.routers.DefaultRouter']
+# Use provided ldap db router so user searches are also done in the ldap database
+DATABASE_ROUTERS = ['ldapdb.router.Router']
 
 
 # Password validation
