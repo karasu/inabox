@@ -38,24 +38,24 @@ services:
       - backend
       - frontend
 
-#  proxy-acme:
-#    image: nginxproxy/acme-companion
-#    container_name: 'proxy-acme.inabox.ies-sabadell.cat'
-#    restart: always
-#    volumes:
-#      - /var/run/docker.sock:/var/run/docker.sock:ro
-#      - ./services/nginx/certs:/etc/nginx/certs 
-#      - ./services/nginx/vhost:/etc/nginx/vhost.d
-#      - ./services/nginx/html:/usr/share/nginx/html
-#      - ./services/nginx/acme:/etc/acme.sh
-#    environment:
-#      - "DEFAULT_EMAIL=inabox@ies-sabadell.cat"
-#      - NGINX_PROXY_CONTAINER=proxy.inabox.ies-sabadell.cat
-#    depends_on:
-#      proxy:
-#        condition: service_started
-#    networks:
-#      - backend
+  proxy-acme:
+    image: nginxproxy/acme-companion
+    container_name: 'proxy-acme.inabox.ies-sabadell.cat'
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./services/nginx/certs:/etc/nginx/certs 
+      - ./services/nginx/vhost:/etc/nginx/vhost.d
+      - ./services/nginx/html:/usr/share/nginx/html
+      - ./services/nginx/acme:/etc/acme.sh
+    environment:
+      - "DEFAULT_EMAIL=inabox@ies-sabadell.cat"
+      - NGINX_PROXY_CONTAINER=proxy.inabox.ies-sabadell.cat
+    depends_on:
+      proxy:
+        condition: service_started
+    networks:
+      - backend
 
   ldap:
     image: osixia/openldap:1.5.0
@@ -145,38 +145,38 @@ services:
     networks:
       - backend
 
-#  guacd:
-#    image: guacamole/guacd
-#    container_name: 'guacd.inabox.ies-sabadell.cat'
-#    restart: always
-#    environment:
-#      - GUACD_LOG_LEVEL=debug
-#    ports:
-#      - '4822:4822'
-#    networks:
-#      - backend
+  guacd:
+    image: guacamole/guacd
+    container_name: 'guacd.inabox.ies-sabadell.cat'
+    restart: always
+    environment:
+      - GUACD_LOG_LEVEL=debug
+    ports:
+      - '4822:4822'
+    networks:
+      - backend
 
-#  guacamole:
-#    image: guacamole/guacamole
-#    container_name: 'guacamole.inabox.ies-sabadell.cat'
-#    restart: always
-#    environment:
-#      - POSTGRESQL_HOSTNAME=postgres
-#      - POSTGRESQL_DATABASE=guacamole_db
-#      - POSTGRESQL_USER=postgres
-#      - POSTGRESQL_PASSWORD=development
-#      - POSTGRESQL_PORT=5432
-#      - GUACD_HOSTNAME=guacd
-#      - GUACD_PORT=4822
-#      - VIRTUAL_HOST=guacamole.inabox.ies-sabadell.cat
-#      - LETSENCRYPT_HOST=guacamole.inabox.ies-sabadell.cat
-#    expose:
-#      - '8080'
-#    depends_on:
-#      postgres:
-#        condition: service_healthy
-#    networks:
-#      - backend
+  guacamole:
+    image: guacamole/guacamole
+    container_name: 'guacamole.inabox.ies-sabadell.cat'
+    restart: always
+    environment:
+      - POSTGRESQL_HOSTNAME=postgres
+      - POSTGRESQL_DATABASE=guacamole_db
+      - POSTGRESQL_USER=postgres
+      - POSTGRESQL_PASSWORD=development
+      - POSTGRESQL_PORT=5432
+      - GUACD_HOSTNAME=guacd
+      - GUACD_PORT=4822
+      - VIRTUAL_HOST=guacamole.inabox.ies-sabadell.cat
+      - LETSENCRYPT_HOST=guacamole.inabox.ies-sabadell.cat
+    expose:
+      - '8080'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - backend
 
   inabox:
     container_name: 'www.inabox.ies-sabadell.cat'
