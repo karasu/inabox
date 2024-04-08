@@ -24,7 +24,7 @@ RUN adduser \
     --uid "${UID}" \
     inabox
 
-# Python-ldap dependencies
+# Install python-ldap dependencies (and celery)
 RUN apt-get update && apt-get -y install build-essential python3-dev \
     libldap2-dev libsasl2-dev slapd ldap-utils tox \
     lcov valgrind celery
@@ -59,7 +59,7 @@ EXPOSE 8000
 RUN rm -rf static && python manage.py collectstatic
 
 # Run supervisor
-CMD python manage.py makemigrations admin admin_interface app auth contenttypes django_celery_beat django_celery_results sessions; \
+CMD python manage.py makemigrations app; \
     python manage.py migrate; \
     python manage.py loaddata app/classgroups app/users app/challenges app/quests app/news; \
     /usr/bin/supervisord -c /etc/supervisor/supervisord.conf
