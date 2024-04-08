@@ -29,7 +29,7 @@ echo [VERSION]
 python manage.py version
 
 show_msg "Running makemigrations step..."
-python manage.py makemigrations
+python manage.py makemigrations app
 pause
 
 show_msg "Running migrate (ldap) step..."

@@ -36,7 +36,6 @@ class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
                 user_form.save()
                 profile_form.save()
                 # Also save to ldap
-                user_form.save(using="ldap")
                 profile.form.save(using="ldap")
         else:
             # Show form with current user's profile data
