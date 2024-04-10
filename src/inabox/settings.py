@@ -71,7 +71,6 @@ if os.path.exists(SECRETS_PATH):
                     else:
                         value = int(value)
                     SECRETS[name] = value
-                    print(name, value)
                 except (IndexError, KeyError, TypeError, ValueError) as exc:
                     print(exc)
             line = sf.readline()
