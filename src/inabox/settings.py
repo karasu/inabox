@@ -65,10 +65,14 @@ if os.path.exists(SECRETS_PATH):
                         value = value.strip('"')
                     elif is_bool(value):
                         value = to_bool(value)
+                    elif value[0] == '[':
+                        # convert string to list
+                        value = value.strip('][').split(', ')
                     else:
                         value = int(value)
                     SECRETS[name] = value
-                except (IndexError, KeyError, TypeError) as exc:
+                    print(name, value)
+                except (IndexError, KeyError, TypeError, ValueError) as exc:
                     print(exc)
             line = sf.readline()
 
