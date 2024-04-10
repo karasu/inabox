@@ -176,5 +176,5 @@ src/users
 
 # Do not store generated proxy files
 services/nginx/acme
-services/nginx/certs/default.key
+services/nginx/certs
 services/nginx/vhost

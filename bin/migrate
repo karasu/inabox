@@ -12,7 +12,9 @@ cd ${DJANGO_SRC}
 rm -f ${DJANGO_SRC}/app/migrations/*.py
 rm -rf ${DJANGO_SRC}/app/migrations/__pycache__
 
-mv ${DJANGO_SRC}/db.sqlite3 db.sqlite3.bak
+if [ -f "${DJANGO_SRC}/db.sqlite3" ]; then
+  mv ${DJANGO_SRC}/db.sqlite3 db.sqlite3.bak
+fi
 
 python manage.py version
 
