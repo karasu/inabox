@@ -1,4 +1,4 @@
-ARG PYTHON_VERSION=3.11.7
+ARG PYTHON_VERSION=3.11.7-alpine
 FROM python:${PYTHON_VERSION} as base
 
 # Prevents Python from writing pyc files.
@@ -15,19 +15,16 @@ WORKDIR /app
 # Create a non-privileged user that the app will run under.
 # See https://docs.docker.com/go/dockerfile-user-best-practices/
 ARG UID=10001
-RUN adduser \
-    --disabled-password \
-    --gecos "" \
-    --home "/app" \
-    --shell "/sbin/nologin" \
-    --no-create-home \
-    --uid "${UID}" \
+RUN adduser --disabled-password --gecos "" --home "/app" \
+    --shell "/sbin/nologin" --no-create-home --uid "${UID}" \
     inabox
 
 # Install python-ldap dependencies (and celery and supervisor)
-RUN apt-get update && apt-get -y install build-essential python3-dev \
-    libldap2-dev libsasl2-dev slapd ldap-utils tox \
-    lcov valgrind celery supervisor
+#RUN apt-get update && apt-get -y install build-essential python3-dev \
+#    libldap2-dev libsasl2-dev slapd ldap-utils tox \
+#    lcov valgrind celery supervisor
+RUN apk add build-base openldap-dev python3-dev rust cargo \
+    celery supervisor 
 
 # Download dependencies as a separate step to take advantage of Docker's caching.
 # Leverage a cache mount to /root/.cache/pip to speed up subsequent builds.
