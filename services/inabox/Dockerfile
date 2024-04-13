@@ -40,6 +40,10 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 # Copy the app source code into the container.
 COPY src/. .
+
+# Remove cached migration files
+RUN rm -f app/migrations/*.py
+RUN rm -rf app/migrations/__pycache__
  
 # Install supervisord (it will run Daphne and Celery)
 RUN mkdir -p /run/daphne /etc/supervisor/conf.d

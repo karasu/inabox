@@ -180,7 +180,7 @@ services:
 
   inabox:
     container_name: 'www.inabox.ies-sabadell.cat'
-    image: inabox
+    image: gustaucastells/inabox
     build:
       context: .
       dockerfile: services/inabox/Dockerfile
@@ -207,7 +207,7 @@ services:
 
   static:
     container_name: 'static.inabox.ies-sabadell.cat'
-    image: static
+    image: gustaucastells/static
     restart: always
     build:
       context: .
