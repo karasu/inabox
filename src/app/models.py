@@ -140,8 +140,8 @@ class Profile(models.Model):
     avatar = models.ImageField(
         upload_to=user_directory_path,
         default=avatar("021"))
-    private_key = models.TextField(
-        default=RSAUtil.create_rsa_private_key())
+    #private_key = models.TextField(
+    #    default=RSAUtil.create_rsa_private_key())
     language = models.CharField(
         choices=settings.LANGUAGES, max_length=2, default="ca")
     points = models.IntegerField(default=0)
