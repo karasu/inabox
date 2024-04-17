@@ -184,11 +184,8 @@ services:
     build:
       context: .
       dockerfile: services/inabox/Dockerfile
-    secrets:
-      - django-secret-key
     environment:
       - DJANGO_DEBUG=False
-      - DJANGO_SECRET_KEY_FILE=/run/secrets/django-secret-key
       - VIRTUAL_HOST=www.inabox.ies-sabadell.cat
       - LETSENCRYPT_HOST=www.inabox.ies-sabadell.cat
     volumes:
@@ -236,8 +233,6 @@ volumes:
 secrets:
   db-password:
     file: db-password.txt
-  django-secret-key:
-    file: django-secret-key.txt
 
 networks:
   frontend:
