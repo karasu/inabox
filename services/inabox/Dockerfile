@@ -40,6 +40,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 # Copy the app source code into the container.
 COPY src/. .
+COPY secrets.txt .
 
 # Remove cached migration files
 RUN rm -f app/migrations/*.py
