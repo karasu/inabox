@@ -23,8 +23,10 @@ RUN adduser --disabled-password --gecos "" --home "/app" \
 #RUN apt-get update && apt-get -y install build-essential python3-dev \
 #    libldap2-dev libsasl2-dev slapd ldap-utils tox \
 #    lcov valgrind celery supervisor
-RUN apk add build-base openldap-dev python3-dev rust cargo \
-    celery supervisor 
+RUN apk add build-base openldap-dev python3-dev celery supervisor 
+
+# minify-html needs rust and cargo
+RUN apk add rust cargo
 
 # minify-html takes forever to build. Let's use a prebuilt file here
 RUN --mount=type=bind,source=services/inabox/minify_html-0.15.0-cp311-cp311-linux_x86_64.whl,target=minify_html-0.15.0-cp311-cp311-linux_x86_64.whl \
