@@ -40,8 +40,6 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 # Copy the app source code into the container.
 COPY src/. .
-COPY secrets.txt .
-COPY django-secret-key.txt .
 
 # Remove cached migration files
 RUN rm -f app/migrations/*.py
@@ -49,10 +47,11 @@ RUN rm -rf app/migrations/__pycache__
  
 # Install supervisord (it will run Daphne and Celery)
 RUN mkdir -p /run/daphne /etc/supervisor/conf.d
-COPY services/inabox/supervisord.conf /etc/supervisor
-COPY services/inabox/inaboxd.conf /etc/supervisor/conf.d/
-COPY services/inabox/celeryd.conf /etc/supervisor/conf.d/
-COPY services/inabox/celerybeatd.conf /etc/supervisor/conf.d/
+ADD services/inabox/supervisord.conf /etc/supervisor
+ADD services/inabox/inaboxd.conf /etc/supervisor/conf.d/
+ADD services/inabox/celeryd.conf /etc/supervisor/conf.d/
+ADD services/inabox/celerybeatd.conf /etc/supervisor/conf.d/
+ADD services/inabox/run-supervisor /app
 
 # Expose the port that the application listens on.
 EXPOSE 8000
@@ -60,7 +59,9 @@ EXPOSE 8000
 RUN rm -rf static && python manage.py collectstatic
 
 # Prepare django database and run supervisor
-CMD python manage.py makemigrations app; \
-    python manage.py migrate; \
-    python manage.py loaddata app/classgroups app/users app/challenges app/quests app/news; \
-    /usr/bin/supervisord -c /etc/supervisor/supervisord.conf
+#CMD python manage.py makemigrations app; \
+#    python manage.py migrate; \
+#    python manage.py loaddata app/classgroups app/users app/challenges app/quests app/news; \
+#    /usr/bin/supervisord -c /etc/supervisor/supervisord.conf
+
+CMD /app/run-supervisor
