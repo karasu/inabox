@@ -123,7 +123,8 @@ class ProfileForm(InaboxModelForm):
         model = Profile
         fields = [
             'user', 'class_group', 'role', 'teacher', 'avatar',
-            'language', 'points', 'team', 'organization', 'private_key']
+            'language', 'points', 'team', 'organization']
+        # private_key
 
     disable = ['user', 'points']
 
