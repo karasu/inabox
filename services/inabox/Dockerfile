@@ -8,7 +8,8 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # the application crashes without emitting any logs due to buffering.
 ENV PYTHONUNBUFFERED=1
 
-ENV DJANGO_DEBUG=False
+# SECURITY WARNING: don't run with debug turned on in production!
+ENV DJANGO_DEBUG=True
 
 WORKDIR /app
 
