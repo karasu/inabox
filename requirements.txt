@@ -13,6 +13,7 @@ django-colorfield
 django-debug-toolbar
 django-ldapdb
 django-minify-html
+django-redis
 docker
 minify-html
 msgpack
