@@ -149,7 +149,7 @@ class Profile(models.Model):
         Team, default=1, on_delete=models.CASCADE)
     organization = models.ForeignKey(
         Organization, default=1, on_delete=models.CASCADE)
-    email_verified = models.BooleanField(default=False)
+    #email_verified = models.BooleanField(default=False)
     #bio = models.TextField()
 
     def calculate_solved_challenges(self):
