@@ -21,7 +21,8 @@ services:
     restart: always
     environment:
       - TRUST_DOWNSTREAM_PROXY=true
-      - ENABLE_IPV6=true
+      - ENABLE_IPV6=false
+      - DEFAULT_HOST=www.inabox.ies-sabadell.cat
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
       - ./services/proxy/certs:/etc/nginx/certs
