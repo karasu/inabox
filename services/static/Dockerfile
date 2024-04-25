@@ -2,8 +2,10 @@ FROM jitesoft/lighttpd:latest as base
 
 WORKDIR /var/www/html/static
 
+# Remember to run collectstatic before this
+
 # Copy the app static files into the container.
-COPY src/app/static/. .
+COPY /tmp/static/. .
 
 # Fix owner
 RUN chown -R www-data:www-data .

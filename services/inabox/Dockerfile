@@ -60,8 +60,7 @@ ADD services/inabox/run-supervisor /app
 # Expose the port that the application listens on.
 EXPOSE 8000
 
-## Only necessary in production
-##RUN rm -rf static && python manage.py collectstatic
+RUN rm -rf /tmp/static && python manage.py collectstatic
 
 # Prepares django database and run supervisor
 CMD /app/run-supervisor
