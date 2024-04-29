@@ -261,7 +261,7 @@ USE_TZ = True
 if DEBUG:
     STATIC_URL = 'static/'
 else:
-    STATIC_ROOT = '/tmp/static'
+    STATIC_ROOT = 'static/'
     STATIC_URL = 'https://static.inabox.ies-sabadell.cat/static/'
 
 # Uncomment to use hashed filenames with the cache framework.

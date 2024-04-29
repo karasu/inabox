@@ -4,7 +4,6 @@ PWD=`pwd`
 DJANGO_SRC="/home/karasu/inabox/src"
 
 cd ${DJANGO_SRC}
-rm -rf /tmp/static
 DJANGO_DEBUG=False python manage.py collectstatic
 cd ${PWD}
 
