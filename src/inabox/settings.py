@@ -278,7 +278,7 @@ if DEBUG:
 else:
     MEDIA_ROOT = 'media/'
     #MEDIA_URL = 'https://static.inabox.ies-sabadell.cat/media/'
-    MEDIA_URL = ''
+    MEDIA_URL = 'https://static.inabox.ies-sabadell.cat/static/'
 
 #STATICFILES_FINDERS = [
 #    "compressor.finders.CompressorFinder",
