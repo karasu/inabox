@@ -1,11 +1,12 @@
 FROM jitesoft/lighttpd:latest as base
 
-WORKDIR /var/www/html/static
+WORKDIR /var/www/html
 
-# Remember to run collectstatic before this
+# Remember to run collectstatic before this!
 
 # Copy the app static files into the container.
-COPY src/static/. .
+RUN mkdir -p /var/www/html/{static,media}
+COPY src/static/. static/
 
 # Fix owner
 RUN chown -R www-data:www-data .

@@ -259,6 +259,7 @@ USE_TZ = True
 
 # URL to access static files.
 if DEBUG:
+    #STATIC_ROOT = 'static/'
     STATIC_URL = 'static/'
 else:
     STATIC_ROOT = 'static/'
@@ -273,12 +274,11 @@ else:
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 if DEBUG:
-    MEDIA_ROOT = ''
+    MEDIA_ROOT = 'media/'
     MEDIA_URL = ''
 else:
     MEDIA_ROOT = 'media/'
-    #MEDIA_URL = 'https://static.inabox.ies-sabadell.cat/media/'
-    MEDIA_URL = 'https://static.inabox.ies-sabadell.cat/static/'
+    MEDIA_URL = 'https://static.inabox.ies-sabadell.cat/media/'
 
 #STATICFILES_FINDERS = [
 #    "compressor.finders.CompressorFinder",
