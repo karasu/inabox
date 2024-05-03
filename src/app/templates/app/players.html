@@ -24,7 +24,8 @@
     {% for player in user_list %}
     <tr class="align-middle">
       <th scope="row">{{ player.id }}</th>
-      <td><a href="{% url 'app:player' pk=player.id %}"><img class="img-thumbnail" src="{{ player.profile.avatar.url }}"
+      <td><a href="{% url 'app:player' pk=player.id %}"><img class="img-thumbnail"
+        src="{% static player.profile.avatar.url %}"
       alt="avatar" width="64"></a></td>
       <td><a href="{% url 'app:player' pk=player.id %}">{{ player.username}}</a></td>
       <td>{{ player.first_name }} {{ player.last_name }}</td>
