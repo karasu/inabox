@@ -13,11 +13,6 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 import os
 
-# django-ldap-auth
-# https://github.com/django-auth-ldap/django-auth-ldap
-# from django_auth_ldap.config import LDAPSearch
-# import ldap
-
 BOOL_STR = {
     "True": ['true', '1', 'y', 'yes'],
     "False": ['false', '0', 'n', 'no']}
@@ -80,20 +75,6 @@ if os.path.exists(SECRETS_PATH):
 ADMINS = [(
     SECRETS.get("ADMIN_USERNAME", "admin"),
     SECRETS.get("ADMIN_EMAIL", "admin@admin.com"))]
-
-# django-ldap-auth
-# https://github.com/django-auth-ldap/django-auth-ldap
-
-AUTH_LDAP_SERVER_URI = "ldap://ldap.inabox.ies-sabadell.cat"
-AUTH_LDAP_BIND_DN = ""
-AUTH_LDAP_BIND_PASSWORD = ""
-AUTH_LDAP_USER_DN_TEMPLATE = "uid=%(user)s,ou=users,dc=inabox,dc=ies-sabadell,dc=cat"
-#AUTH_LDAP_USER_SEARCH = LDAPSearch(
-#    "ou=users,dc=inabox,dc=ies-sabadell,dc=cat",
-#    ldap.SCOPE_SUBTREE,
-#    "(uid=%(user)s)"
-#)
-AUTH_LDAP_START_TLS = False
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = SECRETS.get(
@@ -158,7 +139,6 @@ MIDDLEWARE = [
 ]
 
 AUTHENTICATION_BACKENDS = [
-    "django_auth_ldap.backend.LDAPBackend",
     "django.contrib.auth.backends.ModelBackend",
 ]
 
@@ -184,20 +164,12 @@ WSGI_APPLICATION = 'inabox.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# ldapdb
-# https://github.com/django-ldapdb/django-ldapdb
 
 if DEBUG:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
             'NAME': os.path.join(BASE_DIR , 'db.sqlite3'),
-        },
-        'ldap': {
-            'ENGINE': 'ldapdb.backends.ldap',
-            'NAME': 'ldap://ldap.inabox.ies-sabadell.cat/',
-            'USER': 'cn=admin,dc=inabox,dc=ies-sabadell,dc=cat',
-            'PASSWORD': SECRETS.get("LDAP_DB_PASSWORD", "development"),
         },
     }
 else:
@@ -210,17 +182,7 @@ else:
             "HOST": "postgres.inabox.ies-sabadell.cat",
             "PORT": "5432",
         },
-        'ldap': {
-            'ENGINE': 'ldapdb.backends.ldap',
-            'NAME': 'ldap://ldap.inabox.ies-sabadell.cat/',
-            'USER': 'cn=admin,dc=inabox,dc=ies-sabadell,dc=cat',
-            'PASSWORD': SECRETS.get("LDAP_DB_PASSWORD", "development"),
-        },
     }
-
-# Use provided ldap db router so user searches are also done in the ldap database
-DATABASE_ROUTERS = ['ldapdb.router.Router']
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

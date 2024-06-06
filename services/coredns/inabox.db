@@ -17,8 +17,6 @@ adminer     IN CNAME inabox1
 dns         IN CNAME inabox1
 guacamole   IN CNAME inabox1
 guacd       IN CNAME inabox1
-lam         IN CNAME inabox1
-ldap        IN CNAME inabox1
 postgres    IN CNAME inabox1
 rabbitmq    IN CNAME inabox1
 redis       IN CNAME inabox1

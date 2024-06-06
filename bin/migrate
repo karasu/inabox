@@ -16,8 +16,6 @@ if [ -f "${DJANGO_SRC}/db.sqlite3" ]; then
   mv ${DJANGO_SRC}/db.sqlite3 db.sqlite3.bak
 fi
 
-docker compose up -d ldap
-
 python manage.py version
 
 show_msg "Running makemigrations step..."

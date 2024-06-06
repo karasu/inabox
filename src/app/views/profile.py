@@ -35,8 +35,7 @@ class ProfileView(LoginRequiredMixin, generic.base.TemplateView):
             if user_form.is_valid() and profile_form.is_valid():
                 user_form.save()
                 profile_form.save()
-                # TODO: Also save to ldap
-                #profile_form.save(using="ldap")
+
         else:
             # Show form with current user's profile data
             user_form = UserForm(request.POST, instance=user)

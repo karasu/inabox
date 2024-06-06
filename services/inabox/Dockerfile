@@ -20,11 +20,8 @@ RUN adduser --disabled-password --gecos "" --home "/app" \
     --shell "/sbin/nologin" --no-create-home --uid "${UID}" \
     inabox
 
-# Install python-ldap dependencies (and celery and supervisor)
-#RUN apt-get update && apt-get -y install build-essential python3-dev \
-#    libldap2-dev libsasl2-dev slapd ldap-utils tox \
-#    lcov valgrind celery supervisor
-RUN apk add build-base openldap-dev python3-dev celery supervisor 
+# Install celery and supervisor
+RUN apk add celery supervisor 
 
 # minify-html needs rust and cargo
 RUN apk add rust cargo

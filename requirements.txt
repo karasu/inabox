@@ -5,13 +5,11 @@ channels_redis
 daphne
 Django
 django-admin-interface
-django-auth-ldap
 django-bootstrap5
 django-celery-beat
 django-celery-results
 django-colorfield
 django-debug-toolbar
-django-ldapdb
 django-minify-html
 django-redis
 docker
@@ -22,7 +20,6 @@ pillow
 psycopg2-binary
 pycryptodome
 python-dateutil
-python-ldap
 pyyaml
 redis
 six

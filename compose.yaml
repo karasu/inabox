@@ -2,7 +2,7 @@ services:
   coredns:
     image: coredns/coredns
     container_name: 'dns.inabox.ies-sabadell.cat'
-    restart: always
+    restart: unless-stopped
     expose:
       - '53'
       - '53/udp'
@@ -18,7 +18,7 @@ services:
   proxy:
     image: nginxproxy/nginx-proxy:1.4
     container_name: 'proxy.inabox.ies-sabadell.cat'
-    restart: always
+    restart: unless-stopped
     environment:
       - TRUST_DOWNSTREAM_PROXY=true
       - ENABLE_IPV6=false
@@ -55,48 +55,10 @@ services:
 #    networks:
 #      - backend
 
-  ldap:
-    image: osixia/openldap:1.5.0
-    container_name: 'ldap.inabox.ies-sabadell.cat'
-    restart: always
-    environment:
-      - LDAP_ORGANISATION=inabox
-      - LDAP_DOMAIN=inabox.ies-sabadell.cat
-      - LDAP_ADMIN_PASSWORD=development
-    volumes:
-      - ldap:/var/lib/ldap
-      - slapd.d:/etc/ldap/slapd.d
-    ports:
-      - 389:389
-      - 636:636
-    networks:
-      - backend
-
-#  lam:
-#    image: ghcr.io/ldapaccountmanager/lam:stable
-#    container_name: 'lam.inabox.ies-sabadell.cat'
-#    restart: always
-#    environment:
-#      - LDAP_DOMAIN=inabox.ies-sabadell.cat
-#      - "LDAP_BASE_DN=dc=inabox,dc=ies-sabadell,dc=cat"
-#      - LAM_PASSWORD=inabox
-#      - LDAP_ORGANISATION='Inabox Institut Sabadell'
-#      - LDAP_ADMIN_PASSWORD=inabox
-#      - LDAP_READONLY_PASSWORD=inabox
-#      - VIRTUAL_HOST=lam.inabox.ies-sabadell.cat
-#      - LETSENCRYPT_HOST=lam.inabox.ies-sabadell.cat
-#    expose:
-#      - '80'
-#    depends_on:
-#      ldap:
-#        condition: service_started
-#    networks:
-#      - backend
-
   postgres:
     image: postgres
     container_name: 'postgres.inabox.ies-sabadell.cat'
-    restart: always
+    restart: unless-stopped
     secrets:
       - db-password
     shm_size: 128mb
@@ -119,7 +81,7 @@ services:
 #  adminer:
 #    image: adminer
 #    container_name: 'adminer.inabox.ies-sabadell.cat'
-#    restart: always
+#    restart: unless-stopped
 #    environment:
 #      - ADMINER_DEFAULT_SERVER=postgres
 #      - ADMINER_DESIGN=nette
@@ -136,7 +98,7 @@ services:
   redis:
     image: redis:5
     container_name: 'redis.inabox.ies-sabadell.cat'
-    restart: always
+    restart: unless-stopped
     ports:
       - '6379:6379'
     networks:
@@ -145,20 +107,18 @@ services:
   guacd:
     image: guacamole/guacd
     container_name: 'guacd.inabox.ies-sabadell.cat'
-    restart: always
+    restart: unless-stopped
     environment:
       - GUACD_LOG_LEVEL=info
-    expose:
-      - '4822'
     ports:
-      - '4822:4822'
+      - 4822:4822
     networks:
       - backend
 
   guacamole:
     image: guacamole/guacamole
     container_name: 'guacamole.inabox.ies-sabadell.cat'
-    restart: always
+    restart: unless-stopped
     environment:
       - POSTGRESQL_HOSTNAME=postgres
       - POSTGRESQL_DATABASE=guacamole_db
@@ -169,8 +129,8 @@ services:
       - GUACD_PORT=4822
       - VIRTUAL_HOST=guacamole.inabox.ies-sabadell.cat
       - LETSENCRYPT_HOST=guacamole.inabox.ies-sabadell.cat
-    expose:
-      - '8080'
+    ports:
+      - 8080:8080
     depends_on:
       postgres:
         condition: service_healthy
@@ -182,6 +142,7 @@ services:
   inabox:
     container_name: 'www.inabox.ies-sabadell.cat'
     image: gustaucastells/inabox
+    restart: unless-stopped
     build:
       context: .
       dockerfile: services/inabox/Dockerfile
@@ -196,8 +157,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      ldap:
-        condition: service_started
       redis:
         condition: service_started
     networks:
@@ -206,7 +165,7 @@ services:
   static:
     container_name: 'static.inabox.ies-sabadell.cat'
     image: gustaucastells/static
-    restart: always
+    restart: unless-stopped
     build:
       context: .
       dockerfile: services/static/Dockerfile
@@ -226,7 +185,6 @@ services:
 volumes:
   db:
   html:
-  ldap:
   slapd.d:
   vhost:
 
