@@ -1,10 +1,10 @@
 .:53 {
-    forward . 192.168.0.166 9.9.9.9
+    forward . 192.168.0.166 1.1.1.1
     log
     errors
 }
 
-inabox.ies-sabadell.cat:53 {
+inabox.gustau.cat:53 {
     file /etc/coredns/inabox.db
     log
     errors

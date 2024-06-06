@@ -1,4 +1,4 @@
-$ORIGIN inabox.ies-sabadell.cat.
+$ORIGIN inabox.gustau.cat.
 @	3600 IN	SOA sns.dns.icann.org. noc.dns.icann.org. (
 				2017042745 ; serial
 				7200       ; refresh (2 hours)
@@ -13,12 +13,8 @@ $ORIGIN inabox.ies-sabadell.cat.
 inabox1 IN A     127.0.0.1
         IN AAAA  ::1
 
-adminer     IN CNAME inabox1
 dns         IN CNAME inabox1
 guacamole   IN CNAME inabox1
-guacd       IN CNAME inabox1
 postgres    IN CNAME inabox1
-rabbitmq    IN CNAME inabox1
-redis       IN CNAME inabox1
 static		IN CNAME inabox1
 www         IN CNAME inabox1

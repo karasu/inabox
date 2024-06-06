@@ -1,7 +1,7 @@
 services:
   coredns:
     image: coredns/coredns
-    container_name: 'dns.inabox.ies-sabadell.cat'
+    container_name: dns.${DOMAIN}
     restart: unless-stopped
     expose:
       - '53'
@@ -17,7 +17,7 @@ services:
 
   proxy:
     image: nginxproxy/nginx-proxy:1.4
-    container_name: 'proxy.inabox.ies-sabadell.cat'
+    container_name: proxy.${DOMAIN}
     restart: unless-stopped
     environment:
       - TRUST_DOWNSTREAM_PROXY=true
@@ -38,7 +38,7 @@ services:
 
 #  proxy-acme:
 #    image: nginxproxy/acme-companion
-#    container_name: 'proxy-acme.inabox.ies-sabadell.cat'
+#    container_name: proxy-acme.${DOMAIN}
 #    restart: always
 #    volumes:
 #      - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -57,7 +57,7 @@ services:
 
   postgres:
     image: postgres
-    container_name: 'postgres.inabox.ies-sabadell.cat'
+    container_name: postgres.${DOMAIN}
     restart: unless-stopped
     secrets:
       - db-password
@@ -80,15 +80,15 @@ services:
 
 #  adminer:
 #    image: adminer
-#    container_name: 'adminer.inabox.ies-sabadell.cat'
+#    container_name: adminer.${DOMAIN}
 #    restart: unless-stopped
 #    environment:
 #      - ADMINER_DEFAULT_SERVER=postgres
 #      - ADMINER_DESIGN=nette
 #      - VIRTUAL_HOST=adminer.inabox.ies-sabadell.cat
 #      - LETSENCRYPT_HOST=adminer.inabox.ies-sabadell.cat      
-#    expose:
-#      - '8080'
+#    ports:
+#      - 8081:8080
 #    depends_on:
 #      postgres:
 #        condition: service_healthy
@@ -97,7 +97,7 @@ services:
 
   redis:
     image: redis:5
-    container_name: 'redis.inabox.ies-sabadell.cat'
+    container_name: redis.${DOMAIN}
     restart: unless-stopped
     ports:
       - '6379:6379'
@@ -106,7 +106,7 @@ services:
 
   guacd:
     image: guacamole/guacd
-    container_name: 'guacd.inabox.ies-sabadell.cat'
+    container_name: guacd.${DOMAIN}
     restart: unless-stopped
     environment:
       - GUACD_LOG_LEVEL=info
@@ -117,7 +117,7 @@ services:
 
   guacamole:
     image: guacamole/guacamole
-    container_name: 'guacamole.inabox.ies-sabadell.cat'
+    container_name: guacamole.${DOMAIN}
     restart: unless-stopped
     environment:
       - POSTGRESQL_HOSTNAME=postgres
@@ -130,7 +130,7 @@ services:
       - VIRTUAL_HOST=guacamole.inabox.ies-sabadell.cat
       - LETSENCRYPT_HOST=guacamole.inabox.ies-sabadell.cat
     ports:
-      - 8080:8080
+      - 8888:8080
     depends_on:
       postgres:
         condition: service_healthy
@@ -140,7 +140,7 @@ services:
       - backend
 
   inabox:
-    container_name: 'www.inabox.ies-sabadell.cat'
+    container_name: www.${DOMAIN}
     image: gustaucastells/inabox
     restart: unless-stopped
     build:
@@ -163,7 +163,7 @@ services:
       - backend
 
   static:
-    container_name: 'static.inabox.ies-sabadell.cat'
+    container_name: static.${DOMAIN}
     image: gustaucastells/static
     restart: unless-stopped
     build:
