@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 import os
 
+DOMAIN = "inabox.gustau.cat"
+
 BOOL_STR = {
     "True": ['true', '1', 'y', 'yes'],
     "False": ['false', '0', 'n', 'no']}
@@ -92,6 +94,7 @@ if DEBUG:
 else:
     ALLOWED_HOSTS = [
         '.ies-sabadell.cat',
+        '.gustau.cat',
         'localhost',
         '127.0.0.1',
         '[::1]']
@@ -179,7 +182,7 @@ else:
             "NAME": "postgres",
             "USER": "postgres",
             "PASSWORD": SECRETS.get("DB_PASSWORD", "development"),
-            "HOST": "postgres.inabox.ies-sabadell.cat",
+            "HOST": "postgres." + DOMAIN,
             "PORT": "5432",
         },
     }
@@ -225,7 +228,7 @@ if DEBUG:
     STATIC_URL = 'static/'
 else:
     STATIC_ROOT = 'static/'
-    STATIC_URL = 'https://static.inabox.ies-sabadell.cat/static/'
+    STATIC_URL = 'https://static.' + DOMAIN + '/static/'
 
 # Uncomment to use hashed filenames with the cache framework.
 #STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
@@ -273,7 +276,7 @@ else:
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("redis.inabox.ies-sabadell.cat", 6379)],
+            "hosts": [("redis." + DOMAIN, 6379)],
         },
     },
 }
@@ -291,7 +294,7 @@ CELERY_CACHE_BACKEND = 'django-cache'
 if DEBUG:
     CELERY_BROKER_URL = 'redis://localhost:6379/0'
 else:
-    CELERY_BROKER_URL = 'redis://redis.inabox.ies-sabadell.cat:6379/0'
+    CELERY_BROKER_URL = 'redis://redis.' + DOMAIN + ':6379/0'
 
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
@@ -300,7 +303,7 @@ if DEBUG is None:
     CACHES = {
         "default": {
             "BACKEND": "django.core.cache.backends.redis.RedisCache",
-            "LOCATION": "redis://redis.inabox.ies-sabadell.cat:6379",
+            "LOCATION": "redis://redis." + DOMAIN + ":6379",
         }
     }
 
