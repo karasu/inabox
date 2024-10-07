@@ -11,7 +11,7 @@ cd ${INABOX_DIR}/docker-images
 cd ${DJANGO_APP}
 echo "" > known_hosts
 
-SERVICES_CMD="docker-compose up redis" 
+SERVICES_CMD="docker compose up redis" 
 CELERY_WORKER_CMD="celery -A inabox worker -l INFO"
 CELERY_BEAT_CMD="celery -A inabox beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler"
 DJANGO_CMD="python manage.py runserver"
