@@ -5,8 +5,8 @@ PWD=`pwd`
 INABOX_DIR="/home/karasu/inabox"
 
 ## Update all challenge's images
-cd ${INABOX_DIR}/docker-images
-./build-all
+#cd ${INABOX_DIR}/docker-images
+#./build-all
 
 cd ${DJANGO_APP}
 echo "" > known_hosts
@@ -23,9 +23,9 @@ if [ "${XDG_SESSION_TYPE}" == "tty" ]; then
   ${CELERY_BEAT_CMD} &!
   ${DJANGO_CMD}
 else
-  kitty --detach --title "Services" --directory "${INABOX_DIR}" ${SERVICES_CMD}
-  kitty --detach --title "Celery worker" --directory "${INABOX_DIR}/src" ${CELERY_WORKER_CMD}
-  kitty --detach --title "Celery beat" --directory "${INABOX_DIR}/src" ${CELERY_BEAT_CMD}
+  kitty --detach --title "Services ${SERVICES_CMD}" --directory "${INABOX_DIR}" ${SERVICES_CMD}
+  kitty --detach --title "Celery ${CELERY_WORKER_CMD}" --directory "${INABOX_DIR}/src" ${CELERY_WORKER_CMD}
+  kitty --detach --title "Celery ${CELERY_BEAT_CMD}" --directory "${INABOX_DIR}/src" ${CELERY_BEAT_CMD}
   kitty --detach --title Daphne --directory "${INABOX_DIR}/src" ${DJANGO_CMD}
 fi
 
