@@ -2,6 +2,7 @@ celery
 celery-progress
 channels
 channels_redis
+cron_descriptor
 daphne
 Django
 django-admin-interface
@@ -12,6 +13,7 @@ django-colorfield
 django-debug-toolbar
 django-minify-html
 django-redis
+django-timezone-field
 docker
 minify-html
 msgpack

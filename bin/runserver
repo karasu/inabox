@@ -4,6 +4,8 @@
 PWD=`pwd`
 INABOX_DIR="/home/karasu/inabox"
 
+BIN_DIR="${INABOX_DIR}/bin"
+
 ## Update all challenge's images
 #cd ${INABOX_DIR}/docker-images
 #./build-all
@@ -11,10 +13,30 @@ INABOX_DIR="/home/karasu/inabox"
 cd ${DJANGO_APP}
 echo "" > known_hosts
 
-SERVICES_CMD="docker compose up redis" 
-CELERY_WORKER_CMD="celery -A inabox worker -l INFO"
-CELERY_BEAT_CMD="celery -A inabox beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler"
-DJANGO_CMD="python manage.py runserver"
+# Activate venv script
+RUN_ENV="${BIN_DIR}/activate.sh"
+RUN_CELERY="${BIN_DIR}/celery.sh"
+
+echo ${VENV_CMD}
+
+REDIS_CMD="docker compose up redis" 
+CELERY_WORKER_CMD="${RUN_CELERY} -A inabox worker -l INFO"
+CELERY_BEAT_CMD="${RUN_CELERY} -A inabox beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler"
+DJANGO_CMD="${RUN_ENV} python manage.py runserver"
+
+echo ${SERVICES_CMD}
+echo ${CELERY_WORKER_CMD}
+echo ${CELERY_BEAT_CMD}
+echo ${DJANGO_CMD}
+
+if [ -f "/usr/bin/python3" ]; then
+  PYTHON_CMD="/usr/bin/python3"
+elif [ -f "/usr/bin/python" ]; then
+  PYTHON_CMD="/usr/bin/python"
+else
+  echo "Needs python!"
+  exit 1
+fi
 
 if [ "${XDG_SESSION_TYPE}" == "tty" ]; then
   ${SERVICES_CMD} &!
@@ -23,10 +45,10 @@ if [ "${XDG_SESSION_TYPE}" == "tty" ]; then
   ${CELERY_BEAT_CMD} &!
   ${DJANGO_CMD}
 else
-  kitty --detach --title "Services ${SERVICES_CMD}" --directory "${INABOX_DIR}" ${SERVICES_CMD}
-  kitty --detach --title "Celery ${CELERY_WORKER_CMD}" --directory "${INABOX_DIR}/src" ${CELERY_WORKER_CMD}
-  kitty --detach --title "Celery ${CELERY_BEAT_CMD}" --directory "${INABOX_DIR}/src" ${CELERY_BEAT_CMD}
-  kitty --detach --title Daphne --directory "${INABOX_DIR}/src" ${DJANGO_CMD}
+  kitty --detach --title "Redis" --directory "${INABOX_DIR}" ${REDIS_CMD}
+  kitty --detach --title "Celery worker" --directory "${INABOX_DIR}/src" ${CELERY_WORKER_CMD}
+  kitty --detach --title "Celery beat" --directory "${INABOX_DIR}/src" ${CELERY_BEAT_CMD}
+  kitty --detach --title "Daphne" --directory "${INABOX_DIR}/src" ${DJANGO_CMD}
 fi
 
 cd ${PWD}
