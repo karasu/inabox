@@ -1,9 +1,14 @@
 #!/bin/sh
 
 PWD=`pwd`
+
 DJANGO_SRC="/home/karasu/inabox/src"
+BIN_DIR="/home/karasu/inabox/bin"
+
+RUN_ENV="${BIN_DIR}/activate.sh"
 
 cd ${DJANGO_SRC}
-DJANGO_DEBUG=False python manage.py collectstatic
+DJANGO_DEBUG=False ${RUN_ENV} python manage.py collectstatic
+
 cd ${PWD}
 

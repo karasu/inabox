@@ -1,6 +1,8 @@
 #!/bin/sh
 
-FDQN="$1.inabox.ies-sabadell.cat"
+#FDQN="$1.inabox.ies-sabadell.cat"
+FDQN="$1.inabox.gustau.cat"
+
 echo Creating self signed certificate for ${FDQN}
 openssl req -newkey rsa:4096 \
             -x509 \
