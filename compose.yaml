@@ -16,7 +16,7 @@ services:
       - backend
 
   proxy:
-    image: nginxproxy/nginx-proxy:1.4
+    image: nginxproxy/nginx-proxy
     container_name: proxy.${DOMAIN}
     restart: unless-stopped
     environment:
@@ -56,7 +56,7 @@ services:
 #      - backend
 
   postgres:
-    image: postgres
+    image: postgres:16
     container_name: postgres.${DOMAIN}
     restart: unless-stopped
     secrets:
@@ -104,40 +104,40 @@ services:
     networks:
       - backend
 
-  guacd:
-    image: guacamole/guacd
-    container_name: guacd.${DOMAIN}
-    restart: unless-stopped
-    environment:
-      - GUACD_LOG_LEVEL=info
-    ports:
-      - 4822:4822
-    networks:
-      - backend
+#  guacd:
+#    image: guacamole/guacd
+#    container_name: guacd.${DOMAIN}
+#    restart: unless-stopped
+#    environment:
+#      - GUACD_LOG_LEVEL=info
+#    ports:
+#      - 4822:4822
+#    networks:
+#      - backend
 
-  guacamole:
-    image: guacamole/guacamole
-    container_name: guacamole.${DOMAIN}
-    restart: unless-stopped
-    environment:
-      - POSTGRESQL_HOSTNAME=postgres
-      - POSTGRESQL_DATABASE=guacamole_db
-      - POSTGRESQL_USER=postgres
-      - POSTGRESQL_PASSWORD=development
-      - POSTGRESQL_PORT=5432
-      - GUACD_HOSTNAME=guacd
-      - GUACD_PORT=4822
-      - VIRTUAL_HOST=guacamole.inabox.ies-sabadell.cat
-      - LETSENCRYPT_HOST=guacamole.inabox.ies-sabadell.cat
-    ports:
-      - 8888:8080
-    depends_on:
-      postgres:
-        condition: service_healthy
-      guacd:
-        condition: service_healthy
-    networks:
-      - backend
+#  guacamole:
+#    image: guacamole/guacamole
+#    container_name: guacamole.${DOMAIN}
+#    restart: unless-stopped
+#    environment:
+#      - POSTGRESQL_HOSTNAME=postgres
+#      - POSTGRESQL_DATABASE=guacamole_db
+#      - POSTGRESQL_USER=postgres
+#      - POSTGRESQL_PASSWORD=development
+#      - POSTGRESQL_PORT=5432
+#      - GUACD_HOSTNAME=guacd
+#      - GUACD_PORT=4822
+#      - VIRTUAL_HOST=guacamole.inabox.ies-sabadell.cat
+#      - LETSENCRYPT_HOST=guacamole.inabox.ies-sabadell.cat
+#    ports:
+#      - 8888:8080
+#    depends_on:
+#      postgres:
+#        condition: service_healthy
+#      guacd:
+#        condition: service_healthy
+#    networks:
+#      - backend
 
   inabox:
     container_name: www.${DOMAIN}

@@ -1,4 +1,4 @@
-FROM jitesoft/lighttpd:latest as base
+FROM jitesoft/lighttpd:latest AS base
 
 WORKDIR /var/www/html
 
