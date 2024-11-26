@@ -175,9 +175,9 @@ src/static
 src/users
 
 # Do not store generated proxy files
-services/nginx/acme
-services/nginx/certs
-services/nginx/vhost
+services/proxy/acme
+services/proxy/certs
+services/proxy/vhost
 
 # Python generated files and some binaries
 bin/Activate.ps1
