@@ -6,9 +6,9 @@ services:
     expose:
       - '53'
       - '53/udp'
-    ports:
-      - '53:53'
-      - '53:53/udp'
+    #ports:
+    #  - '53:53'
+    #  - '53:53/udp'
     volumes:
       - './services/coredns:/etc/coredns'
     command: -conf /etc/coredns/Corefile
@@ -22,7 +22,7 @@ services:
     environment:
       - TRUST_DOWNSTREAM_PROXY=true
       - ENABLE_IPV6=false
-      - DEFAULT_HOST=www.inabox.ies-sabadell.cat
+      - DEFAULT_HOST=www.${DOMAIN}
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
       - ./services/proxy/certs:/etc/nginx/certs
@@ -48,7 +48,7 @@ services:
 #      - ./services/nginx/acme:/etc/acme.sh
 #    environment:
 #      - "DEFAULT_EMAIL=inabox@ies-sabadell.cat"
-#      - NGINX_PROXY_CONTAINER=proxy.inabox.ies-sabadell.cat
+#      - NGINX_PROXY_CONTAINER=proxy.${DOMAIN}
 #    depends_on:
 #      proxy:
 #        condition: service_started
@@ -85,8 +85,8 @@ services:
 #    environment:
 #      - ADMINER_DEFAULT_SERVER=postgres
 #      - ADMINER_DESIGN=nette
-#      - VIRTUAL_HOST=adminer.inabox.ies-sabadell.cat
-#      - LETSENCRYPT_HOST=adminer.inabox.ies-sabadell.cat      
+#      - VIRTUAL_HOST=adminer.${DOMAIN}
+#      - LETSENCRYPT_HOST=adminer.${DOMAIN}      
 #    ports:
 #      - 8080:8080
 #    depends_on:
@@ -104,40 +104,40 @@ services:
     networks:
       - backend
 
-#  guacd:
-#    image: guacamole/guacd
-#    container_name: guacd.${DOMAIN}
-#    restart: unless-stopped
-#    environment:
-#      - GUACD_LOG_LEVEL=info
-#    ports:
-#      - 4822:4822
-#    networks:
-#      - backend
+  guacd:
+    image: guacamole/guacd
+    container_name: guacd.${DOMAIN}
+    restart: unless-stopped
+    environment:
+      - GUACD_LOG_LEVEL=info
+    ports:
+      - 4822:4822
+    networks:
+      - backend
 
-#  guacamole:
-#    image: guacamole/guacamole
-#    container_name: guacamole.${DOMAIN}
-#    restart: unless-stopped
-#    environment:
-#      - POSTGRESQL_HOSTNAME=postgres
-#      - POSTGRESQL_DATABASE=guacamole_db
-#      - POSTGRESQL_USER=postgres
-#      - POSTGRESQL_PASSWORD=development
-#      - POSTGRESQL_PORT=5432
-#      - GUACD_HOSTNAME=guacd
-#      - GUACD_PORT=4822
-#      - VIRTUAL_HOST=guacamole.inabox.ies-sabadell.cat
-#      - LETSENCRYPT_HOST=guacamole.inabox.ies-sabadell.cat
-#    ports:
-#      - 8888:8080
-#    depends_on:
-#      postgres:
-#        condition: service_healthy
-#      guacd:
-#        condition: service_healthy
-#    networks:
-#      - backend
+  guacamole:
+    image: guacamole/guacamole
+    container_name: guacamole.${DOMAIN}
+    restart: unless-stopped
+    environment:
+      - POSTGRESQL_HOSTNAME=postgres
+      - POSTGRESQL_DATABASE=guacamole_db
+      - POSTGRESQL_USER=postgres
+      - POSTGRESQL_PASSWORD=development
+      - POSTGRESQL_PORT=5432
+      - GUACD_HOSTNAME=guacd
+      - GUACD_PORT=4822
+      - VIRTUAL_HOST=guacamole.${DOMAIN}
+      - LETSENCRYPT_HOST=guacamole.${DOMAIN}
+    ports:
+      - 8080:8080
+    depends_on:
+      postgres:
+        condition: service_healthy
+      guacd:
+        condition: service_healthy
+    networks:
+      - backend
 
   inabox:
     container_name: www.${DOMAIN}
@@ -148,8 +148,8 @@ services:
       dockerfile: services/inabox/Dockerfile
     environment:
       - DJANGO_DEBUG=False
-      - VIRTUAL_HOST=www.inabox.ies-sabadell.cat
-      - LETSENCRYPT_HOST=www.inabox.ies-sabadell.cat
+      - VIRTUAL_HOST=www.${DOMAIN}
+      - LETSENCRYPT_HOST=www.${DOMAIN}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     expose:
@@ -171,12 +171,12 @@ services:
       dockerfile: services/static/Dockerfile
     environment:
       - PORT=80
-      - SERVER_NAME=static.inabox.ies-sabadell.cat
+      - SERVER_NAME=static.${DOMAIN}
       - SERVER_ROOT=/var/www/html
       - CONFIG_FILE=/etc/lighttpd/lighttpd.conf
       - SKIP_HEALTHCHECK=false
       - MAX_FDS=1024
-      - VIRTUAL_HOST=static.inabox.ies-sabadell.cat
+      - VIRTUAL_HOST=static.${DOMAIN}
     expose:
       - '80'
     networks:

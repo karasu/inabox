@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 import os
 
-DOMAIN = "inabox.gustau.cat"
+DOMAIN = "inabox.ies-sabadell.cat"
 
 BOOL_STR = {
     "True": ['true', '1', 'y', 'yes'],

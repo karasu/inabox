@@ -2,9 +2,7 @@
 
 echo "Stopping systemd-resolved..."
 sudo systemctl stop systemd-resolved
-
-
-sudo cp resolv.conf.localhost /etc/resolv.conf
+#sudo cp resolv.conf.localhost /etc/resolv.conf
 
 
 docker compose build
