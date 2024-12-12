@@ -15,6 +15,7 @@ django-minify-html
 django-redis
 django-timezone-field
 docker
+libvirt-python
 minify-html
 msgpack
 paramiko
