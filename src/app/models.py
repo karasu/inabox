@@ -228,6 +228,7 @@ class Challenge(models.Model):
         _("Date"), default=now)
     summary = models.TextField()
     full_description = models.TextField()
+    use_docker = models.BooleanField(default=True)
     docker_image = models.ForeignKey(
         DockerImage, on_delete=models.CASCADE, verbose_name="Docker image")
     check_solution_script = models.FileField(
