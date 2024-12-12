@@ -8,7 +8,7 @@ except libvirt.libvirtError:
     sys.exit(1)
 
 try:
-    dom0 = conn.lookupByName("alpinelinux3")
+    dom0 = conn.lookupByName("alpinelinux")
 except libvirt.libvirtError:
     print('Failed to find the main domain')
     sys.exit(1)
