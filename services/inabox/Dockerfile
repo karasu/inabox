@@ -26,6 +26,9 @@ RUN apk add celery supervisor
 # minify-html needs rust and cargo
 RUN apk add rust cargo
 
+# Add libvirt
+RUN apk add pkgconfig libvirt libvirt-dev
+
 # minify-html takes forever to build. Let's use a prebuilt file here
 RUN --mount=type=bind,source=services/inabox/minify_html-0.15.0-cp311-cp311-linux_x86_64.whl,target=minify_html-0.15.0-cp311-cp311-linux_x86_64.whl \
     python -m pip install minify_html-0.15.0-cp311-cp311-linux_x86_64.whl --break-system-packages
