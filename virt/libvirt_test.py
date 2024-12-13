@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import libvirt
 import sys
 
@@ -8,11 +10,13 @@ except libvirt.libvirtError:
     sys.exit(1)
 
 try:
-    dom0 = conn.lookupByName("alpinelinux")
+    dom0 = conn.lookupByName("alpinelinux3")
 except libvirt.libvirtError:
     print('Failed to find the main domain')
     sys.exit(1)
 
 print("Domain 0: id %d running %s" % (dom0.ID(), dom0.OSType()))
 print(dom0.info())
+
+dom0.create()
 

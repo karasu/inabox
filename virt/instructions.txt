@@ -1,0 +1,6 @@
+#sudo apt-get install python3-libvirt libvirt-dev
+
+sudo qemu-img create -f qcow2 /var/lib/libvirt/images/test-vm.qcow2 20G
+
+sudo usermod -aG libvirt $USER
+
