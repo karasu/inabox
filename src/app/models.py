@@ -2,15 +2,20 @@
 
 from django.utils.timezone import now
 
+from django.core.validators import MinValueValidator, MaxValueValidator
+
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
+
 # Get available languages
 from django.conf import settings
 
 from PIL import Image
 
 from .utils import to_str, to_bytes
+
+import xml.etree.ElementTree as ET
 
 try:
     from Crypto.PublicKey import RSA
@@ -209,6 +214,143 @@ class DockerImage(models.Model):
     def __str__(self):
         return str(self.verbose_name)
 
+class ImportVirtDomain:
+    def __init__(self, xml_file):
+        self.xml_file = xml_file
+        self.name = None
+        self.uuid = None
+        self.memory = None
+        self.vcpus = None
+        self.devices = []
+
+        # Llegir i parsejar l'XML
+        self._parse_xml()
+
+    def _parse_xml(self):
+        try:
+            tree = ET.parse(self.xml_file)
+            root = tree.getroot()
+
+            # Llegir els elements bàsics del domini
+            self.name = root.find('name').text if root.find('name') is not None else None
+            self.uuid = root.find('uuid').text if root.find('uuid') is not None else None
+            self.memory = root.find('memory').text if root.find('memory') is not None else None
+            self.vcpus = root.find('vcpu').text if root.find('vcpu') is not None else None
+
+            # Llegir els dispositius
+            devices = root.find('devices')
+            if devices is not None:
+                for device in devices:
+                    device_info = {"type": device.tag, "attributes": device.attrib}
+                    if device.text and device.text.strip():
+                        device_info["value"] = device.text.strip()
+                    self.devices.append(device_info)
+
+        except ET.ParseError as e:
+            print(f"Error en parsejar l'XML: {e}")
+        except FileNotFoundError:
+            print(f"Fitxer no trobat: {self.xml_file}")
+
+    def __str__(self):
+        return (f"Domini: {self.name}\n"
+                f"UUID: {self.uuid}\n"
+                f"Memòria: {self.memory}\n"
+                f"VCPUs: {self.vcpus}\n"
+                f"Dispositius: {self.devices}")
+
+class VirtDomain(models.Model):
+    """ libvirt domain class """
+    # Informació bàsica
+    name = models.CharField(max_length=255, unique=True, help_text="Nom del domini")
+    uuid = models.UUIDField(unique=True, help_text="UUID únic del domini")
+    description = models.TextField(blank=True, null=True, help_text="Descripció del domini")
+
+    # Estat
+    STATE_CHOICES = [
+        ('running', 'Executant-se'),
+        ('paused', 'Pausat'),
+        ('shutdown', 'Apagat'),
+        ('crashed', 'Fallat'),
+        ('pmsuspended', 'Suspès'),
+    ]
+    state = models.CharField(
+        max_length=20,
+        choices=STATE_CHOICES,
+        default='shutdown',
+        help_text="Estat actual del domini"
+    )
+
+    # Recursos
+    vcpus = models.PositiveIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(128)],
+        help_text="Nombre de CPUs virtuals"
+    )
+    memory_mb = models.PositiveIntegerField(
+        help_text="Memòria assignada en MB"
+    )
+    max_memory_mb = models.PositiveIntegerField(
+        help_text="Màxima memòria possible en MB"
+    )
+
+    # Configuració de xarxa
+    MAC_ADDRESS_CHOICES = [
+        ('virtio', 'Virtio'),
+        ('e1000', 'Intel E1000'),
+        ('rtl8139', 'Realtek 8139'),
+    ]
+    network_type = models.CharField(
+        max_length=10,
+        choices=MAC_ADDRESS_CHOICES,
+        default='virtio',
+        help_text="Tipus d'interfície de xarxa"
+    )
+    mac_address = models.CharField(
+        max_length=17,
+        unique=True,
+        help_text="Adreça MAC de la interfície de xarxa"
+    )
+
+    # Emmagatzematge
+    DISK_BUS_CHOICES = [
+        ('virtio', 'Virtio'),
+        ('ide', 'IDE'),
+        ('scsi', 'SCSI'),
+        ('sata', 'SATA'),
+    ]
+    disk_bus = models.CharField(
+        max_length=10,
+        choices=DISK_BUS_CHOICES,
+        default='virtio',
+        help_text="Tipus de bus del disc"
+    )
+    disk_path = models.CharField(
+        max_length=255,
+        help_text="Ruta al fitxer de disc"
+    )
+    disk_size_gb = models.PositiveIntegerField(
+        help_text="Mida del disc en GB"
+    )
+
+    # Metadades
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        """ Add verbose names """
+        verbose_name = "Domini virt"
+        verbose_name_plural = "Dominis virt"
+        ordering = ['name']
+
+    def __str__(self):
+        return f"{self.name} ({self.state})"
+
+    def get_memory_gb(self):
+        """Retorna la memòria en GB"""
+        return self.memory_mb / 1024
+
+    def get_max_memory_gb(self):
+        """Retorna la memòria màxima en GB"""
+        return self.max_memory_mb / 1024
 
 class Area(models.Model):
     """ Store challenge's area """
@@ -231,6 +373,8 @@ class Challenge(models.Model):
     use_docker = models.BooleanField(default=True)
     docker_image = models.ForeignKey(
         DockerImage, on_delete=models.CASCADE, verbose_name="Docker image")
+    virt_domain = models.ForeignKey(
+        VirtDomain, on_delete=models.CASCADE, verbose_name="Virt Domain")
     check_solution_script = models.FileField(
         verbose_name="Script", upload_to=challenge_directory_path)
     approved = models.BooleanField(default=False)
