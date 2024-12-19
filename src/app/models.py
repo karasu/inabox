@@ -215,6 +215,7 @@ class DockerImage(models.Model):
         return str(self.verbose_name)
 
 class ImportVirtDomain:
+    """ Reads a libvirt xml domain file """
     def __init__(self, xml_file):
         self.xml_file = xml_file
         self.name = None
